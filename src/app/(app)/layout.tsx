@@ -21,8 +21,8 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { href: '/', label: 'Tableau de bord' },
   { href: '/suppliers', label: 'Fournisseurs' },
-  { href: '#', label: 'Pièces' },
-  { href: '#', label: 'Rapports' },
+  { href: '/pieces', label: 'Pièces' },
+  { href: '/reports', label: 'Rapports' },
 ];
 
 export default function AppLayout({
