@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { Search, Bell } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
