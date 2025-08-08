@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 type SupplierWithDebt = Supplier & { totalDebt: number };
 
@@ -55,8 +56,11 @@ export const columns: ColumnDef<SupplierWithDebt>[] = [
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue('totalDebt'));
-      const formatted = formatCurrency(amount);
-      return <div className={`text-right font-mono ${amount > 0 ? 'text-destructive' : 'text-green-600'}`}>{formatted} DZD</div>;
+      return <div className="text-right font-mono">
+        <Badge variant={amount > 0 ? 'destructive' : 'default'} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
+            {formatCurrency(amount)} DZD
+        </Badge>
+      </div>;
     },
   },
   {

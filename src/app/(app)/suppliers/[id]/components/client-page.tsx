@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { PlusCircle, FileDown, ArrowLeft, Banknote, FileText, BadgeCent } from 'lucide-react';
+import { PlusCircle, ArrowLeft } from 'lucide-react';
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -12,7 +12,26 @@ import { PieceForm } from './piece-form';
 import type { Supplier, Piece } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+
+const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
+    <Card>
+        <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600 flex justify-between items-center">
+                {title}
+                <span className="text-gray-400">{icon}</span>
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <p className="text-2xl font-bold font-mono text-gray-900">{value}</p>
+            {description && <CardDescription>{description}</CardDescription>}
+        </CardContent>
+    </Card>
+);
+
+const BadgeCentIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v8a1 1 0 102 0V7z" clipRule="evenodd"></path><path d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V11a1 1 0 11-2 0V7.414L5.707 9.707a1 1 0 01-1.414-1.414l4-4z"></path></svg>;
+const FileTextIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V7a1 1 0 00-1-1H6z" clipRule="evenodd"></path></svg>;
+const BanknoteIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 4a1 1 0 011 1v1.586l5.293-5.293a1 1 0 111.414 1.414L12.414 7H14a1 1 0 011 1v6a1 1 0 01-1 1h-1.586l5.293 5.293a1 1 0 11-1.414 1.414L10 13.414V15a1 1 0 01-1 1H8a1 1 0 01-1-1v-1.586l-5.293 5.293a1 1 0 11-1.414-1.414L7.586 13H6a1 1 0 01-1-1V6a1 1 0 011-1h1.586L2.293 1.293a1 1 0 111.414-1.414L10 4z"></path></svg>;
+
 
 interface ClientPageProps {
   supplier: Supplier;
@@ -46,39 +65,17 @@ export function ClientPage({ supplier, pieces }: ClientPageProps) {
       </PageHeader>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-sm font-medium">Solde Initial</CardTitle>
-                <BadgeCent className="h-4 w-4 text-muted-foreground" />
+        <StatCard title="Solde Initial" value={`${formatCurrency(supplier.solde_initial)} DZD`} icon={<BadgeCentIcon />} />
+        <StatCard title="Total Facturé" value={`${formatCurrency(totalFromPieces)} DZD`} icon={<FileTextIcon />} />
+        <StatCard title="Total Payé" value={`${formatCurrency(paidFromPieces)} DZD`} icon={<BanknoteIcon />} />
+        <Card className="bg-blue-50">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-primary flex justify-between items-center">
+                    Créance Totale
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-2xl font-bold font-mono">{formatCurrency(supplier.solde_initial)} DZD</p>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-sm font-medium">Total Facturé</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <p className="text-2xl font-bold font-mono">{formatCurrency(totalFromPieces)} DZD</p>
-            </CardContent>
-        </Card>
-         <Card>
-            <CardHeader>
-                <CardTitle className="text-sm font-medium">Total Payé</CardTitle>
-                 <Banknote className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-                <p className="text-2xl font-bold font-mono">{formatCurrency(paidFromPieces)} DZD</p>
-            </CardContent>
-        </Card>
-        <Card className="bg-primary/5">
-            <CardHeader>
-                <CardTitle className="text-sm font-medium text-primary">Créance Totale</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>{formatCurrency(totalDebt)} DZD</p>
+                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrency(totalDebt)} DZD</p>
                 <CardDescription>Solde initial + solde des pièces</CardDescription>
             </CardContent>
         </Card>
@@ -86,7 +83,7 @@ export function ClientPage({ supplier, pieces }: ClientPageProps) {
 
       <Card className="mb-8">
         <CardHeader><CardTitle>Informations du Fournisseur</CardTitle></CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4 text-sm">
+        <CardContent className="grid md:grid-cols-2 gap-4 text-sm pt-4">
             <div><strong>Wilaya:</strong> {supplier.wilaya}</div>
             <div><strong>Téléphone:</strong> {supplier.phone}</div>
             <div><strong>NIF:</strong> <span className="font-mono">{supplier.nif}</span></div>

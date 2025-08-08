@@ -21,7 +21,7 @@ export function ClientPage({ suppliers }: ClientPageProps) {
     <>
       <PageHeader
         title="Fournisseurs"
-        description="Gérez la liste de vos fournisseurs."
+        description="Gérez la liste de vos fournisseurs et de leurs créances."
       >
         <Button variant="outline">
           <FileDown className="mr-2 h-4 w-4" />

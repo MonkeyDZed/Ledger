@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Gérez vos fournisseurs et créances en toute simplicité.',
 };
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export default function RootLayout({
   children,
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable)}>
+      <body className={cn("min-h-screen bg-gray-50 font-sans antialiased", inter.variable)}>
         {children}
         <Toaster />
       </body>
