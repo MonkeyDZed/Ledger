@@ -34,7 +34,7 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
             backgroundSize: '2rem 2rem',
           }}
         >
-            <CardHeader className="text-center bg-white/80 backdrop-blur-sm rounded-t-lg">
+            <CardHeader className="text-center">
               <div className="flex justify-center items-center gap-2 mb-4">
                   <Logo />
               </div>
@@ -43,7 +43,7 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
                 {loginPage.description}
               </CardDescription>
             </CardHeader>
-            <CardContent className="bg-white/80 backdrop-blur-sm rounded-b-lg">
+            <CardContent>
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">{loginPage.usernameLabel}</Label>
