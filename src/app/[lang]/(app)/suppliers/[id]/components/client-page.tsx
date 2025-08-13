@@ -9,7 +9,7 @@ import { PlusCircle, ArrowLeft } from 'lucide-react';
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { PieceForm } from './piece-form';
+import { PieceForm } from '../../../components/piece-form';
 import type { Supplier, Piece } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';

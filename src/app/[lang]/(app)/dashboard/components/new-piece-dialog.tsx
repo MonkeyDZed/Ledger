@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PieceForm } from '../../suppliers/[id]/components/piece-form';
+import { PieceForm } from '../../components/piece-form';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import type { Dictionary } from '@/lib/dictionaries';

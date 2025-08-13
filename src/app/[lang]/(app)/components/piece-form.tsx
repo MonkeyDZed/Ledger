@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, ar } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -17,8 +17,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { addPiece, updatePiece } from '../actions';
+import type { Dictionary } from '@/lib/dictionaries';
 import { useTransition, useEffect } from 'react';
+import { addPiece, updatePiece } from '../suppliers/[id]/actions';
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 import type { Piece } from '@/lib/types';
 
 
@@ -39,12 +42,15 @@ interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
   pieceToEdit?: Piece;
+  dictionary: Dictionary['supplierDetailPage']['form']
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-
+  const params = useParams();
+  const lang = params.lang as Locale;
+  
   const isEditMode = !!pieceToEdit;
 
   const form = useForm<PieceFormValues>({
@@ -60,21 +66,13 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
         description: ''
     },
   });
-
+  
   useEffect(() => {
     if (isEditMode && pieceToEdit) {
       form.reset({
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
       });
-    } else {
-        form.reset({
-            date: new Date(),
-            type: 'FACTURE',
-            total_piece: 0,
-            montant_paye: 0,
-            description: ''
-        });
     }
   }, [pieceToEdit, isEditMode, form]);
 
@@ -82,21 +80,21 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
       const action = isEditMode
-        ? updatePiece(pieceToEdit.id, supplierId, data)
-        : addPiece({ ...data, supplier_id: supplierId });
+        ? updatePiece(pieceToEdit.id, supplierId, data, lang)
+        : addPiece({ ...data, supplier_id: supplierId }, lang);
       
       const result = await action;
 
       if (result.success) {
         toast({
-          title: isEditMode ? 'Pièce mise à jour' : 'Pièce enregistrée',
-          description: `La pièce a été ${isEditMode ? 'mise à jour' : 'ajoutée'} avec succès.`,
+          title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.success.title,
+          description: isEditMode ? dictionary.toast.updateSuccess.description : dictionary.toast.success.description,
         });
         onClose();
       } else {
         toast({
-          title: 'Erreur',
-          description: result.message || "Une erreur est survenue.",
+          title: dictionary.toast.error.title,
+          description: result.message || dictionary.toast.error.description,
           variant: 'destructive',
         });
       }
@@ -112,7 +110,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
             name="date"
             render={({ field }) => (
                 <FormItem className="flex flex-col">
-                    <FormLabel>Date de la pièce</FormLabel>
+                    <FormLabel>{dictionary.dateLabel}</FormLabel>
                     <Popover>
                         <PopoverTrigger asChild>
                         <FormControl>
@@ -124,9 +122,9 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
                             )}
                             >
                             {field.value ? (
-                                format(field.value, "PPP", { locale: fr})
+                                format(field.value, "PPP", { locale: lang === 'ar' ? ar : fr})
                             ) : (
-                                <span>Choisir une date</span>
+                                <span>{dictionary.datePlaceholder}</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -153,7 +151,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
                 name="type"
                 render={({ field }) => (
                     <FormItem className="space-y-3">
-                    <FormLabel>Type de pièce</FormLabel>
+                    <FormLabel>{dictionary.typeLabel}</FormLabel>
                     <FormControl>
                         <RadioGroup
                         onValueChange={field.onChange}
@@ -164,13 +162,13 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
                             <FormControl>
                             <RadioGroupItem value="FACTURE" />
                             </FormControl>
-                            <FormLabel className="font-normal">Facture</FormLabel>
+                            <FormLabel className="font-normal">{dictionary.typeInvoice}</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                             <FormControl>
                             <RadioGroupItem value="BL" />
                             </FormControl>
-                            <FormLabel className="font-normal">BL</FormLabel>
+                            <FormLabel className="font-normal">{dictionary.typeBl}</FormLabel>
                         </FormItem>
                         </RadioGroup>
                     </FormControl>
@@ -183,7 +181,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
               name="total_piece"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Pièce (DZD)</FormLabel>
+                  <FormLabel>{dictionary.totalLabel}</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" {...field} />
                   </FormControl>
@@ -196,7 +194,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
               name="montant_paye"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Montant Payé (DZD)</FormLabel>
+                  <FormLabel>{dictionary.paidLabel}</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" {...field} />
                   </FormControl>
@@ -210,17 +208,17 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{dictionary.descriptionLabel}</FormLabel>
               <FormControl>
-                <Textarea placeholder="Description de la pièce..." {...field} />
+                <Textarea placeholder={dictionary.descriptionPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-            <Button type="submit" disabled={isPending}>{isPending ? (isEditMode ? "Sauvegarde..." : "Enregistrement...") : (isEditMode ? "Sauvegarder les modifications" : "Enregistrer la Pièce")}</Button>
+            <Button type="button" variant="outline" onClick={onClose}>{dictionary.cancelButton}</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? (isEditMode ? dictionary.savingChangesButton : dictionary.savingButton) : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}</Button>
         </div>
       </form>
     </Form>

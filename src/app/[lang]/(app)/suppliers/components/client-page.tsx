@@ -8,7 +8,7 @@ import { PlusCircle, FileDown, Sparkles } from 'lucide-react';
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { SupplierForm, type SupplierFormRef } from './supplier-form';
+import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import type { Supplier } from '@/lib/types';
 import type { Dictionary } from '@/lib/dictionaries';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';

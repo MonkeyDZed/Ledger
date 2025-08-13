@@ -10,9 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { FinancialOverviewChart } from '@/app/(app)/components/financial-overview-chart';
+import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { SupplierForm, type SupplierFormRef } from '../../suppliers/components/supplier-form';
+import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';

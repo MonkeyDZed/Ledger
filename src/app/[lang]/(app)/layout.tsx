@@ -28,11 +28,12 @@ const navLinks = [
 
 export default function AppLayout({
   children,
-  params: { lang }
+  params,
 }: {
   children: React.ReactNode;
   params: { lang: Locale }
 }) {
+  const { lang } = params;
   const pathname = usePathname();
 
   const isActive = (path: string) => {

@@ -11,9 +11,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { addSupplier, updateSupplier } from '../actions';
+import { addSupplier, updateSupplier } from '../suppliers/actions';
+import type { Dictionary } from '@/lib/dictionaries';
 import type { Supplier } from '@/lib/types';
-
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -29,6 +31,7 @@ type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
 interface SupplierFormProps {
   onClose: () => void;
+  dictionary: Dictionary['suppliersPage']['form'];
   supplierToEdit?: Supplier;
 }
 
@@ -36,22 +39,24 @@ export type SupplierFormRef = {
     autoFill: () => void;
 };
 
-export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, supplierToEdit }, ref) => {
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-
+  const params = useParams();
+  const lang = params.lang as Locale;
+  
   const isEditMode = !!supplierToEdit;
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
     defaultValues: {
-        name: '',
-        wilaya: '',
-        phone: '',
-        nif: '',
-        bank_info: '',
-        solde_initial: 0,
-        notes: '',
+      name: '',
+      wilaya: '',
+      phone: '',
+      nif: '',
+      bank_info: '',
+      solde_initial: 0,
+      notes: '',
     },
   });
 
@@ -88,21 +93,21 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
         const action = isEditMode
-          ? updateSupplier(supplierToEdit.id, data)
-          : addSupplier(data);
+          ? updateSupplier(supplierToEdit.id, data, lang)
+          : addSupplier(data, lang);
 
         const result = await action;
         
         if (result.success) {
             toast({
-              title: isEditMode ? 'Fournisseur mis à jour' : 'Fournisseur enregistré',
-              description: `Le fournisseur ${data.name} a été ${isEditMode ? 'mis à jour' : 'ajouté'} avec succès.`,
+              title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.success.title,
+              description: `${isEditMode ? dictionary.toast.updateSuccess.description : dictionary.toast.success.description} ${data.name}.`,
             });
             onClose();
         } else {
              toast({
-              title: 'Erreur',
-              description: result.message || "Une erreur est survenue.",
+              title: dictionary.toast.error.title,
+              description: result.message || dictionary.toast.error.description,
               variant: "destructive",
             });
         }
@@ -118,9 +123,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nom du Fournisseur</FormLabel>
+                  <FormLabel>{dictionary.nameLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Tech Solutions Inc." {...field} />
+                    <Input placeholder={dictionary.namePlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,9 +136,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
               name="wilaya"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Wilaya</FormLabel>
+                  <FormLabel>{dictionary.wilayaLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Alger" {...field} />
+                    <Input placeholder={dictionary.wilayaPlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -144,9 +149,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Téléphone</FormLabel>
+                  <FormLabel>{dictionary.phoneLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: 0555-123-456" {...field} />
+                    <Input placeholder={dictionary.phonePlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -157,9 +162,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
               name="nif"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>NIF</FormLabel>
+                  <FormLabel>{dictionary.nifLabel}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Numéro d'Identification Fiscale" {...field} />
+                    <Input placeholder={dictionary.nifPlaceholder} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,9 +177,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
             name="bank_info"
             render={({ field }) => (
             <FormItem>
-                <FormLabel>Informations Bancaires</FormLabel>
+                <FormLabel>{dictionary.bankInfoLabel}</FormLabel>
                 <FormControl>
-                <Input placeholder="RIB ou autre" {...field} />
+                <Input placeholder={dictionary.bankInfoPlaceholder} {...field} />
                 </FormControl>
                 <FormMessage />
             </FormItem>
@@ -186,7 +191,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
             name="solde_initial"
             render={({ field }) => (
             <FormItem>
-                <FormLabel>Solde Initial (DZD)</FormLabel>
+                <FormLabel>{dictionary.initialBalanceLabel}</FormLabel>
                 <FormControl>
                 <Input type="number" {...field} />
                 </FormControl>
@@ -200,9 +205,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>{dictionary.notesLabel}</FormLabel>
               <FormControl>
-                <Textarea placeholder="Ajouter des notes sur le fournisseur..." {...field} />
+                <Textarea placeholder={dictionary.notesPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -210,9 +215,9 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
         />
         
         <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+            <Button type="button" variant="outline" onClick={onClose}>{dictionary.cancelButton}</Button>
             <Button type="submit" disabled={isPending}>
-                {isPending ? 'Enregistrement...' : (isEditMode ? 'Sauvegarder' : 'Enregistrer')}
+                {isPending ? dictionary.savingButton : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}
             </Button>
         </div>
       </form>
