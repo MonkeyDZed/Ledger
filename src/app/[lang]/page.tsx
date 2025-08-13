@@ -23,7 +23,7 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
             className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-125"
           />
         </div>
-        <div className="flex flex-col justify-center p-8" style={{backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(59 130 246 / 0.15)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e\")"}}>
+        <div className="flex flex-col justify-center p-8" style={{backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 40' width='80' height='40'%3e%3cpath fill='hsl(var(--primary))' fill-opacity='0.1' d='M0 40V0h80v40H0zM20 20c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zm40 0c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10z'%3e%3c/path%3e%3c/svg%3e\")", maskImage: "linear-gradient(to left, #000, transparent)"}}>
             <CardHeader className="text-center">
               <div className="flex justify-center items-center gap-2 mb-4">
                   <Logo />
