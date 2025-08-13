@@ -75,7 +75,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                     <SelectTrigger>
                         <SelectValue placeholder="Sélectionnez un fournisseur" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[280px]">
                         {suppliers.map(supplier => (
                             <SelectItem key={supplier.id} value={supplier.id}>
                                 {supplier.name}
