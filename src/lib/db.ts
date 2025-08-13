@@ -3,6 +3,8 @@ import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import { suppliers, pieces } from './data';
 import type { Supplier, Piece } from './types';
+import { randomUUID } from 'crypto';
+
 
 async function openDb() {
   const db = await open({
@@ -43,12 +45,37 @@ initializeData().catch(console.error);
 
 export async function getSuppliers(): Promise<Supplier[]> {
     const db = await openDb();
-    return db.all('SELECT * FROM suppliers');
+    return db.all('SELECT * FROM suppliers ORDER BY created_at DESC');
 }
 
 export async function getSupplierById(id: string): Promise<Supplier | undefined> {
     const db = await openDb();
     return db.get('SELECT * FROM suppliers WHERE id = ?', id);
+}
+
+export async function addSupplier(data: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>): Promise<Supplier> {
+    const db = await openDb();
+    const now = new Date().toISOString();
+    const newSupplier: Supplier = {
+        id: randomUUID(),
+        ...data,
+        created_at: now,
+        updated_at: now,
+    };
+    await db.run(
+        'INSERT INTO suppliers (id, name, wilaya, phone, nif, bank_info, solde_initial, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        newSupplier.id,
+        newSupplier.name,
+        newSupplier.wilaya,
+        newSupplier.phone,
+        newSupplier.nif,
+        newSupplier.bank_info,
+        newSupplier.solde_initial,
+        newSupplier.notes,
+        newSupplier.created_at,
+        newSupplier.updated_at
+    );
+    return newSupplier;
 }
 
 export async function getPieces(): Promise<Piece[]> {
@@ -58,5 +85,5 @@ export async function getPieces(): Promise<Piece[]> {
 
 export async function getPiecesBySupplierId(supplierId: string): Promise<Piece[]> {
     const db = await openDb();
-    return db.all('SELECT * FROM pieces WHERE supplier_id = ?', supplierId);
+    return db.all('SELECT * FROM pieces WHERE supplier_id = ? ORDER BY date DESC', supplierId);
 }

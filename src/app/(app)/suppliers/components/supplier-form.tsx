@@ -3,12 +3,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { addSupplier } from '../actions';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -29,6 +31,8 @@ interface SupplierFormProps {
 
 export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
     defaultValues: defaultValues || {
@@ -43,12 +47,22 @@ export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
   });
 
   function onSubmit(data: SupplierFormValues) {
-    console.log(data);
-    toast({
-      title: 'Fournisseur enregistré',
-      description: `Le fournisseur ${data.name} a été ajouté avec succès.`,
+    startTransition(async () => {
+        const result = await addSupplier(data);
+        if (result.success) {
+            toast({
+              title: 'Fournisseur enregistré',
+              description: `Le fournisseur ${data.name} a été ajouté avec succès.`,
+            });
+            onClose();
+        } else {
+             toast({
+              title: 'Erreur',
+              description: result.message || "Une erreur est survenue.",
+              variant: "destructive",
+            });
+        }
     });
-    onClose();
   }
 
   return (
@@ -153,7 +167,9 @@ export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
         
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-            <Button type="submit">Enregistrer</Button>
+            <Button type="submit" disabled={isPending}>
+                {isPending ? 'Enregistrement...' : 'Enregistrer'}
+            </Button>
         </div>
       </form>
     </Form>
