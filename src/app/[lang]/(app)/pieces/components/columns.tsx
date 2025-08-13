@@ -37,7 +37,7 @@ export const columns = (dict: Dictionary['piecesPage']['table'], lang: Locale): 
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => formatDate(row.getValue('date')),
+    cell: ({ row }) => formatDate(row.getValue('date'), lang),
   },
   {
     accessorKey: 'type',

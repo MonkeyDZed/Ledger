@@ -9,10 +9,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
 
-export const columns: ColumnDef<PieceWithSupplierName>[] = [
+export const columns: ColumnDef<PieceWithSupplierName>[] = (() => {
+  const params = useParams();
+  const lang = params.lang as Locale;
+  
+  return [
   {
     accessorKey: 'supplierName',
      header: ({ column }) => (
@@ -35,7 +41,7 @@ export const columns: ColumnDef<PieceWithSupplierName>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => formatDate(row.getValue('date')),
+    cell: ({ row }) => formatDate(row.getValue('date'), lang),
   },
   {
     accessorKey: 'type',
@@ -91,4 +97,4 @@ export const columns: ColumnDef<PieceWithSupplierName>[] = [
       );
     },
   },
-];
+]})();

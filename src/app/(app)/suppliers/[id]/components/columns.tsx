@@ -8,13 +8,19 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 type ColumnsProps = {
   onEdit: (piece: Piece) => void;
   onDelete: (piece: Piece) => void;
 }
 
-export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<Piece>[] => [
+export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<Piece>[] => {
+  const params = useParams();
+  const lang = params.lang as Locale;
+
+  return [
   {
     accessorKey: 'date',
     header: ({ column }) => (
@@ -23,7 +29,7 @@ export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<Piece>[] 
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => formatDate(row.getValue('date')),
+    cell: ({ row }) => formatDate(row.getValue('date'), lang),
   },
   {
     accessorKey: 'type',
@@ -84,4 +90,4 @@ export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<Piece>[] 
       );
     },
   },
-];
+]};

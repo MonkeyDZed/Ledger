@@ -132,7 +132,7 @@ export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPagePro
       </Card>
 
       <DataTable 
-        columns={columns({ dict: dictionary.piecesTable, onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p)})} 
+        columns={columns({ dict: dictionary.piecesTable, onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p), lang })} 
         data={pieces} 
         dictionary={dictionary.piecesTable} 
       />

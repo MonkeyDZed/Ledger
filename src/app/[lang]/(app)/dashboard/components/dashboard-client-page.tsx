@@ -14,7 +14,7 @@ import { FinancialOverviewChart } from '@/app/(app)/components/financial-overvie
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../suppliers/components/supplier-form';
 import { Sparkles } from 'lucide-react';
-import { Dictionary, getDictionary } from '@/lib/dictionaries';
+import { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import { NewPieceDialog } from './new-piece-dialog';
 
@@ -68,10 +68,11 @@ interface DashboardClientPageProps {
   pieces: Piece[];
   dictionary: Dictionary['dashboard'];
   formDictionary: Dictionary['suppliersPage']['form'];
+  pieceFormDictionary: Dictionary['supplierDetailPage']['form'];
   lang: Locale;
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, lang }: DashboardClientPageProps) {
+export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -87,13 +88,13 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     const balanceFromPieces = totalFromPieces - paidFromPieces;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
 
-    const mostRecentPiece = supplierPieces.length > 0 
+    const mostRecentPiece = supplierPieces.length > 0
       ? supplierPieces.reduce((latest, current) => new Date(latest.date) > new Date(current.date) ? latest : current)
       : null;
 
-    return { 
-      ...supplier, 
-      totalDebt, 
+    return {
+      ...supplier,
+      totalDebt,
       totalFromPieces,
       mostRecentPieceDate: mostRecentPiece ? new Date(mostRecentPiece.date) : new Date(0) // Use epoch for suppliers with no pieces
     };
@@ -305,6 +306,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         suppliers={suppliers}
         pieces={pieces}
         dictionary={dictionary}
+        pieceFormDictionary={pieceFormDictionary}
         lang={lang}
       />
     </>

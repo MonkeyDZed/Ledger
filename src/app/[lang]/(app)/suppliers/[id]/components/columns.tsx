@@ -8,14 +8,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
+import { Locale } from '@/i18n.config';
 
 type ColumnsProps = {
   onEdit: (piece: Piece) => void;
   onDelete: (piece: Piece) => void;
   dict: Dictionary['supplierDetailPage']['piecesTable'];
+  lang: Locale;
 }
 
-export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Piece>[] => [
+export const columns = ({ onEdit, onDelete, dict, lang }: ColumnsProps): ColumnDef<Piece>[] => [
   {
     accessorKey: 'date',
     header: ({ column }) => (
@@ -24,7 +26,7 @@ export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Pie
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => formatDate(row.getValue('date')),
+    cell: ({ row }) => formatDate(row.getValue('date'), lang),
   },
   {
     accessorKey: 'type',
