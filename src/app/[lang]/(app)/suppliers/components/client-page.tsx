@@ -104,7 +104,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         header: () => <div className="text-end">{dict.totalInvoiced}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalInvoiced'));
-          return <div className="text-end font-mono">{formatCurrency(amount)} DZD</div>;
+          return <div className="text-end">{formatCurrency(amount)} DZD</div>;
         },
       },
       {
@@ -112,7 +112,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         header: () => <div className="text-end">{dict.totalPaid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalPaid'));
-          return <div className="text-end font-mono text-green-600">{formatCurrency(amount)} DZD</div>;
+          return <div className="text-end text-green-600">{formatCurrency(amount)} DZD</div>;
         },
       },
       {
@@ -132,7 +132,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         },
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalDebt'));
-          return <div className="text-end font-mono">
+          return <div className="text-end">
             <Badge variant={amount > 0 ? 'destructive' : 'default'} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
                 {formatCurrency(amount)} DZD
             </Badge>

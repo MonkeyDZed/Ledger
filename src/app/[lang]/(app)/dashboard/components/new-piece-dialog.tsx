@@ -89,7 +89,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                             <p className="font-semibold text-gray-800">{selectedSupplier?.name}</p>
                             <CardDescription>Créance actuelle avant cette pièce</CardDescription>
                         </div>
-                        <p className={`font-mono text-lg font-bold ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                        <p className={`text-lg font-bold ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
                             {formatCurrency(selectedSupplierDebt)} DA
                         </p>
                     </div>

@@ -52,7 +52,7 @@ export default function AppLayout({
                     <div className="flex-shrink-0 flex items-center">
                         <Logo />
                     </div>
-                    <nav className="hidden md:ms-6 md:flex md:space-x-8">
+                    <nav className="hidden md:ms-6 md:flex md:space-x-8 rtl:space-x-reverse">
                         {navLinks.map((link) => (
                            <Link
                               key={link.href}
