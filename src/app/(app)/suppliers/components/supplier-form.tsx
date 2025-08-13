@@ -31,7 +31,15 @@ export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
   const { toast } = useToast();
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
-    defaultValues: defaultValues || {},
+    defaultValues: defaultValues || {
+      name: '',
+      wilaya: '',
+      phone: '',
+      nif: '',
+      bank_info: '',
+      solde_initial: 0,
+      notes: '',
+    },
   });
 
   function onSubmit(data: SupplierFormValues) {
