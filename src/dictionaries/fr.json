@@ -168,5 +168,28 @@
                 }
             }
         }
+    },
+    "piecesPage": {
+        "title": "Pièces",
+        "description": "Consultez et gérez toutes les pièces enregistrées.",
+        "totalBilled": "Total Facturé",
+        "totalPaid": "Total Payé",
+        "totalRemaining": "Total Restant",
+        "table": {
+            "supplier": "Fournisseur",
+            "date": "Date",
+            "type": "Type",
+            "total": "Total",
+            "paid": "Payé",
+            "remaining": "Reste",
+            "actions": "Actions",
+            "openMenu": "Ouvrir menu",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "filterPlaceholder": "Filtrer par fournisseur...",
+            "noResults": "Aucun résultat.",
+            "previous": "Précédent",
+            "next": "Suivant"
+        }
     }
 }

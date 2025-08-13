@@ -168,5 +168,28 @@
                 }
             }
         }
+    },
+    "piecesPage": {
+        "title": "المستندات",
+        "description": "استعراض وإدارة جميع المستندات المسجلة.",
+        "totalBilled": "إجمالي الفواتير",
+        "totalPaid": "إجمالي المدفوعات",
+        "totalRemaining": "إجمالي المتبقي",
+        "table": {
+            "supplier": "المورد",
+            "date": "التاريخ",
+            "type": "النوع",
+            "total": "الإجمالي",
+            "paid": "المدفوع",
+            "remaining": "المتبقي",
+            "actions": "الإجراءات",
+            "openMenu": "فتح القائمة",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "filterPlaceholder": "تصفية حسب المورد...",
+            "noResults": "لا توجد نتائج.",
+            "previous": "السابق",
+            "next": "التالي"
+        }
     }
 }
