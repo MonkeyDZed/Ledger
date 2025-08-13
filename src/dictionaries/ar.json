@@ -41,8 +41,9 @@
         "newSupplier": "مورد جديد",
         "table": {
             "name": "الاسم",
-            "wilaya": "الولاية",
             "phone": "الهاتف",
+            "totalInvoiced": "إجمالي الفواتير",
+            "totalPaid": "المدفوع",
             "totalDebt": "إجمالي الدين",
             "actions": "الإجراءات",
             "openMenu": "فتح القائمة",

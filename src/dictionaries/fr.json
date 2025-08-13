@@ -41,8 +41,9 @@
         "newSupplier": "Nouveau Fournisseur",
         "table": {
             "name": "Nom",
-            "wilaya": "Wilaya",
             "phone": "Téléphone",
+            "totalInvoiced": "Total Facturé",
+            "totalPaid": "Payé",
             "totalDebt": "Créance Totale",
             "actions": "Actions",
             "openMenu": "Ouvrir menu",

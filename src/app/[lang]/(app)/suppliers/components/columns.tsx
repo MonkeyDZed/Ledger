@@ -10,7 +10,11 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
 
-type SupplierWithDebt = Supplier & { totalDebt: number };
+type SupplierWithDebt = Supplier & { 
+  totalDebt: number,
+  totalInvoiced: number,
+  totalPaid: number
+};
 
 type ColumnsProps = {
   onEdit: (supplier: SupplierWithDebt) => void;
@@ -39,12 +43,24 @@ export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Sup
     ),
   },
   {
-    accessorKey: 'wilaya',
-    header: dict.wilaya,
-  },
-  {
     accessorKey: 'phone',
     header: dict.phone,
+  },
+  {
+    accessorKey: 'totalInvoiced',
+    header: () => <div className="text-right">{dict.totalInvoiced}</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue('totalInvoiced'));
+      return <div className="text-right font-mono">{formatCurrency(amount)} DZD</div>;
+    },
+  },
+  {
+    accessorKey: 'totalPaid',
+    header: () => <div className="text-right">{dict.totalPaid}</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue('totalPaid'));
+      return <div className="text-right font-mono text-green-600">{formatCurrency(amount)} DZD</div>;
+    },
   },
   {
     accessorKey: 'totalDebt',

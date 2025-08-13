@@ -10,9 +10,11 @@ export default async function SuppliersPage({ params: { lang } }: { params: { la
   
   const suppliersWithDebt = suppliers.map(supplier => {
     const supplierPieces = pieces.filter(p => p.supplier_id === supplier.id);
-    const balanceFromPieces = supplierPieces.reduce((sum, p) => sum + p.reste, 0);
+    const totalInvoiced = supplierPieces.reduce((sum, p) => sum + p.total_piece, 0);
+    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const balanceFromPieces = totalInvoiced - totalPaid;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
-    return { ...supplier, totalDebt };
+    return { ...supplier, totalDebt, totalInvoiced, totalPaid };
   });
 
   return <ClientPage suppliers={suppliersWithDebt} dictionary={dictionary.suppliersPage} />;

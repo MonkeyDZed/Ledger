@@ -9,7 +9,11 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
-type SupplierWithDebt = Supplier & { totalDebt: number };
+type SupplierWithDebt = Supplier & {
+  totalDebt: number;
+  totalInvoiced: number;
+  totalPaid: number;
+};
 
 type ColumnsProps = {
   onEdit: (supplier: SupplierWithDebt) => void;
@@ -37,12 +41,24 @@ export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<SupplierW
     ),
   },
   {
-    accessorKey: 'wilaya',
-    header: 'Wilaya',
-  },
-  {
     accessorKey: 'phone',
     header: 'Téléphone',
+  },
+  {
+    accessorKey: 'totalInvoiced',
+    header: () => <div className="text-right">Total Facturé</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue('totalInvoiced'));
+      return <div className="text-right font-mono">{formatCurrency(amount)} DZD</div>;
+    },
+  },
+  {
+    accessorKey: 'totalPaid',
+    header: () => <div className="text-right">Payé</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue('totalPaid'));
+      return <div className="text-right font-mono text-green-600">{formatCurrency(amount)} DZD</div>;
+    },
   },
   {
     accessorKey: 'totalDebt',
