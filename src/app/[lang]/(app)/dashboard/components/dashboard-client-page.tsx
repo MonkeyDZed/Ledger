@@ -14,9 +14,9 @@ import { FinancialOverviewChart } from '../../components/financial-overview-char
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
-import { Dictionary } from '@/lib/dictionaries';
-import { Locale } from '@/i18n.config';
 import { NewPieceDialog } from './new-piece-dialog';
+import { type Locale } from '@/i18n.config';
+import { type Dictionary } from '@/lib/dictionaries';
 
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
@@ -144,7 +144,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <StatCardIcon className="bg-amber-100 text-amber-500"><MoneyBillWaveIcon /></StatCardIcon>
                     <div className="ms-4">
                         <p className="text-sm font-medium text-gray-600">{dictionary.totalDebts}</p>
-                        <p className="text-2xl font-semibold text-gray-900">{formatCurrency(grandTotalDebt)} DA</p>
+                        <p className="text-2xl font-semibold text-gray-900 font-mono">{formatCurrency(grandTotalDebt)} DA</p>
                     </div>
                 </CardContent>
             </Card>
@@ -219,9 +219,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                                               </div>
                                           </TableCell>
                                           <TableCell className="text-sm text-gray-500">{supplier.wilaya}</TableCell>
-                                          <TableCell className="text-sm font-medium text-gray-900">{formatCurrency(supplier.totalFromPieces)} DA</TableCell>
+                                          <TableCell className="text-sm font-medium text-gray-900 font-mono">{formatCurrency(supplier.totalFromPieces)} DA</TableCell>
                                           <TableCell>
-                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}`}>
+                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`}>
                                               {formatCurrency(supplier.totalDebt)} DA
                                             </Badge>
                                           </TableCell>
@@ -253,7 +253,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 me-2"></span>{dictionary.paid}</span>
-                                    <span className="text-sm font-medium text-gray-900">{formatCurrency(totalPaid)} DA</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono">{formatCurrency(totalPaid)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-2 h-2 rounded-full" style={{ width: `${((totalPaid/grandTotal) || 0) * 100}%` }}></div>
@@ -263,7 +263,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 me-2"></span>{dictionary.toPay}</span>
-                                    <span className="text-sm font-medium text-gray-900">{formatCurrency(totalToPay)} DA</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono">{formatCurrency(totalToPay)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-4 h-2 rounded-full" style={{ width: `${((totalToPay/grandTotal) || 0) * 100}%` }}></div>
@@ -312,3 +312,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
+
+    

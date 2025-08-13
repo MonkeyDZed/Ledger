@@ -30,7 +30,7 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
             <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
+            <p className="text-2xl font-bold text-gray-900 font-mono">{value}</p>
         </CardContent>
     </Card>
 );
@@ -89,7 +89,7 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
           header: () => <div className="text-end">{dict.total}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
-            return <div className="text-end">{formatCurrency(amount)}</div>;
+            return <div className="text-end font-mono">{formatCurrency(amount)}</div>;
           },
         },
         {
@@ -97,7 +97,7 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end text-green-600">{formatCurrency(amount)}</div>;
+            return <div className="text-end font-mono text-green-600">{formatCurrency(amount)}</div>;
           },
         },
         {
@@ -105,7 +105,7 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
           header: () => <div className="text-end">{dict.remaining}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
-            return <div className="text-end text-destructive">{formatCurrency(amount)}</div>;
+            return <div className="text-end font-mono text-destructive">{formatCurrency(amount)}</div>;
           },
         },
         {
@@ -148,7 +148,7 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
                     <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold text-amber-900">{formatCurrency(totals.totalRemaining)} DZD</p>
+                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrency(totals.totalRemaining)} DZD</p>
                 </CardContent>
             </Card>
         </div>
@@ -157,3 +157,5 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
     </>
   );
 }
+
+    

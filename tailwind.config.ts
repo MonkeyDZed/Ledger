@@ -10,9 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ["'Inter'", 'sans-serif'],
-        headline: ["'Poppins'", 'sans-serif'],
-        code: ["'Source Code Pro'", 'monospace'],
+        sans: ["'Inter'", 'sans-serif'],
+        mono: ["'Source Code Pro'", 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -97,3 +96,5 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
