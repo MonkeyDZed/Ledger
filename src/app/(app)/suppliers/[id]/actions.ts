@@ -18,7 +18,8 @@ const pieceFormSchema = z.object({
     path: ["montant_paye"],
 });
 
-type PieceFormValues = z.infer<typeof pieceFormSchema>;
+// We need to omit supplier_id from the type passed to the database function
+type PieceFormValues = Omit<z.infer<typeof pieceFormSchema>, 'supplier_id'> & { supplier_id: string };
 
 
 export async function addPiece(data: PieceFormValues) : Promise<{success: boolean, message?: string}> {
@@ -37,7 +38,8 @@ export async function addPiece(data: PieceFormValues) : Promise<{success: boolea
         revalidatePath('/dashboard');
         return { success: true };
     } catch(e) {
-        console.error(e);
-        return { success: false, message: "Une erreur est survenue lors de l'ajout de la pièce." };
+        const error = e as Error;
+        console.error(error);
+        return { success: false, message: error.message || "Une erreur est survenue lors de l'ajout de la pièce." };
     }
 }

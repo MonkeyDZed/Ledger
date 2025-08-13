@@ -16,6 +16,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { addPiece } from '../actions';
+import { useTransition } from 'react';
 
 const pieceFormSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
@@ -38,24 +40,36 @@ interface PieceFormProps {
 
 export function PieceForm({ supplierId, onClose, defaultValues }: PieceFormProps) {
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
     defaultValues: defaultValues || {
         date: new Date(),
         type: 'FACTURE',
         total_piece: 0,
-        montant_paye: 0
+        montant_paye: 0,
+        description: ''
     },
   });
 
   function onSubmit(data: PieceFormValues) {
-    const reste = data.total_piece - data.montant_paye;
-    console.log({ ...data, supplierId, reste });
-    toast({
-      title: 'Pièce enregistrée',
-      description: 'La nouvelle pièce a été ajoutée avec succès.',
+    startTransition(async () => {
+      const result = await addPiece({ ...data, supplier_id: supplierId });
+      if (result.success) {
+        toast({
+          title: 'Pièce enregistrée',
+          description: 'La nouvelle pièce a été ajoutée avec succès.',
+        });
+        onClose();
+      } else {
+        toast({
+          title: 'Erreur',
+          description: result.message || "Une erreur est survenue lors de l'ajout de la pièce.",
+          variant: 'destructive',
+        });
+      }
     });
-    onClose();
   }
 
   return (
@@ -175,7 +189,7 @@ export function PieceForm({ supplierId, onClose, defaultValues }: PieceFormProps
         />
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-            <Button type="submit">Enregistrer la Pièce</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? "Enregistrement..." : "Enregistrer la Pièce"}</Button>
         </div>
       </form>
     </Form>
