@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { LanguageSwitcher } from './components/language-switcher';
 import { LanguageSwitcherMenu } from './components/language-switcher-menu';
 import { Locale } from '@/i18n.config';
 
@@ -68,8 +67,7 @@ export default function AppLayout({
                     </nav>
                 </div>
                 <div className="flex items-center">
-                    <LanguageSwitcher lang={lang} />
-                     <Button variant="ghost" size="icon" className="ml-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
+                     <Button variant="ghost" size="icon" className="bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
                        <Search className="h-4 w-4"/>
                     </Button>
                      <Button variant="ghost" size="icon" className="ml-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
@@ -88,6 +86,7 @@ export default function AppLayout({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>{lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
                         <DropdownMenuItem>{lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
+                        <LanguageSwitcherMenu lang={lang} />
                         <DropdownMenuSeparator />
                         <Link href={`/${lang}`}>
                           <DropdownMenuItem>{lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>
