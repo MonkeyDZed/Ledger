@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
+import { FinancialOverviewChart } from './components/financial-overview-chart';
+
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
     <div className={`p-3 rounded-lg ${className}`}>
@@ -202,31 +204,26 @@ export default function DashboardPage() {
                         <h2 className="text-lg font-semibold text-gray-900">Vue Financière</h2>
                     </CardHeader>
                     <CardContent>
-                         <div className="flex justify-center mb-6">
-                            <div className="relative w-[150px] h-[150px] rounded-full" style={{ background: `conic-gradient(#10b981 0% ${((totalPaid/grandTotal) || 0) * 100}%, #f59e0b ${((totalPaid/grandTotal) || 0) * 100}% 100%)`}}>
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] bg-white rounded-full"></div>
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-semibold text-xl">{formatCurrency(grandTotal / 1000)}k</div>
-                            </div>
-                        </div>
+                        <FinancialOverviewChart data={{ paid: totalPaid, toPay: totalToPay }} />
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 mt-6">
                             <div>
                                 <div className="flex justify-between mb-1">
-                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-secondary mr-2"></span>Payé</span>
+                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 mr-2"></span>Payé</span>
                                     <span className="text-sm font-medium text-gray-900">{formatCurrency(totalPaid)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-secondary h-2 rounded-full" style={{ width: `${((totalPaid/grandTotal) || 0) * 100}%` }}></div>
+                                    <div className="bg-chart-2 h-2 rounded-full" style={{ width: `${((totalPaid/grandTotal) || 0) * 100}%` }}></div>
                                 </div>
                             </div>
                             
                             <div>
                                 <div className="flex justify-between mb-1">
-                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>Reste à payer</span>
+                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 mr-2"></span>Reste à payer</span>
                                     <span className="text-sm font-medium text-gray-900">{formatCurrency(totalToPay)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${((totalToPay/grandTotal) || 0) * 100}%` }}></div>
+                                    <div className="bg-chart-4 h-2 rounded-full" style={{ width: `${((totalToPay/grandTotal) || 0) * 100}%` }}></div>
                                 </div>
                             </div>
                         </div>
