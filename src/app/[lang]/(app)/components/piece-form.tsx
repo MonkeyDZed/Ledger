@@ -117,7 +117,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: Piec
                             <Button
                             variant={"outline"}
                             className={cn(
-                                "pl-3 text-left font-normal",
+                                "ps-3 text-start font-normal",
                                 !field.value && "text-muted-foreground"
                             )}
                             >
@@ -126,7 +126,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: Piec
                             ) : (
                                 <span>{dictionary.datePlaceholder}</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
                             </Button>
                         </FormControl>
                         </PopoverTrigger>
@@ -158,13 +158,13 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: Piec
                         defaultValue={field.value}
                         className="flex items-center space-x-4"
                         >
-                        <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
                             <FormControl>
                             <RadioGroupItem value="FACTURE" />
                             </FormControl>
                             <FormLabel className="font-normal">{dictionary.typeInvoice}</FormLabel>
                         </FormItem>
-                        <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
                             <FormControl>
                             <RadioGroupItem value="BL" />
                             </FormControl>

@@ -56,10 +56,10 @@ const EyeIcon = () => (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fillRule="evenodd" d="M.458 10C3.732 4.943 7.523 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-7.03 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"></path></svg>
 );
 const PdfIcon = () => (
-    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 0h12a2 2 0 012 2v16a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2zm2 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+    <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 0h12a2 2 0 012 2v16a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2zm2 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clipRule="evenodd" fillRule="evenodd"></path></svg>
 );
 const CsvIcon = () => (
-    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
+    <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
 );
 
 
@@ -121,7 +121,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                 <Card className="h-full">
                     <CardContent className="flex items-center p-6">
                         <StatCardIcon className="bg-blue-100 text-primary"><UsersIcon /></StatCardIcon>
-                        <div className="ml-4">
+                        <div className="ms-4">
                             <p className="text-sm font-medium text-gray-600">{dictionary.suppliers}</p>
                             <p className="text-2xl font-semibold text-gray-900">{totalSuppliers}</p>
                         </div>
@@ -132,7 +132,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                 <Card className="h-full">
                     <CardContent className="flex items-center p-6">
                         <StatCardIcon className="bg-green-100 text-secondary"><FileInvoiceIcon /></StatCardIcon>
-                        <div className="ml-4">
+                        <div className="ms-4">
                             <p className="text-sm font-medium text-gray-600">{dictionary.pieces}</p>
                             <p className="text-2xl font-semibold text-gray-900">{totalPieces}</p>
                         </div>
@@ -142,7 +142,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
             <Card>
                 <CardContent className="flex items-center p-6">
                     <StatCardIcon className="bg-amber-100 text-amber-500"><MoneyBillWaveIcon /></StatCardIcon>
-                    <div className="ml-4">
+                    <div className="ms-4">
                         <p className="text-sm font-medium text-gray-600">{dictionary.totalDebts}</p>
                         <p className="text-2xl font-semibold text-gray-900">{formatCurrency(grandTotalDebt)} DA</p>
                     </div>
@@ -153,7 +153,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <StatCardIcon className="bg-rose-100 text-rose-500">
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 18a7.002 7.002 0 006.323-3.676l-1.226-1.226A4.985 4.985 0 0110 14.95a4.985 4.985 0 01-5.1-3.852l-1.226 1.226A7.002 7.002 0 0010 18z" clipRule="evenodd"></path></svg>
                     </StatCardIcon>
-                    <div className="ml-4">
+                    <div className="ms-4">
                         <p className="text-sm font-medium text-gray-600">{dictionary.lastSync}</p>
                         <p className="text-2xl font-semibold text-gray-900">{dictionary.upToDate}</p>
                     </div>
@@ -212,7 +212,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                                                         <AvatarFallback className="bg-blue-100 text-blue-800 font-medium">{supplier.name.charAt(0)}</AvatarFallback>
                                                       </Avatar>
                                                   </div>
-                                                  <div className="ml-4">
+                                                  <div className="ms-4">
                                                       <Link href={`/${lang}/suppliers/${supplier.id}`} className="text-sm font-medium text-gray-900 hover:text-primary">{supplier.name}</Link>
                                                       <div className="text-sm text-gray-500">{dictionary.nif}: {supplier.nif}</div>
                                                   </div>
@@ -252,7 +252,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                         <div className="space-y-4 mt-6">
                             <div>
                                 <div className="flex justify-between mb-1">
-                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 mr-2"></span>{dictionary.paid}</span>
+                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 me-2"></span>{dictionary.paid}</span>
                                     <span className="text-sm font-medium text-gray-900">{formatCurrency(totalPaid)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -262,7 +262,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             
                             <div>
                                 <div className="flex justify-between mb-1">
-                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 mr-2"></span>{dictionary.toPay}</span>
+                                    <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 me-2"></span>{dictionary.toPay}</span>
                                     <span className="text-sm font-medium text-gray-900">{formatCurrency(totalToPay)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">

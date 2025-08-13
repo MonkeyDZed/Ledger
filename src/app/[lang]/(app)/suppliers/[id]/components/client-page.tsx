@@ -1,24 +1,28 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
 import { PlusCircle, ArrowLeft } from 'lucide-react';
 import { DataTable } from './data-table';
-import { columns } from './columns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PieceForm } from '../../../components/piece-form';
 import type { Supplier, Piece } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import { Dictionary } from '@/lib/dictionaries';
-import { Locale } from '@/i18n.config';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { deletePiece } from '../actions';
 import { useParams } from 'next/navigation';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Locale } from '@/i18n.config';
+
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
     <Card>
@@ -79,6 +83,82 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
     }
     closeDialogs();
   };
+  
+  const columns = useMemo((): ColumnDef<Piece>[] => {
+    const dict = dictionary.piecesTable;
+    return [
+      {
+        accessorKey: 'date',
+        header: ({ column }) => (
+          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            {dict.date}
+            <ArrowUpDown className="ms-2 h-4 w-4" />
+          </Button>
+        ),
+        cell: ({ row }) => formatDate(row.getValue('date'), lang),
+      },
+      {
+        accessorKey: 'type',
+        header: dict.type,
+        cell: ({ row }) => {
+            const type = row.getValue('type') as string;
+            return <Badge variant={type === 'FACTURE' ? 'secondary' : 'outline'}>{type}</Badge>
+        }
+      },
+      {
+        accessorKey: 'description',
+        header: dict.description,
+      },
+      {
+        accessorKey: 'total_piece',
+        header: () => <div className="text-end">{dict.total}</div>,
+        cell: ({ row }) => {
+          const amount = parseFloat(row.getValue('total_piece'));
+          return <div className="text-end font-mono">{formatCurrency(amount)}</div>;
+        },
+      },
+      {
+        accessorKey: 'montant_paye',
+        header: () => <div className="text-end">{dict.paid}</div>,
+        cell: ({ row }) => {
+          const amount = parseFloat(row.getValue('montant_paye'));
+          return <div className="text-end font-mono text-green-600">{formatCurrency(amount)}</div>;
+        },
+      },
+      {
+        accessorKey: 'reste',
+        header: () => <div className="text-end">{dict.remaining}</div>,
+        cell: ({ row }) => {
+          const amount = parseFloat(row.getValue('reste'));
+          return <div className="text-end font-mono text-destructive">{formatCurrency(amount)}</div>;
+        },
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => {
+          const piece = row.original;
+          return (
+            <div className="text-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">{dict.openMenu}</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{dict.actions}</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => openDialog('edit', piece)}>{dict.edit}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openDialog('delete', piece)} className="text-destructive focus:bg-destructive/10">{dict.delete}</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ];
+  }, [lang, dictionary.piecesTable]);
+
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
   const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
@@ -93,12 +173,12 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
       >
         <Button variant="outline" asChild>
           <Link href={`/${lang}/suppliers`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="me-2 h-4 w-4" />
             {dictionary.header.backButton}
           </Link>
         </Button>
         <Button onClick={() => openDialog('new')}>
-          <PlusCircle className="mr-2 h-4 w-4" />
+          <PlusCircle className="me-2 h-4 w-4" />
           {dictionary.header.newPieceButton}
         </Button>
       </PageHeader>
@@ -132,7 +212,7 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
       </Card>
 
       <DataTable 
-        columns={columns({ dict: dictionary.piecesTable, onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p), lang })} 
+        columns={columns}
         data={pieces} 
         dictionary={dictionary.piecesTable} 
       />

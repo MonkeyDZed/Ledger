@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 
 type PageHeaderProps = {
@@ -13,7 +14,7 @@ export function PageHeader({ title, description, children }: PageHeaderProps) {
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{title}</h1>
         {description && <p className="text-muted-foreground">{description}</p>}
       </div>
-      {children && <div className="flex items-center gap-2 ml-auto">{children}</div>}
+      {children && <div className="flex items-center gap-2 ms-auto">{children}</div>}
     </div>
   );
 }

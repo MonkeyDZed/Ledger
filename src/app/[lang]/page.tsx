@@ -59,7 +59,7 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
                     <Label htmlFor="password">{loginPage.passwordLabel}</Label>
                     <Link
                       href="#"
-                      className="ml-auto inline-block text-sm underline"
+                      className="ms-auto inline-block text-sm underline"
                     >
                       {loginPage.forgotPasswordLink}
                     </Link>

@@ -3,14 +3,19 @@
 
 import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
-import { columns } from './columns';
 import type { Piece } from '@/lib/types';
 import { useMemo } from 'react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dictionary } from '@/lib/dictionaries';
-import { Locale } from '@/i18n.config';
+import { ColumnDef } from '@tanstack/react-table';
+import { Button } from '@/components/ui/button';
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
 
@@ -33,13 +38,100 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
 export function ClientPage({ pieces, dictionary }: ClientPageProps) {
     const params = useParams();
     const lang = params.lang as Locale;
-    
+
     const totals = useMemo(() => {
         const totalBilled = pieces.reduce((sum, p) => sum + p.total_piece, 0);
         const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
         const totalRemaining = pieces.reduce((sum, p) => sum + p.reste, 0);
         return { totalBilled, totalPaid, totalRemaining };
     }, [pieces]);
+
+    const columns = useMemo((): ColumnDef<PieceWithSupplierName>[] => {
+      const dict = dictionary.table;
+      return [
+        {
+          accessorKey: 'supplierName',
+           header: ({ column }) => (
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+              {dict.supplier}
+              <ArrowUpDown className="ms-2 h-4 w-4" />
+            </Button>
+          ),
+          cell: ({ row }) => (
+            <Link href={`/${lang}/suppliers/${row.original.supplier_id}`} className="font-medium text-primary hover:underline">
+              {row.getValue('supplierName')}
+            </Link>
+          ),
+        },
+        {
+          accessorKey: 'date',
+          header: ({ column }) => (
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+              {dict.date}
+              <ArrowUpDown className="ms-2 h-4 w-4" />
+            </Button>
+          ),
+          cell: ({ row }) => formatDate(row.getValue('date'), lang),
+        },
+        {
+          accessorKey: 'type',
+          header: dict.type,
+          cell: ({ row }) => {
+              const type = row.getValue('type') as string;
+              return <Badge variant={type === 'FACTURE' ? 'secondary' : 'outline'}>{type}</Badge>
+          },
+          filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+          },
+        },
+        {
+          accessorKey: 'total_piece',
+          header: () => <div className="text-end">{dict.total}</div>,
+          cell: ({ row }) => {
+            const amount = parseFloat(row.getValue('total_piece'));
+            return <div className="text-end font-mono">{formatCurrency(amount)}</div>;
+          },
+        },
+        {
+          accessorKey: 'montant_paye',
+          header: () => <div className="text-end">{dict.paid}</div>,
+          cell: ({ row }) => {
+            const amount = parseFloat(row.getValue('montant_paye'));
+            return <div className="text-end font-mono text-green-600">{formatCurrency(amount)}</div>;
+          },
+        },
+        {
+          accessorKey: 'reste',
+          header: () => <div className="text-end">{dict.remaining}</div>,
+          cell: ({ row }) => {
+            const amount = parseFloat(row.getValue('reste'));
+            return <div className="text-end font-mono text-destructive">{formatCurrency(amount)}</div>;
+          },
+        },
+        {
+          id: 'actions',
+          cell: () => {
+            return (
+              <div className="text-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">{dict.openMenu}</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>{dict.actions}</DropdownMenuLabel>
+                    <DropdownMenuItem>{dict.edit}</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive focus:bg-destructive/10">{dict.delete}</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            );
+          },
+        },
+      ];
+    }, [lang, dictionary.table]);
 
   return (
     <>
@@ -61,7 +153,7 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
             </Card>
         </div>
 
-      <DataTable columns={columns({dict: dictionary.table, lang})} data={pieces} dictionary={dictionary.table} />
+      <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
     </>
   );
 }

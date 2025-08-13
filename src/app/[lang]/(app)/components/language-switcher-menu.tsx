@@ -23,10 +23,10 @@ export function LanguageSwitcherMenu({ params }: { params: { lang: Locale }}) {
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent>
             <DropdownMenuItem onClick={() => switchLanguage('fr')}>
-                Français {params.lang === 'fr' && <Check className="ml-auto h-4 w-4" />}
+                Français {params.lang === 'fr' && <Check className="ms-auto h-4 w-4" />}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => switchLanguage('ar')}>
-                العربية {params.lang === 'ar' && <Check className="ml-auto h-4 w-4" />}
+                العربية {params.lang === 'ar' && <Check className="ms-auto h-4 w-4" />}
             </DropdownMenuItem>
         </DropdownMenuSubContent>
     </DropdownMenuSub>

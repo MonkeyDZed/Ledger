@@ -52,7 +52,7 @@ export default function AppLayout({
                     <div className="flex-shrink-0 flex items-center">
                         <Logo />
                     </div>
-                    <nav className="hidden md:ml-6 md:flex md:space-x-8">
+                    <nav className="hidden md:ms-6 md:flex md:space-x-8">
                         {navLinks.map((link) => (
                            <Link
                               key={link.href}
@@ -73,12 +73,12 @@ export default function AppLayout({
                      <Button variant="ghost" size="icon" className="bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
                        <Search className="h-4 w-4"/>
                     </Button>
-                     <Button variant="ghost" size="icon" className="ml-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
+                     <Button variant="ghost" size="icon" className="ms-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
                        <Bell className="h-4 w-4"/>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                         <div className="ml-3 relative">
+                         <div className="ms-3 relative">
                             <button className="flex text-sm rounded-full focus:outline-none">
                                 <Image className="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" width={32} height={32} />
                             </button>
