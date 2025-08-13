@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title: 'Ledger Louhibi',
+  title: 'Ledger',
   description: 'Gérez vos fournisseurs et créances en toute simplicité.',
 };
 
