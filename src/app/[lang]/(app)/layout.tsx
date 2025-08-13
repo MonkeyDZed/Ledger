@@ -18,6 +18,8 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { LanguageSwitcherMenu } from './components/language-switcher-menu';
 import { Locale } from '@/i18n.config';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 const navLinks = [
   { href: '/dashboard', label: 'Tableau de bord', labelAr: 'لوحة التحكم' },
@@ -34,6 +36,7 @@ export default function AppLayout({
   params: { lang: Locale }
 }) {
   const pathname = usePathname();
+  const [hoveredPath, setHoveredPath] = useState(pathname);
 
   const isActive = (path: string) => {
     const fullPath = `/${params.lang}${path}`;
@@ -52,21 +55,39 @@ export default function AppLayout({
                     <div className="flex-shrink-0 flex items-center">
                         <Logo />
                     </div>
-                    <nav className="hidden md:ms-6 md:flex md:space-x-8 rtl:space-x-reverse">
-                        {navLinks.map((link) => (
-                           <Link
+                    <nav 
+                      className="hidden md:ms-6 md:flex md:space-x-1 rtl:space-x-reverse relative"
+                      onMouseLeave={() => setHoveredPath(pathname)}
+                    >
+                        {navLinks.map((link) => {
+                           const fullPath = `/${params.lang}${link.href}`;
+                           return (
+                            <Link
                               key={link.href}
-                              href={`/${params.lang}${link.href}`}
+                              href={fullPath}
                               className={cn(
-                                'px-1 pt-1 text-sm font-medium',
+                                'relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out active:scale-95',
                                 isActive(link.href)
-                                  ? 'text-primary border-b-2 border-primary'
-                                  : 'text-gray-500 hover:text-gray-700'
+                                  ? 'text-primary-foreground'
+                                  : 'text-gray-500 hover:text-gray-900'
                               )}
+                              onMouseOver={() => setHoveredPath(fullPath)}
                             >
-                              {params.lang === 'ar' ? link.labelAr : link.label}
+                              {isActive(link.href) && (
+                                <motion.div
+                                  className="absolute inset-0 bg-primary rounded-md z-[-1]"
+                                  layoutId="active-nav-link"
+                                  transition={{
+                                    type: 'spring',
+                                    stiffness: 350,
+                                    damping: 30,
+                                  }}
+                                />
+                              )}
+                              <span>{params.lang === 'ar' ? link.labelAr : link.label}</span>
                             </Link>
-                        ))}
+                           )
+                        })}
                     </nav>
                 </div>
                 <div className="flex items-center">
