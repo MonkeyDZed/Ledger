@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 const navLinks = [
-  { href: '/', label: 'Tableau de bord' },
+  { href: '/dashboard', label: 'Tableau de bord' },
   { href: '/suppliers', label: 'Fournisseurs' },
   { href: '/pieces', label: 'Pièces' },
   { href: '/reports', label: 'Rapports' },
@@ -31,8 +31,8 @@ export default function AppLayout({
   const pathname = usePathname();
 
   const isActive = (path: string) => {
-    if (path === '/') return pathname === '/';
-    return pathname.startsWith(path) && path !== '/';
+    if (path === '/dashboard') return pathname === '/dashboard';
+    return pathname.startsWith(path) && path !== '/dashboard';
   };
 
   return (
@@ -82,7 +82,9 @@ export default function AppLayout({
                         <DropdownMenuItem>Paramètres</DropdownMenuItem>
                         <DropdownMenuItem>Support</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Déconnexion</DropdownMenuItem>
+                        <Link href="/">
+                          <DropdownMenuItem>Déconnexion</DropdownMenuItem>
+                        </Link>
                       </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
