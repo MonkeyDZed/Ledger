@@ -19,7 +19,7 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
            <img
             src="/login-illustration.png"
             alt={loginPage.illustrationAlt}
-            className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-125"
+            className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-150"
           />
         </div>
         <div className="flex flex-col justify-center p-8">
