@@ -14,7 +14,7 @@ export default function LoginPage() {
            <img
             src="/login-illustration.png"
             alt="Illustration"
-            className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-150"
+            className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-125"
           />
         </div>
         <div className="flex flex-col justify-center p-8">
