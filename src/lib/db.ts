@@ -11,15 +11,43 @@ async function openDb() {
     filename: './database.db',
     driver: sqlite3.Database,
   });
-  await db.migrate({ force: process.env.NODE_ENV === 'development' });
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS suppliers (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      wilaya TEXT,
+      phone TEXT,
+      nif TEXT,
+      bank_info TEXT,
+      solde_initial REAL NOT NULL,
+      notes TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS pieces (
+        id TEXT PRIMARY KEY,
+        supplier_id TEXT NOT NULL,
+        date TEXT NOT NULL,
+        type TEXT NOT NULL,
+        total_piece REAL NOT NULL,
+        montant_paye REAL NOT NULL,
+        reste REAL NOT NULL,
+        description TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
+    );
+  `);
   return db;
 }
 
 async function initializeData() {
     const db = await openDb();
 
-    const supplierCount = await db.get('SELECT COUNT(*) as count FROM suppliers');
-    if (supplierCount.count === 0) {
+    const supplierCountResult = await db.get('SELECT COUNT(*) as count FROM suppliers');
+    const supplierCount = supplierCountResult?.count ?? 0;
+
+    if (supplierCount === 0) {
         console.log('Seeding suppliers...');
         const stmt = await db.prepare('INSERT INTO suppliers (id, name, wilaya, phone, nif, bank_info, solde_initial, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         for (const supplier of suppliers) {
@@ -28,8 +56,10 @@ async function initializeData() {
         await stmt.finalize();
     }
 
-    const pieceCount = await db.get('SELECT COUNT(*) as count FROM pieces');
-    if (pieceCount.count === 0) {
+    const pieceCountResult = await db.get('SELECT COUNT(*) as count FROM pieces');
+    const pieceCount = pieceCountResult?.count ?? 0;
+
+    if (pieceCount === 0) {
         console.log('Seeding pieces...');
         const stmt = await db.prepare('INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         for (const piece of pieces) {
