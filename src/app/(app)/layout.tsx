@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { LanguageSwitcherMenu } from '../[lang]/(app)/components/language-switcher-menu';
 
 const navLinks = [
   { href: '/dashboard', label: 'Tableau de bord' },
@@ -81,6 +82,7 @@ export default function AppLayout({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>Paramètres</DropdownMenuItem>
                         <DropdownMenuItem>Support</DropdownMenuItem>
+                        <LanguageSwitcherMenu lang={'fr'} />
                         <DropdownMenuSeparator />
                         <Link href="/">
                           <DropdownMenuItem>Déconnexion</DropdownMenuItem>
