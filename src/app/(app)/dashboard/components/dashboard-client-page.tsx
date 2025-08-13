@@ -14,6 +14,7 @@ import { FinancialOverviewChart } from '../../components/financial-overview-char
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../suppliers/components/supplier-form';
 import { Sparkles } from 'lucide-react';
+import { NewPieceDialog } from './new-piece-dialog';
 
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
@@ -67,6 +68,7 @@ interface DashboardClientPageProps {
 
 export function DashboardClientPage({ suppliers, pieces }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
+  const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
 
   const handleAutoFill = () => {
@@ -152,7 +154,7 @@ export function DashboardClientPage({ suppliers, pieces }: DashboardClientPagePr
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <QuickActionButton onClick={() => setIsNewSupplierOpen(true)} className="bg-blue-100 text-primary" icon={<UserPlusIcon />} label="Ajout Fournisseur" />
-                            <QuickActionButton className="bg-green-100 text-secondary" icon={<FileInvoiceDollarIcon />} label="Nouvelle Pièce" />
+                            <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-secondary" icon={<FileInvoiceDollarIcon />} label="Nouvelle Pièce" />
                             <QuickActionButton className="bg-amber-100 text-amber-500" icon={<FileExportIcon />} label="Exporter" />
                         </div>
                     </CardContent>
@@ -276,6 +278,12 @@ export function DashboardClientPage({ suppliers, pieces }: DashboardClientPagePr
           <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} />
         </DialogContent>
       </Dialog>
+      <NewPieceDialog 
+        isOpen={isNewPieceOpen} 
+        onOpenChange={setIsNewPieceOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+      />
     </>
   );
 }

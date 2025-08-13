@@ -1,0 +1,95 @@
+
+'use client';
+
+import { useState, useMemo } from 'react';
+import type { Supplier, Piece } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PieceForm } from '../../suppliers/[id]/components/piece-form';
+import { formatCurrency } from '@/lib/utils';
+import { Card, CardContent, CardDescription } from '@/components/ui/card';
+
+interface NewPieceDialogProps {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  suppliers: Supplier[];
+  pieces: Piece[];
+}
+
+export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces }: NewPieceDialogProps) {
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
+
+  const handleClose = () => {
+    onOpenChange(false);
+    // Reset state after a short delay to allow for closing animation
+    setTimeout(() => {
+        setSelectedSupplierId(null);
+    }, 300);
+  };
+
+  const selectedSupplierDebt = useMemo(() => {
+    if (!selectedSupplierId) return 0;
+    const supplier = suppliers.find(s => s.id === selectedSupplierId);
+    if (!supplier) return 0;
+
+    const supplierPieces = pieces.filter(p => p.supplier_id === selectedSupplierId);
+    const balanceFromPieces = supplierPieces.reduce((sum, p) => sum + p.reste, 0);
+    return supplier.solde_initial + balanceFromPieces;
+  }, [selectedSupplierId, suppliers, pieces]);
+  
+  const selectedSupplier = suppliers.find(s => s.id === selectedSupplierId);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[625px]" onInteractOutside={(e) => {
+        // Prevent closing when interacting with other elements like toasts
+        if (e.target instanceof HTMLElement && e.target.closest('[data-radix-collection-item]')) {
+            e.preventDefault();
+        }
+      }}>
+        <DialogHeader>
+          <DialogTitle>Ajouter une nouvelle pièce</DialogTitle>
+          <DialogDescription>
+            {selectedSupplierId ? "Saisissez les détails de la pièce." : "Choisissez d'abord un fournisseur."}
+          </DialogDescription>
+        </DialogHeader>
+        
+        {!selectedSupplierId ? (
+            <div className="pt-4 space-y-4">
+                <Select onValueChange={setSelectedSupplierId}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un fournisseur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {suppliers.map(supplier => (
+                            <SelectItem key={supplier.id} value={supplier.id}>
+                                {supplier.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+        ) : (
+          <div>
+            <Card className="mb-4 bg-gray-50 border-dashed">
+                <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <p className="font-semibold text-gray-800">{selectedSupplier?.name}</p>
+                            <CardDescription>Créance actuelle avant cette pièce</CardDescription>
+                        </div>
+                        <p className={`font-mono text-lg font-bold ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                            {formatCurrency(selectedSupplierDebt)} DA
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+            <PieceForm supplierId={selectedSupplierId} onClose={handleClose} />
+          </div>
+        )}
+
+      </DialogContent>
+    </Dialog>
+  );
+}

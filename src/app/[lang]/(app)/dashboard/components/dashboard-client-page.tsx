@@ -16,6 +16,7 @@ import { SupplierForm, type SupplierFormRef } from '../../../suppliers/component
 import { Sparkles } from 'lucide-react';
 import { Dictionary, getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
+import { NewPieceDialog } from './new-piece-dialog';
 
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
@@ -71,6 +72,7 @@ interface DashboardClientPageProps {
 
 export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
+  const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
   const [formDictionary, setFormDictionary] = useState<Dictionary['suppliersPage']['form'] | null>(null);
 
@@ -167,7 +169,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <QuickActionButton onClick={openNewSupplierDialog} className="bg-blue-100 text-primary" icon={<UserPlusIcon />} label={dictionary.addSupplier} />
-                            <QuickActionButton className="bg-green-100 text-secondary" icon={<FileInvoiceDollarIcon />} label={dictionary.newPiece} />
+                            <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-secondary" icon={<FileInvoiceDollarIcon />} label={dictionary.newPiece} />
                             <QuickActionButton className="bg-amber-100 text-amber-500" icon={<FileExportIcon />} label={dictionary.export} />
                         </div>
                     </CardContent>
@@ -293,7 +295,14 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
             </DialogContent>
           </Dialog>
     )}
-    
+     <NewPieceDialog
+        isOpen={isNewPieceOpen}
+        onOpenChange={setIsNewPieceOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+        dictionary={dictionary}
+        lang={lang}
+      />
     </>
   );
 }
