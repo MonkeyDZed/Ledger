@@ -80,7 +80,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: Piec
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
       const action = isEditMode
-        ? updatePiece(pieceToEdit.id, supplierId, data, lang)
+        ? updatePiece(pieceToEdit!.id, supplierId, data, lang)
         : addPiece({ ...data, supplier_id: supplierId }, lang);
       
       const result = await action;

@@ -93,7 +93,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
         const action = isEditMode
-          ? updateSupplier(supplierToEdit.id, data, lang)
+          ? updateSupplier(supplierToEdit!.id, data, lang)
           : addSupplier(data, lang);
 
         const result = await action;
