@@ -18,8 +18,18 @@ export default function LoginPage() {
             className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-125"
           />
         </div>
-        <div className="flex flex-col justify-center p-8">
-            <CardHeader className="text-center">
+        <div
+            className="flex flex-col justify-center p-8"
+            style={{
+                backgroundColor: '#ffffff',
+                backgroundImage: `
+                linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)
+                `,
+                backgroundSize: '2rem 2rem',
+            }}
+        >
+            <CardHeader className="text-center bg-white/80 backdrop-blur-sm rounded-t-lg">
               <div className="flex justify-center items-center gap-2 mb-4">
                   <Logo />
               </div>
@@ -28,7 +38,7 @@ export default function LoginPage() {
                 Entrez vos identifiants pour accéder à votre espace
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-white/80 backdrop-blur-sm rounded-b-lg">
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="username">Nom d'utilisateur</Label>
