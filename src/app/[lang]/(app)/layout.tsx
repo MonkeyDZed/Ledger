@@ -33,11 +33,10 @@ export default function AppLayout({
   children: React.ReactNode;
   params: { lang: Locale }
 }) {
-  const { lang } = params;
   const pathname = usePathname();
 
   const isActive = (path: string) => {
-    const fullPath = `/${lang}${path}`;
+    const fullPath = `/${params.lang}${path}`;
     // Exact match for dashboard
     if (path === '/dashboard') return pathname === fullPath;
     // Starts with for others to handle sub-pages like /suppliers/[id]
@@ -45,7 +44,7 @@ export default function AppLayout({
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="flex min-h-screen w-full flex-col bg-gray-50" dir={params.lang === 'ar' ? 'rtl' : 'ltr'}>
        <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
@@ -57,7 +56,7 @@ export default function AppLayout({
                         {navLinks.map((link) => (
                            <Link
                               key={link.href}
-                              href={`/${lang}${link.href}`}
+                              href={`/${params.lang}${link.href}`}
                               className={cn(
                                 'px-1 pt-1 text-sm font-medium',
                                 isActive(link.href)
@@ -65,7 +64,7 @@ export default function AppLayout({
                                   : 'text-gray-500 hover:text-gray-700'
                               )}
                             >
-                              {lang === 'ar' ? link.labelAr : link.label}
+                              {params.lang === 'ar' ? link.labelAr : link.label}
                             </Link>
                         ))}
                     </nav>
@@ -86,14 +85,14 @@ export default function AppLayout({
                         </div>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>{lang === 'ar' ? 'حسابي' : 'Mon Compte'}</DropdownMenuLabel>
+                        <DropdownMenuLabel>{params.lang === 'ar' ? 'حسابي' : 'Mon Compte'}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>{lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
-                        <DropdownMenuItem>{lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
-                        <LanguageSwitcherMenu lang={lang} />
+                        <DropdownMenuItem>{params.lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
+                        <DropdownMenuItem>{params.lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
+                        <LanguageSwitcherMenu lang={params.lang} />
                         <DropdownMenuSeparator />
-                        <Link href={`/${lang}`}>
-                          <DropdownMenuItem>{lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>
+                        <Link href={`/${params.lang}`}>
+                          <DropdownMenuItem>{params.lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>
                         </Link>
                       </DropdownMenuContent>
                     </DropdownMenu>
