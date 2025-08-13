@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { FinancialOverviewChart } from './components/financial-overview-chart';
+import { FinancialOverviewChart } from '../components/financial-overview-chart';
 
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
