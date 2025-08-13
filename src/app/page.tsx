@@ -17,7 +17,7 @@ export default function LoginPage() {
             className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-125"
           />
         </div>
-        <div className="flex flex-col justify-center p-8">
+        <div className="flex flex-col justify-center p-8" style={{backgroundImage: "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(59 130 246 / 0.15)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e\")"}}>
             <CardHeader className="text-center">
               <div className="flex justify-center items-center gap-2 mb-4">
                   <Logo />
