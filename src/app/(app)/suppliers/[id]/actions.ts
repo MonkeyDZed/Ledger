@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addPiece as addPieceToDb, updatePiece as updatePieceInDb, deletePiece as deletePieceFromDb } from '@/lib/db';
+import { addPiece as addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import type { Piece } from '@/lib/types';
 
