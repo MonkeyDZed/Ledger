@@ -38,7 +38,6 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
               <div className="flex justify-center items-center gap-2 mb-4">
                   <Logo />
               </div>
-              <CardTitle className="text-3xl font-bold">{loginPage.title}</CardTitle>
               <CardDescription className="text-balance text-muted-foreground">
                 {loginPage.description}
               </CardDescription>

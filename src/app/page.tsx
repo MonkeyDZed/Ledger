@@ -33,7 +33,6 @@ export default function LoginPage() {
               <div className="flex justify-center items-center gap-2 mb-4">
                   <Logo />
               </div>
-              <CardTitle className="text-3xl font-bold">Accès</CardTitle>
               <CardDescription className="text-balance text-muted-foreground">
                 Entrez vos identifiants pour accéder à votre espace
               </CardDescription>
