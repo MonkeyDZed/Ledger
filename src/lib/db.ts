@@ -139,3 +139,30 @@ export async function getPiecesBySupplierId(supplierId: string): Promise<Piece[]
     const db = await openDb();
     return db.all('SELECT * FROM pieces WHERE supplier_id = ? ORDER BY date DESC', supplierId);
 }
+
+export async function addPiece(data: Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>): Promise<Piece> {
+    const db = await openDb();
+    const now = new Date().toISOString();
+    const reste = data.total_piece - data.montant_paye;
+    const newPiece: Piece = {
+        id: randomUUID(),
+        ...data,
+        reste,
+        created_at: now,
+        updated_at: now,
+    };
+    await db.run(
+        'INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        newPiece.id,
+        newPiece.supplier_id,
+        newPiece.date.toISOString(),
+        newPiece.type,
+        newPiece.total_piece,
+        newPiece.montant_paye,
+        newPiece.reste,
+        newPiece.description,
+        newPiece.created_at,
+        newPiece.updated_at
+    );
+    return newPiece;
+}

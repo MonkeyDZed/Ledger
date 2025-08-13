@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +18,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import type { Dictionary } from '@/lib/dictionaries';
+import { useTransition } from 'react';
+import { addPiece } from '../actions';
 
 const pieceFormSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
@@ -40,24 +43,36 @@ interface PieceFormProps {
 
 export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: PieceFormProps) {
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
     defaultValues: defaultValues || {
         date: new Date(),
         type: 'FACTURE',
         total_piece: 0,
-        montant_paye: 0
+        montant_paye: 0,
+        description: ''
     },
   });
 
   function onSubmit(data: PieceFormValues) {
-    const reste = data.total_piece - data.montant_paye;
-    console.log({ ...data, supplierId, reste });
-    toast({
-      title: dictionary.toast.success.title,
-      description: dictionary.toast.success.description,
+    startTransition(async () => {
+        const result = await addPiece({ ...data, supplier_id: supplierId });
+        if(result.success) {
+            toast({
+              title: dictionary.toast.success.title,
+              description: dictionary.toast.success.description,
+            });
+            onClose();
+        } else {
+             toast({
+              title: dictionary.toast.error.title,
+              description: result.message || dictionary.toast.error.description,
+              variant: "destructive",
+            });
+        }
     });
-    onClose();
   }
 
   return (
@@ -177,7 +192,9 @@ export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: Pi
         />
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>{dictionary.cancelButton}</Button>
-            <Button type="submit">{dictionary.saveButton}</Button>
+            <Button type="submit" disabled={isPending}>
+                {isPending ? dictionary.savingButton : dictionary.saveButton}
+            </Button>
         </div>
       </form>
     </Form>

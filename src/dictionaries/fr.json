@@ -156,10 +156,15 @@
             "descriptionPlaceholder": "Description de la pièce...",
             "cancelButton": "Annuler",
             "saveButton": "Enregistrer la Pièce",
+            "savingButton": "Enregistrement...",
             "toast": {
                 "success": {
                     "title": "Pièce enregistrée",
                     "description": "La nouvelle pièce a été ajoutée avec succès."
+                },
+                "error": {
+                    "title": "Erreur",
+                    "description": "Une erreur est survenue lors de l'ajout de la pièce."
                 }
             }
         }

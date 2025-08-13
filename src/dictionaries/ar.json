@@ -156,10 +156,15 @@
             "descriptionPlaceholder": "وصف المستند...",
             "cancelButton": "إلغاء",
             "saveButton": "حفظ المستند",
+            "savingButton": "جار الحفظ...",
             "toast": {
                 "success": {
                     "title": "تم تسجيل المستند",
                     "description": "تمت إضافة المستند الجديد بنجاح."
+                },
+                 "error": {
+                    "title": "خطأ",
+                    "description": "حدث خطأ أثناء إضافة المستند."
                 }
             }
         }
