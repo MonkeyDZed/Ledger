@@ -75,16 +75,26 @@ export function DashboardClientPage({ suppliers, pieces }: DashboardClientPagePr
     supplierFormRef.current?.autoFill();
   }
 
-  const supplierDebts = suppliers.map((supplier) => {
+  const supplierDataWithCalculations = suppliers.map((supplier) => {
     const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
     const totalFromPieces = supplierPieces.reduce((sum, p) => sum + p.total_piece, 0);
     const paidFromPieces = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
     const balanceFromPieces = totalFromPieces - paidFromPieces;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
-    return { ...supplier, totalDebt, totalFromPieces };
+
+    const mostRecentPiece = supplierPieces.length > 0 
+      ? supplierPieces.reduce((latest, current) => new Date(latest.date) > new Date(current.date) ? latest : current)
+      : null;
+
+    return { 
+      ...supplier, 
+      totalDebt, 
+      totalFromPieces,
+      mostRecentPieceDate: mostRecentPiece ? new Date(mostRecentPiece.date) : new Date(0) // Use epoch for suppliers with no pieces
+    };
   });
 
-  const grandTotalDebt = supplierDebts.reduce((sum, s) => sum + s.totalDebt, 0);
+  const grandTotalDebt = supplierDataWithCalculations.reduce((sum, s) => sum + s.totalDebt, 0);
   const totalPieces = pieces.length;
   const totalSuppliers = suppliers.length;
 
@@ -92,7 +102,9 @@ export function DashboardClientPage({ suppliers, pieces }: DashboardClientPagePr
   const totalToPay = pieces.reduce((sum,p) => sum + p.reste, 0);
   const grandTotal = totalPaid + totalToPay;
 
-  const recentSuppliers = [...supplierDebts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 4);
+  const recentSuppliers = [...supplierDataWithCalculations]
+    .sort((a, b) => b.mostRecentPieceDate.getTime() - a.mostRecentPieceDate.getTime())
+    .slice(0, 4);
 
   return (
     <>
