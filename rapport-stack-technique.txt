@@ -1,0 +1,37 @@
+# Rapport sur la Stack Technique - LedgerSync Local
+
+Ce document résume la stack technique et les technologies clés utilisées dans le projet LedgerSync Local.
+
+## 1. Framework Principal
+- **Next.js (avec App Router) :** Le projet est construit sur Next.js, un framework React pour la production. Nous utilisons le "App Router", qui favorise les "Server Components" pour des performances optimales et un meilleur rendu côté serveur.
+- **React :** La bibliothèque de base pour construire l'interface utilisateur.
+
+## 2. Langage de Programmation
+- **TypeScript :** L'ensemble du code est écrit en TypeScript pour garantir la robustesse, la maintenabilité et la sécurité des types.
+
+## 3. Style et UI
+- **Tailwind CSS :** Un framework CSS "utility-first" pour un prototypage rapide et un design personnalisé sans quitter votre HTML.
+- **ShadCN UI :** Une collection de composants d'interface utilisateur réutilisables et accessibles, construits sur Tailwind CSS et Radix UI. Les composants sont directement intégrés dans votre projet pour une personnalisation complète. Le fichier de thème principal est `src/app/globals.css`.
+- **Inter & Source Code Pro :** Les polices utilisées pour le corps du texte et le code, respectivement, pour une lisibilité moderne et claire.
+- **lucide-react :** La bibliothèque d'icônes utilisée pour les icônes vectorielles.
+
+## 4. Gestion des Formulaires
+- **React Hook Form :** Utilisé pour gérer les formulaires de manière performante et flexible.
+- **Zod :** Utilisé pour la validation des schémas de données des formulaires, assurant que les données soumises sont correctes.
+
+## 5. Visualisation de Données
+- **Recharts :** Une bibliothèque de graphiques pour React, utilisée pour créer les graphiques financiers comme le `FinancialOverviewChart`.
+- **@tanstack/react-table :** La bibliothèque utilisée pour créer des tableaux de données puissants, triables et filtrables.
+
+## 6. Fonctionnalités IA (GenAI)
+- **Genkit :** Le toolkit de Google utilisé pour intégrer des fonctionnalités d'intelligence artificielle générative (par exemple, pour des futures fonctionnalités d'analyse ou de reporting intelligent). La configuration se trouve dans `src/ai/`.
+
+## 7. Structure du Projet
+- `src/app/(app)/`: Contient les pages principales de l'application (tableau de bord, fournisseurs, etc.).
+- `src/components/ui/`: Contient les composants de base de ShadCN UI.
+- `src/lib/`: Contient le code utilitaire (`utils.ts`), les types de données (`types.ts`) et les données statiques (`data.ts`).
+- `src/hooks/`: Contient les hooks React personnalisés comme `use-toast.ts`.
+- `public/`: Pour les ressources statiques.
+- `package.json`: Liste toutes les dépendances du projet.
+
+Ce rapport devrait vous donner une bonne vue d'ensemble pour la suite du développement !
