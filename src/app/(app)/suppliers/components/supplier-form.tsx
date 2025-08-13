@@ -4,14 +4,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useTransition, forwardRef, useImperativeHandle } from 'react';
+import { useTransition, forwardRef, useImperativeHandle, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { addSupplier } from '../actions';
+import { addSupplier, updateSupplier } from '../actions';
+import type { Supplier } from '@/lib/types';
+
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -27,29 +29,47 @@ type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
 interface SupplierFormProps {
   onClose: () => void;
-  defaultValues?: Partial<SupplierFormValues>;
+  supplierToEdit?: Supplier;
 }
 
 export type SupplierFormRef = {
     autoFill: () => void;
 };
 
-export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, defaultValues }, ref) => {
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
+  const isEditMode = !!supplierToEdit;
+
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
-    defaultValues: defaultValues || {
-      name: '',
-      wilaya: '',
-      phone: '',
-      nif: '',
-      bank_info: '',
-      solde_initial: 0,
-      notes: '',
+    defaultValues: {
+        name: '',
+        wilaya: '',
+        phone: '',
+        nif: '',
+        bank_info: '',
+        solde_initial: 0,
+        notes: '',
     },
   });
+
+  useEffect(() => {
+    if (isEditMode && supplierToEdit) {
+      form.reset(supplierToEdit);
+    } else {
+        form.reset({
+            name: '',
+            wilaya: '',
+            phone: '',
+            nif: '',
+            bank_info: '',
+            solde_initial: 0,
+            notes: '',
+        });
+    }
+  }, [supplierToEdit, isEditMode, form]);
 
   useImperativeHandle(ref, () => ({
     autoFill: () => {
@@ -67,11 +87,16 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
 
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
-        const result = await addSupplier(data);
+        const action = isEditMode
+          ? updateSupplier(supplierToEdit.id, data)
+          : addSupplier(data);
+
+        const result = await action;
+        
         if (result.success) {
             toast({
-              title: 'Fournisseur enregistré',
-              description: `Le fournisseur ${data.name} a été ajouté avec succès.`,
+              title: isEditMode ? 'Fournisseur mis à jour' : 'Fournisseur enregistré',
+              description: `Le fournisseur ${data.name} a été ${isEditMode ? 'mis à jour' : 'ajouté'} avec succès.`,
             });
             onClose();
         } else {
@@ -187,7 +212,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
             <Button type="submit" disabled={isPending}>
-                {isPending ? 'Enregistrement...' : 'Enregistrer'}
+                {isPending ? 'Enregistrement...' : (isEditMode ? 'Sauvegarder' : 'Enregistrer')}
             </Button>
         </div>
       </form>

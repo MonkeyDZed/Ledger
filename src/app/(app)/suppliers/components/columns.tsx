@@ -11,7 +11,12 @@ import { Badge } from '@/components/ui/badge';
 
 type SupplierWithDebt = Supplier & { totalDebt: number };
 
-export const columns: ColumnDef<SupplierWithDebt>[] = [
+type ColumnsProps = {
+  onEdit: (supplier: SupplierWithDebt) => void;
+  onDelete: (supplier: SupplierWithDebt) => void;
+}
+
+export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<SupplierWithDebt>[] => [
   {
     accessorKey: 'name',
     header: ({ column }) => {
@@ -85,8 +90,8 @@ export const columns: ColumnDef<SupplierWithDebt>[] = [
               <Link href={`/suppliers/${supplier.id}`}>
                 <DropdownMenuItem>Voir la situation</DropdownMenuItem>
               </Link>
-              <DropdownMenuItem>Modifier</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Supprimer</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(supplier)}>Modifier</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(supplier)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">Supprimer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
