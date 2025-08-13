@@ -10,17 +10,15 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
-import { useParams } from 'next/navigation';
 
 type ColumnsProps = {
   onEdit: (piece: Piece) => void;
   onDelete: (piece: Piece) => void;
   dict: Dictionary['supplierDetailPage']['piecesTable'];
+  lang: Locale;
 }
 
-export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Piece>[] => {
-  const params = useParams();
-  const lang = params.lang as Locale;
+export const columns = ({ onEdit, onDelete, dict, lang }: ColumnsProps): ColumnDef<Piece>[] => {
   
   return [
   {

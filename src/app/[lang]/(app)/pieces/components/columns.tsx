@@ -11,13 +11,15 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
-import { useParams } from 'next/navigation';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
 
-export const columns = (dict: Dictionary['piecesPage']['table']): ColumnDef<PieceWithSupplierName>[] => {
-    const params = useParams();
-    const lang = params.lang as Locale;
+type ColumnsProps = {
+  dict: Dictionary['piecesPage']['table'];
+  lang: Locale;
+};
+
+export const columns = ({dict, lang}: ColumnsProps): ColumnDef<PieceWithSupplierName>[] => {
     
     return [
   {

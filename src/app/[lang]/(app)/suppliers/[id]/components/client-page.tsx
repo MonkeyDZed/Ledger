@@ -44,10 +44,9 @@ interface ClientPageProps {
   supplier: Supplier;
   pieces: Piece[];
   dictionary: Dictionary['supplierDetailPage'];
-  lang: Locale;
 }
 
-export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPageProps) {
+export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
   const { toast } = useToast();
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
@@ -55,6 +54,7 @@ export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPagePro
   }>({ type: null });
 
   const params = useParams();
+  const lang = params.lang as Locale;
 
   const openDialog = (type: 'new' | 'edit' | 'delete', data?: Piece) => {
     setDialogState({ type, data });
@@ -132,7 +132,7 @@ export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPagePro
       </Card>
 
       <DataTable 
-        columns={columns({ dict: dictionary.piecesTable, onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p)})} 
+        columns={columns({ dict: dictionary.piecesTable, onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p), lang })} 
         data={pieces} 
         dictionary={dictionary.piecesTable} 
       />

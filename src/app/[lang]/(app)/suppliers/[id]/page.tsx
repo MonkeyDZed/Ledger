@@ -1,3 +1,4 @@
+
 import { getSupplierById, getPiecesBySupplierId } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { ClientPage } from './components/client-page';
@@ -14,5 +15,5 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
 
   const supplierPieces = await getPiecesBySupplierId(supplier.id);
 
-  return <ClientPage supplier={supplier} pieces={supplierPieces} dictionary={dictionary.supplierDetailPage} lang={params.lang} />;
+  return <ClientPage supplier={supplier} pieces={supplierPieces} dictionary={dictionary.supplierDetailPage} />;
 }

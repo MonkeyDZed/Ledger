@@ -10,13 +10,13 @@ import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
+import { useParams } from 'next/navigation';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
 
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
   dictionary: Dictionary['piecesPage'];
-  lang: Locale;
 }
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
@@ -30,7 +30,10 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
     </Card>
 );
 
-export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
+export function ClientPage({ pieces, dictionary }: ClientPageProps) {
+    const params = useParams();
+    const lang = params.lang as Locale;
+    
     const totals = useMemo(() => {
         const totalBilled = pieces.reduce((sum, p) => sum + p.total_piece, 0);
         const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
@@ -58,7 +61,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
             </Card>
         </div>
 
-      <DataTable columns={columns(dictionary.table)} data={pieces} dictionary={dictionary.table} />
+      <DataTable columns={columns({dict: dictionary.table, lang})} data={pieces} dictionary={dictionary.table} />
     </>
   );
 }

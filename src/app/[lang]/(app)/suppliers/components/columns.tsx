@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
-import { useParams } from 'next/navigation';
 
 type SupplierWithDebt = Supplier & { 
   totalDebt: number;
@@ -23,11 +22,10 @@ type ColumnsProps = {
   onEdit: (supplier: SupplierWithDebt) => void;
   onDelete: (supplier: SupplierWithDebt) => void;
   dict: Dictionary['suppliersPage']['table'];
+  lang: Locale;
 }
 
-export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<SupplierWithDebt>[] => {
-    const params = useParams();
-    const lang = params.lang as Locale;
+export const columns = ({ onEdit, onDelete, dict, lang }: ColumnsProps): ColumnDef<SupplierWithDebt>[] => {
     
     return [
   {
