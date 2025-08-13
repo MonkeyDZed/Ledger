@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { LanguageSwitcher } from './components/language-switcher';
+import { LanguageSwitcherMenu } from './components/language-switcher-menu';
 
 const navLinks = [
   { href: '/dashboard', label: 'Tableau de bord', labelAr: 'لوحة التحكم' },
@@ -67,7 +68,7 @@ export default function AppLayout({
                 </div>
                 <div className="flex items-center">
                     <LanguageSwitcher />
-                    <Button variant="ghost" size="icon" className="bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
+                     <Button variant="ghost" size="icon" className="ml-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
                        <Search className="h-4 w-4"/>
                     </Button>
                      <Button variant="ghost" size="icon" className="ml-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
@@ -86,6 +87,7 @@ export default function AppLayout({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>{lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
                         <DropdownMenuItem>{lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
+                        <LanguageSwitcherMenu lang={lang as 'fr' | 'ar'} />
                         <DropdownMenuSeparator />
                         <Link href={`/${lang}`}>
                           <DropdownMenuItem>{lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>
