@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addPiece as addPieceToDb, updatePiece as updatePieceInDb } from '@/lib/db';
+import { addPiece as addPieceToDb, updatePiece as updatePieceInDb, deletePiece as deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import type { Piece } from '@/lib/types';
 
@@ -49,7 +49,12 @@ export async function updatePiece(id: string, supplier_id: string, data: z.infer
     }
 
     try {
-        await updatePieceInDb(id, validation.data);
+        const pieceData = {
+            ...validation.data,
+            date: validation.data.date.toISOString(),
+            description: validation.data.description || '',
+        };
+        await updatePieceInDb(id, pieceData);
         revalidatePath(`/suppliers/${supplier_id}`);
         revalidatePath('/dashboard');
         revalidatePath('/pieces');
@@ -58,5 +63,19 @@ export async function updatePiece(id: string, supplier_id: string, data: z.infer
         const error = e as Error;
         console.error(e);
         return { success: false, message: error.message || "Une erreur est survenue lors de la mise à jour de la pièce." };
+    }
+}
+
+export async function deletePiece(id: string, supplier_id: string): Promise<{success: boolean, message?: string}> {
+    try {
+        await deletePieceFromDb(id);
+        revalidatePath(`/suppliers/${supplier_id}`);
+        revalidatePath('/dashboard');
+        revalidatePath('/pieces');
+        return { success: true };
+    } catch (e) {
+        const error = e as Error;
+        console.error(e);
+        return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }

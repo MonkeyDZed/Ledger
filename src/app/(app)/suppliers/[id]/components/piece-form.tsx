@@ -49,7 +49,10 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
-    defaultValues: {
+    defaultValues: isEditMode && pieceToEdit ? {
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+    } : {
         date: new Date(),
         type: 'FACTURE',
         total_piece: 0,
@@ -217,7 +220,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) 
         />
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-            <Button type="submit" disabled={isPending}>{isPending ? "Enregistrement..." : "Enregistrer la Pièce"}</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? (isEditMode ? "Sauvegarde..." : "Enregistrement...") : (isEditMode ? "Sauvegarder les modifications" : "Enregistrer la Pièce")}</Button>
         </div>
       </form>
     </Form>

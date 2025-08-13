@@ -167,7 +167,7 @@ export async function addPiece(data: Omit<Piece, 'id' | 'created_at' | 'updated_
     return newPiece;
 }
 
-export async function updatePiece(id: string, data: Partial<Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'supplier_id' | 'reste'>>): Promise<void> {
+export async function updatePieceInDb(id: string, data: Partial<Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'supplier_id'>>): Promise<void> {
     const db = await openDb();
     const now = new Date().toISOString();
 
@@ -178,20 +178,21 @@ export async function updatePiece(id: string, data: Partial<Omit<Piece, 'id' | '
 
     const updatedData = { ...currentPiece, ...data };
     const reste = updatedData.total_piece - updatedData.montant_paye;
+    
+    const fieldsToUpdate = { ...data, reste };
 
-    const fields = Object.keys(data).map(field => `${field} = ?`).join(', ');
-    const values = Object.values(data);
+    const fields = Object.keys(fieldsToUpdate).map(field => `${field} = ?`).join(', ');
+    const values = Object.values(fieldsToUpdate);
 
     await db.run(
-        `UPDATE pieces SET ${fields}, reste = ?, updated_at = ? WHERE id = ?`,
+        `UPDATE pieces SET ${fields}, updated_at = ? WHERE id = ?`,
         ...values,
-        reste,
         now,
         id
     );
 }
 
-export async function deletePiece(id: string): Promise<void> {
+export async function deletePieceFromDb(id: string): Promise<void> {
     const db = await openDb();
     await db.run('DELETE FROM pieces WHERE id = ?', id);
 }

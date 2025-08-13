@@ -58,19 +58,19 @@ export function ClientPage({ supplier, pieces }: ClientPageProps) {
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
-    // const result = await deletePiece(dialogState.data.id);
-    // if(result.success) {
-    //     toast({
-    //         title: "Pièce supprimée",
-    //         description: "La pièce a été supprimée avec succès.",
-    //     });
-    // } else {
-    //     toast({
-    //         title: "Erreur",
-    //         description: result.message || "Une erreur est survenue.",
-    //         variant: "destructive",
-    //     });
-    // }
+    const result = await deletePiece(dialogState.data.id, supplier.id);
+    if(result.success) {
+        toast({
+            title: "Pièce supprimée",
+            description: "La pièce a été supprimée avec succès.",
+        });
+    } else {
+        toast({
+            title: "Erreur",
+            description: result.message || "Une erreur est survenue.",
+            variant: "destructive",
+        });
+    }
     closeDialogs();
   };
 
