@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { LanguageSwitcher } from './components/language-switcher';
 import { LanguageSwitcherMenu } from './components/language-switcher-menu';
+import { Locale } from '@/i18n.config';
 
 const navLinks = [
   { href: '/dashboard', label: 'Tableau de bord', labelAr: 'لوحة التحكم' },
@@ -30,7 +31,7 @@ export default function AppLayout({
   params: { lang }
 }: {
   children: React.ReactNode;
-  params: { lang: string }
+  params: { lang: Locale }
 }) {
   const pathname = usePathname();
 
@@ -41,7 +42,7 @@ export default function AppLayout({
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50">
+    <div className="flex min-h-screen w-full flex-col bg-gray-50" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
        <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
@@ -67,7 +68,7 @@ export default function AppLayout({
                     </nav>
                 </div>
                 <div className="flex items-center">
-                    <LanguageSwitcher />
+                    <LanguageSwitcher lang={lang} />
                      <Button variant="ghost" size="icon" className="ml-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
                        <Search className="h-4 w-4"/>
                     </Button>
@@ -87,7 +88,6 @@ export default function AppLayout({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>{lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
                         <DropdownMenuItem>{lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
-                        <LanguageSwitcherMenu lang={lang as 'fr' | 'ar'} />
                         <DropdownMenuSeparator />
                         <Link href={`/${lang}`}>
                           <DropdownMenuItem>{lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>
