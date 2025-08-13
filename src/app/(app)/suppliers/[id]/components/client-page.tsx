@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,6 +13,10 @@ import { PieceForm } from './piece-form';
 import type { Supplier, Piece } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
+import { deletePiece } from '../actions';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
     <Card>
@@ -39,7 +44,35 @@ interface ClientPageProps {
 }
 
 export function ClientPage({ supplier, pieces }: ClientPageProps) {
-  const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
+  const { toast } = useToast();
+  const [dialogState, setDialogState] = useState<{
+    type: 'new' | 'edit' | 'delete' | null;
+    data?: Piece;
+  }>({ type: null });
+
+  const openDialog = (type: 'new' | 'edit' | 'delete', data?: Piece) => {
+    setDialogState({ type, data });
+  };
+  const closeDialogs = () => setDialogState({ type: null });
+
+  const handleDelete = async () => {
+    if (dialogState.type !== 'delete' || !dialogState.data) return;
+    
+    // const result = await deletePiece(dialogState.data.id);
+    // if(result.success) {
+    //     toast({
+    //         title: "Pièce supprimée",
+    //         description: "La pièce a été supprimée avec succès.",
+    //     });
+    // } else {
+    //     toast({
+    //         title: "Erreur",
+    //         description: result.message || "Une erreur est survenue.",
+    //         variant: "destructive",
+    //     });
+    // }
+    closeDialogs();
+  };
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
   const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
@@ -58,7 +91,7 @@ export function ClientPage({ supplier, pieces }: ClientPageProps) {
             Retour à la liste
           </Link>
         </Button>
-        <Button onClick={() => setIsNewPieceOpen(true)}>
+        <Button onClick={() => openDialog('new')}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Nouvelle Pièce
         </Button>
@@ -92,19 +125,42 @@ export function ClientPage({ supplier, pieces }: ClientPageProps) {
         </CardContent>
       </Card>
 
-      <DataTable columns={columns} data={pieces} />
+      <DataTable 
+        columns={columns({ onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p)})} 
+        data={pieces} 
+      />
 
-      <Dialog open={isNewPieceOpen} onOpenChange={setIsNewPieceOpen}>
+      <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>Ajouter une nouvelle pièce</DialogTitle>
+            <DialogTitle>{dialogState.type === 'edit' ? "Modifier la pièce" : "Ajouter une nouvelle pièce"}</DialogTitle>
             <DialogDescription>
-              Saisissez les détails de la facture ou du bon de livraison.
+              {dialogState.type === 'edit' ? "Mettez à jour les détails de la pièce." : "Saisissez les détails de la facture ou du bon de livraison."}
             </DialogDescription>
           </DialogHeader>
-          <PieceForm supplierId={supplier.id} onClose={() => setIsNewPieceOpen(false)} />
+          <PieceForm 
+            supplierId={supplier.id} 
+            pieceToEdit={dialogState.data}
+            onClose={closeDialogs} 
+          />
         </DialogContent>
       </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Cette action est irréversible. Elle supprimera définitivement la pièce.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={closeDialogs}>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

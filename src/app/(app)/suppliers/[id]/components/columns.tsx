@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ColumnDef } from '@tanstack/react-table';
@@ -8,7 +9,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-export const columns: ColumnDef<Piece>[] = [
+type ColumnsProps = {
+  onEdit: (piece: Piece) => void;
+  onDelete: (piece: Piece) => void;
+}
+
+export const columns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<Piece>[] => [
   {
     accessorKey: 'date',
     header: ({ column }) => (
@@ -57,7 +63,8 @@ export const columns: ColumnDef<Piece>[] = [
   },
   {
     id: 'actions',
-    cell: () => {
+    cell: ({ row }) => {
+      const piece = row.original;
       return (
         <div className="text-right">
           <DropdownMenu>
@@ -69,8 +76,8 @@ export const columns: ColumnDef<Piece>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>Modifier</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10">Supprimer</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(piece)}>Modifier</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(piece)} className="text-destructive focus:bg-destructive/10">Supprimer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

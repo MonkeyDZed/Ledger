@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,8 +17,10 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { addPiece } from '../actions';
-import { useTransition } from 'react';
+import { addPiece, updatePiece } from '../actions';
+import { useTransition, useEffect } from 'react';
+import type { Piece } from '@/lib/types';
+
 
 const pieceFormSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
@@ -35,16 +38,18 @@ type PieceFormValues = z.infer<typeof pieceFormSchema>;
 interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
-  defaultValues?: Partial<PieceFormValues>;
+  pieceToEdit?: Piece;
 }
 
-export function PieceForm({ supplierId, onClose, defaultValues }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
+  const isEditMode = !!pieceToEdit;
+
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
-    defaultValues: defaultValues || {
+    defaultValues: {
         date: new Date(),
         type: 'FACTURE',
         total_piece: 0,
@@ -53,19 +58,42 @@ export function PieceForm({ supplierId, onClose, defaultValues }: PieceFormProps
     },
   });
 
+  useEffect(() => {
+    if (isEditMode && pieceToEdit) {
+      form.reset({
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+      });
+    } else {
+        form.reset({
+            date: new Date(),
+            type: 'FACTURE',
+            total_piece: 0,
+            montant_paye: 0,
+            description: ''
+        });
+    }
+  }, [pieceToEdit, isEditMode, form]);
+
+
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
-      const result = await addPiece({ ...data, supplier_id: supplierId });
+      const action = isEditMode
+        ? updatePiece(pieceToEdit.id, supplierId, data)
+        : addPiece({ ...data, supplier_id: supplierId });
+      
+      const result = await action;
+
       if (result.success) {
         toast({
-          title: 'Pièce enregistrée',
-          description: 'La nouvelle pièce a été ajoutée avec succès.',
+          title: isEditMode ? 'Pièce mise à jour' : 'Pièce enregistrée',
+          description: `La pièce a été ${isEditMode ? 'mise à jour' : 'ajoutée'} avec succès.`,
         });
         onClose();
       } else {
         toast({
           title: 'Erreur',
-          description: result.message || "Une erreur est survenue lors de l'ajout de la pièce.",
+          description: result.message || "Une erreur est survenue.",
           variant: 'destructive',
         });
       }

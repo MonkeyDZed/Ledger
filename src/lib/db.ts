@@ -166,3 +166,32 @@ export async function addPiece(data: Omit<Piece, 'id' | 'created_at' | 'updated_
     );
     return newPiece;
 }
+
+export async function updatePiece(id: string, data: Partial<Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'supplier_id' | 'reste'>>): Promise<void> {
+    const db = await openDb();
+    const now = new Date().toISOString();
+
+    const currentPiece = await db.get('SELECT * FROM pieces WHERE id = ?', id);
+    if (!currentPiece) {
+        throw new Error("Piece not found");
+    }
+
+    const updatedData = { ...currentPiece, ...data };
+    const reste = updatedData.total_piece - updatedData.montant_paye;
+
+    const fields = Object.keys(data).map(field => `${field} = ?`).join(', ');
+    const values = Object.values(data);
+
+    await db.run(
+        `UPDATE pieces SET ${fields}, reste = ?, updated_at = ? WHERE id = ?`,
+        ...values,
+        reste,
+        now,
+        id
+    );
+}
+
+export async function deletePiece(id: string): Promise<void> {
+    const db = await openDb();
+    await db.run('DELETE FROM pieces WHERE id = ?', id);
+}
