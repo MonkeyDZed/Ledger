@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title: 'AutoBook Local',
+  title: 'Ledger Louhibi',
   description: 'Gérez vos fournisseurs et créances en toute simplicité.',
 };
 
