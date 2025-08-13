@@ -1,6 +1,6 @@
 
 
-import { suppliers, pieces } from '@/lib/data';
+import { getSuppliers, getPieces } from '@/lib/db';
 import type { Supplier } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -56,15 +56,18 @@ const CsvIcon = () => (
 );
 
 
-export default function DashboardPage() {
-  const supplierDebts = suppliers.map((supplier) => {
+export default async function DashboardPage() {
+  const suppliers = await getSuppliers();
+  const pieces = await getPieces();
+
+  const supplierDebts = await Promise.all(suppliers.map(async (supplier) => {
     const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
     const totalFromPieces = supplierPieces.reduce((sum, p) => sum + p.total_piece, 0);
     const paidFromPieces = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
     const balanceFromPieces = totalFromPieces - paidFromPieces;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
     return { ...supplier, totalDebt, totalFromPieces };
-  });
+  }));
 
   const grandTotalDebt = supplierDebts.reduce((sum, s) => sum + s.totalDebt, 0);
   const totalPieces = pieces.length;

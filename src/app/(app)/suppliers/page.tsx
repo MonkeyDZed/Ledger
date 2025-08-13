@@ -1,7 +1,10 @@
-import { suppliers, pieces } from '@/lib/data';
+import { getSuppliers, getPieces } from '@/lib/db';
 import { ClientPage } from './components/client-page';
 
-export default function SuppliersPage() {
+export default async function SuppliersPage() {
+  const suppliers = await getSuppliers();
+  const pieces = await getPieces();
+  
   const suppliersWithDebt = suppliers.map(supplier => {
     const supplierPieces = pieces.filter(p => p.supplier_id === supplier.id);
     const balanceFromPieces = supplierPieces.reduce((sum, p) => sum + p.reste, 0);
