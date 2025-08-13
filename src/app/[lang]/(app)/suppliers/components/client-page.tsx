@@ -18,7 +18,7 @@ import { useParams } from 'next/navigation';
 import { Locale } from '@/i18n.config';
 
 
-type SupplierWithDebt = Supplier & { totalDebt: number };
+type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
@@ -84,7 +84,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         </Button>
       </PageHeader>
       
-      <DataTable columns={columns({ onEdit: (s) => openDialog('edit', s), onDelete: (s) => openDialog('delete', s), dict: dictionary.table })} data={suppliers} dictionary={dictionary.table}/>
+      <DataTable columns={columns({ onEdit: (s) => openDialog('edit', s), onDelete: (s) => openDialog('delete', s), dict: dictionary.table, lang })} data={suppliers} dictionary={dictionary.table}/>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>
@@ -92,7 +92,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
           <DialogHeader>
             <div className="flex justify-between items-center">
                 <DialogTitle>{dialogState.type === 'edit' ? dictionary.form.editTitle : dictionary.form.addTitle}</DialogTitle>
-                {dialogState.type === 'new' && (
+                {(dialogState.type === 'new' || dialogState.type === 'edit') && (
                     <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
                         <Sparkles className="h-4 w-4" /> {dictionary.form.autoFill}
                     </Button>

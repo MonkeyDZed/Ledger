@@ -9,7 +9,13 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
 
-export const columns = (dict: Dictionary['supplierDetailPage']['piecesTable']): ColumnDef<Piece>[] => [
+type ColumnsProps = {
+  onEdit: (piece: Piece) => void;
+  onDelete: (piece: Piece) => void;
+  dict: Dictionary['supplierDetailPage']['piecesTable'];
+}
+
+export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Piece>[] => [
   {
     accessorKey: 'date',
     header: ({ column }) => (
@@ -58,7 +64,8 @@ export const columns = (dict: Dictionary['supplierDetailPage']['piecesTable']): 
   },
   {
     id: 'actions',
-    cell: () => {
+    cell: ({ row }) => {
+      const piece = row.original;
       return (
         <div className="text-right">
           <DropdownMenu>
@@ -70,8 +77,8 @@ export const columns = (dict: Dictionary['supplierDetailPage']['piecesTable']): 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{dict.actions}</DropdownMenuLabel>
-              <DropdownMenuItem>{dict.edit}</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10">{dict.delete}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(piece)}>{dict.edit}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(piece)} className="text-destructive focus:bg-destructive/10">{dict.delete}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

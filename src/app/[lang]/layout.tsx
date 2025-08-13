@@ -12,6 +12,10 @@ export const metadata: Metadata = {
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
+export function generateStaticParams() {
+  return [{ lang: 'fr' }, { lang: 'ar' }]
+}
+
 export default function RootLayout({
   children,
   params

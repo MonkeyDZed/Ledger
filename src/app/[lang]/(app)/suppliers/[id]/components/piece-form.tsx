@@ -18,10 +18,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import type { Dictionary } from '@/lib/dictionaries';
-import { useTransition } from 'react';
-import { addPiece } from '../actions';
+import { useTransition, useEffect } from 'react';
+import { addPiece, updatePiece } from '../actions';
 import { useParams } from 'next/navigation';
 import { Locale } from '@/i18n.config';
+import type { Piece } from '@/lib/types';
+
 
 const pieceFormSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
@@ -39,19 +41,24 @@ type PieceFormValues = z.infer<typeof pieceFormSchema>;
 interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
-  defaultValues?: Partial<PieceFormValues>;
+  pieceToEdit?: Piece;
   dictionary: Dictionary['supplierDetailPage']['form']
 }
 
-export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
   const lang = params.lang as Locale;
+  
+  const isEditMode = !!pieceToEdit;
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
-    defaultValues: defaultValues || {
+    defaultValues: isEditMode && pieceToEdit ? {
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+    } : {
         date: new Date(),
         type: 'FACTURE',
         total_piece: 0,
@@ -59,23 +66,38 @@ export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: Pi
         description: ''
     },
   });
+  
+  useEffect(() => {
+    if (isEditMode && pieceToEdit) {
+      form.reset({
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+      });
+    }
+  }, [pieceToEdit, isEditMode, form]);
+
 
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
-        const result = await addPiece({ ...data, supplier_id: supplierId }, lang);
-        if(result.success) {
-            toast({
-              title: dictionary.toast.success.title,
-              description: dictionary.toast.success.description,
-            });
-            onClose();
-        } else {
-             toast({
-              title: dictionary.toast.error.title,
-              description: result.message || dictionary.toast.error.description,
-              variant: "destructive",
-            });
-        }
+      const action = isEditMode
+        ? updatePiece(pieceToEdit.id, supplierId, data, lang)
+        : addPiece({ ...data, supplier_id: supplierId }, lang);
+      
+      const result = await action;
+
+      if (result.success) {
+        toast({
+          title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.success.title,
+          description: isEditMode ? dictionary.toast.updateSuccess.description : dictionary.toast.success.description,
+        });
+        onClose();
+      } else {
+        toast({
+          title: dictionary.toast.error.title,
+          description: result.message || dictionary.toast.error.description,
+          variant: 'destructive',
+        });
+      }
     });
   }
 
@@ -196,9 +218,7 @@ export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: Pi
         />
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>{dictionary.cancelButton}</Button>
-            <Button type="submit" disabled={isPending}>
-                {isPending ? dictionary.savingButton : dictionary.saveButton}
-            </Button>
+            <Button type="submit" disabled={isPending}>{isPending ? (isEditMode ? dictionary.savingChangesButton : dictionary.savingButton) : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}</Button>
         </div>
       </form>
     </Form>

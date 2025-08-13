@@ -6,6 +6,9 @@ const dictionaries = {
   ar: () => import('@/dictionaries/ar.json').then(module => module.default),
 }
 
-export const getDictionary = async (locale: Locale) => dictionaries[locale]()
+export const getDictionary = async (locale: Locale) => {
+    const loader = dictionaries[locale] || dictionaries.fr;
+    return loader();
+}
 
 export type Dictionary = Awaited<ReturnType<typeof getDictionary>>

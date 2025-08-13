@@ -322,5 +322,3 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
     </>
   );
 }
-
-    

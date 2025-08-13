@@ -14,6 +14,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { formatCurrency } from '@/lib/utils';
 import { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { deletePiece, updatePiece } from '../actions';
+import { useParams } from 'next/navigation';
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
     <Card>
@@ -43,7 +47,37 @@ interface ClientPageProps {
 }
 
 export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPageProps) {
-  const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
+  const { toast } = useToast();
+  const [dialogState, setDialogState] = useState<{
+    type: 'new' | 'edit' | 'delete' | null;
+    data?: Piece;
+  }>({ type: null });
+
+  const params = useParams();
+
+  const openDialog = (type: 'new' | 'edit' | 'delete', data?: Piece) => {
+    setDialogState({ type, data });
+  };
+  const closeDialogs = () => setDialogState({ type: null });
+  
+  const handleDelete = async () => {
+    if (dialogState.type !== 'delete' || !dialogState.data) return;
+    
+    const result = await deletePiece(dialogState.data.id, supplier.id, params.lang as Locale);
+    if(result.success) {
+        toast({
+            title: "Pièce supprimée", // Replace with dict
+            description: "La pièce a été supprimée avec succès.", // Replace with dict
+        });
+    } else {
+        toast({
+            title: "Erreur", // Replace with dict
+            description: result.message || "Une erreur est survenue.", // Replace with dict
+            variant: "destructive",
+        });
+    }
+    closeDialogs();
+  };
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
   const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
@@ -62,7 +96,7 @@ export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPagePro
             {dictionary.header.backButton}
           </Link>
         </Button>
-        <Button onClick={() => setIsNewPieceOpen(true)}>
+        <Button onClick={() => openDialog('new')}>
           <PlusCircle className="mr-2 h-4 w-4" />
           {dictionary.header.newPieceButton}
         </Button>
@@ -96,19 +130,44 @@ export function ClientPage({ supplier, pieces, dictionary, lang }: ClientPagePro
         </CardContent>
       </Card>
 
-      <DataTable columns={columns(dictionary.piecesTable)} data={pieces} dictionary={dictionary.piecesTable} />
-
-      <Dialog open={isNewPieceOpen} onOpenChange={setIsNewPieceOpen}>
+      <DataTable 
+        columns={columns({ dict: dictionary.piecesTable, onEdit: (p) => openDialog('edit', p), onDelete: (p) => openDialog('delete', p)})} 
+        data={pieces} 
+        dictionary={dictionary.piecesTable} 
+      />
+      
+      <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>{dictionary.form.addTitle}</DialogTitle>
+            <DialogTitle>{dialogState.type === 'edit' ? dictionary.form.editTitle : dictionary.form.addTitle}</DialogTitle>
             <DialogDescription>
-              {dictionary.form.addDescription}
+              {dialogState.type === 'edit' ? dictionary.form.editDescription : dictionary.form.addDescription}
             </DialogDescription>
           </DialogHeader>
-          <PieceForm supplierId={supplier.id} onClose={() => setIsNewPieceOpen(false)} dictionary={dictionary.form} />
+          <PieceForm 
+            supplierId={supplier.id} 
+            pieceToEdit={dialogState.data}
+            onClose={closeDialogs} 
+            dictionary={dictionary.form}
+          />
         </DialogContent>
       </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Cette action est irréversible. Elle supprimera définitivement la pièce.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={closeDialogs}>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -1,73 +1,8 @@
 
+import { redirect } from 'next/navigation';
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Logo } from '@/components/logo';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-export default function LoginPage() {
-  return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4">
-      <Card className="grid w-full max-w-4xl grid-cols-1 overflow-hidden shadow-2xl md:grid-cols-2">
-        <div className="relative items-center justify-center bg-primary p-8 hidden md:flex overflow-hidden">
-           <img
-            src="/login-illustration.png"
-            alt="Illustration"
-            className="h-full w-full object-cover transition-transform duration-500 ease-in-out hover:scale-110 scale-125"
-          />
-        </div>
-        <div
-            className="flex flex-col justify-center p-8"
-            style={{
-                backgroundColor: '#ffffff',
-                backgroundImage: `
-                linear-gradient(to right, #dbeafe 1px, transparent 1px),
-                linear-gradient(to bottom, #dbeafe 1px, transparent 1px)
-                `,
-                backgroundSize: '2rem 2rem',
-            }}
-        >
-            <CardHeader className="text-center">
-              <div className="flex justify-center items-center gap-2 mb-4">
-                  <Logo />
-              </div>
-              <CardDescription className="text-balance text-muted-foreground">
-                Entrez vos identifiants pour accéder à votre espace
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="username">Nom d'utilisateur</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="votrenom"
-                    required
-                    defaultValue=""
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Link
-                      href="#"
-                      className="ml-auto inline-block text-sm underline"
-                    >
-                      Mot de passe oublié?
-                    </Link>
-                  </div>
-                  <Input id="password" type="password" required defaultValue=""/>
-                </div>
-                <Button type="submit" className="w-full" asChild>
-                  <Link href="/dashboard">Se connecter</Link>
-                </Button>
-              </div>
-            </CardContent>
-        </div>
-      </Card>
-    </div>
-  );
+// This is the root page, it redirects to the default locale.
+// The actual login page is at /app/[lang]/page.tsx
+export default function RootPage() {
+  redirect('/fr');
 }

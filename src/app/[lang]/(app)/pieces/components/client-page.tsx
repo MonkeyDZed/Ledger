@@ -8,7 +8,7 @@ import type { Piece } from '@/lib/types';
 import { useMemo } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dictionary, getDictionary } from '@/lib/dictionaries';
+import { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
@@ -30,7 +30,7 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
     </Card>
 );
 
-export function ClientPage({ pieces, dictionary }: ClientPageProps) {
+export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
     const totals = useMemo(() => {
         const totalBilled = pieces.reduce((sum, p) => sum + p.total_piece, 0);
         const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);

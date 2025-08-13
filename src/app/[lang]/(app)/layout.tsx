@@ -37,7 +37,9 @@ export default function AppLayout({
   const isActive = (path: string) => {
     const fullPath = `/${lang}${path}`;
     if (fullPath === `/${lang}/dashboard`) return pathname === fullPath;
-    return pathname.startsWith(fullPath) && fullPath !== `/${lang}/dashboard`;
+    // For suppliers, we want to match /suppliers and /suppliers/[id]
+    if (path === '/suppliers') return pathname.startsWith(fullPath);
+    return pathname.startsWith(fullPath) && path !== '/dashboard';
   };
 
   return (

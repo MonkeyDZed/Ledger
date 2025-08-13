@@ -9,20 +9,22 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
+import { Locale } from '@/i18n.config';
 
 type SupplierWithDebt = Supplier & { 
-  totalDebt: number,
-  totalInvoiced: number,
-  totalPaid: number
+  totalDebt: number;
+  totalInvoiced: number;
+  totalPaid: number;
 };
 
 type ColumnsProps = {
   onEdit: (supplier: SupplierWithDebt) => void;
   onDelete: (supplier: SupplierWithDebt) => void;
   dict: Dictionary['suppliersPage']['table'];
+  lang: Locale;
 }
 
-export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<SupplierWithDebt>[] => [
+export const columns = ({ onEdit, onDelete, dict, lang }: ColumnsProps): ColumnDef<SupplierWithDebt>[] => [
   {
     accessorKey: 'name',
     header: ({ column }) => {
@@ -37,7 +39,7 @@ export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Sup
       );
     },
     cell: ({ row }) => (
-      <Link href={`/suppliers/${row.original.id}`} className="font-medium text-primary hover:underline">
+      <Link href={`/${lang}/suppliers/${row.original.id}`} className="font-medium text-primary hover:underline">
         {row.getValue('name')}
       </Link>
     ),
@@ -105,7 +107,7 @@ export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<Sup
                 {dict.copyId}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <Link href={`/suppliers/${supplier.id}`}>
+              <Link href={`/${lang}/suppliers/${supplier.id}`}>
                 <DropdownMenuItem>{dict.viewDetails}</DropdownMenuItem>
               </Link>
               <DropdownMenuItem onClick={() => onEdit(supplier)}>{dict.edit}</DropdownMenuItem>
