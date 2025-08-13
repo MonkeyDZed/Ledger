@@ -60,29 +60,40 @@ export default function AppLayout({
                     >
                         {navLinks.map((link) => {
                            const fullPath = `/${params.lang}${link.href}`;
+                           const isLinkActive = isActive(link.href);
+                           const isHovered = hoveredPath === fullPath;
+
                            return (
                             <Link
                               key={link.href}
                               href={fullPath}
                               className={cn(
-                                'relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out active:scale-95',
-                                isActive(link.href)
+                                'relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out active:scale-95 z-10',
+                                isLinkActive
                                   ? 'text-primary-foreground'
                                   : 'text-gray-500 hover:text-gray-900'
                               )}
                               onMouseOver={() => setHoveredPath(fullPath)}
                             >
-                              {isActive(link.href) && (
+                               {isHovered && !isLinkActive && (
                                 <motion.div
-                                  className="absolute inset-0 z-[-1] rounded-md bg-primary"
+                                  className="absolute inset-0 z-[-1] rounded-md bg-gray-100"
                                   layoutId="active-nav-link"
+                                  aria-hidden="true"
                                   transition={{
                                     type: 'spring',
                                     stiffness: 350,
                                     damping: 30,
                                   }}
                                 />
-                              )}
+                               )}
+                               {isLinkActive && (
+                                <motion.div
+                                  className="absolute inset-0 z-[-1] rounded-md bg-primary"
+                                  layoutId="active-nav-link"
+                                  aria-hidden="true"
+                                />
+                               )}
                               <span>{params.lang === 'ar' ? link.labelAr : link.label}</span>
                             </Link>
                            )

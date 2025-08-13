@@ -20,6 +20,13 @@ function getLocale(request: NextRequest): string | undefined {
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+
+  // Redirect root to the default locale
+  if (pathname === '/') {
+    const locale = getLocale(request) || i18n.defaultLocale;
+    return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url));
+  }
+  
   const pathnameIsMissingLocale = i18n.locales.every(
     locale => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   )
