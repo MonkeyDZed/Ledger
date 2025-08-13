@@ -45,7 +45,10 @@ export const columns = (dict: Dictionary['piecesPage']['table'], lang: Locale): 
     cell: ({ row }) => {
         const type = row.getValue('type') as string;
         return <Badge variant={type === 'FACTURE' ? 'secondary' : 'outline'}>{type}</Badge>
-    }
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
   },
   {
     accessorKey: 'total_piece',

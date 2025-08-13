@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Dictionary } from '@/lib/dictionaries';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -58,7 +59,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <Card>
-      <CardContent className="p-4">
+      <CardContent className="p-4 flex gap-4">
         <Input
           placeholder={dictionary.filterPlaceholder}
           value={(table.getColumn('supplierName')?.getFilterValue() as string) ?? ''}
@@ -67,6 +68,21 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <Select
+            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
+            onValueChange={(value) =>
+                table.getColumn('type')?.setFilterValue(value === 'all' ? '' : value)
+            }
+        >
+            <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrer par type" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">{dictionary.typeAll || 'Toutes'}</SelectItem>
+                <SelectItem value="FACTURE">{dictionary.typeInvoice || 'Facture'}</SelectItem>
+                <SelectItem value="BL">{dictionary.typeBl || 'BL'}</SelectItem>
+            </SelectContent>
+        </Select>
       </CardContent>
       <div className="border-t">
         <Table>
