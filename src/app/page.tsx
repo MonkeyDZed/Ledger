@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4">
       <Card className="grid w-full max-w-4xl grid-cols-1 overflow-hidden shadow-2xl md:grid-cols-2">
         <div className="relative hidden items-center justify-center bg-primary p-8 md:flex">
-           <Image
+           <img
             src="/login-illustration.png"
             alt="Illustration"
             width={500}
