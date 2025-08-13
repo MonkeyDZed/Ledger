@@ -84,7 +84,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         </Button>
       </PageHeader>
       
-      <DataTable columns={columns({ onEdit: (s) => openDialog('edit', s), onDelete: (s) => openDialog('delete', s), dict: dictionary.table, lang })} data={suppliers} dictionary={dictionary.table}/>
+      <DataTable columns={columns({ onEdit: (s) => openDialog('edit', s), onDelete: (s) => openDialog('delete', s), dict: dictionary.table })} data={suppliers} dictionary={dictionary.table}/>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>

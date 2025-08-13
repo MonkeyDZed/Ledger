@@ -89,7 +89,7 @@ export default function AppLayout({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>{params.lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
                         <DropdownMenuItem>{params.lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
-                        <LanguageSwitcherMenu lang={params.lang} />
+                        <LanguageSwitcherMenu params={params} />
                         <DropdownMenuSeparator />
                         <Link href={`/${params.lang}`}>
                           <DropdownMenuItem>{params.lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>

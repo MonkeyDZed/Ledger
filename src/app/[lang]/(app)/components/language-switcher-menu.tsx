@@ -1,3 +1,4 @@
+
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
@@ -5,7 +6,8 @@ import { DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenu
 import { Check } from 'lucide-react'
 import { Locale } from '@/i18n.config'
 
-export function LanguageSwitcherMenu({ lang }: { lang: Locale }) {
+export function LanguageSwitcherMenu({ params }: { params: { lang: Locale }}) {
+  const { lang } = params;
   const router = useRouter()
   const pathname = usePathname()
 

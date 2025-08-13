@@ -58,7 +58,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
             </Card>
         </div>
 
-      <DataTable columns={columns(dictionary.table, lang)} data={pieces} dictionary={dictionary.table} />
+      <DataTable columns={columns(dictionary.table)} data={pieces} dictionary={dictionary.table} />
     </>
   );
 }
