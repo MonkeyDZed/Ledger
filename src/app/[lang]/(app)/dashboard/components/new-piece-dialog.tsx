@@ -8,17 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PieceForm } from '../../components/piece-form';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
-import type { Dictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 
+// Define the dictionary types locally to avoid importing from a 'server-only' module.
+type DashboardDictionary = {
+  newPiece: string;
+};
+type PieceFormDictionary = {
+    addDescription: string;
+    [key: string]: any; // Add other keys as needed or define the full type.
+};
 
 interface NewPieceDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   suppliers: Supplier[];
   pieces: Piece[];
-  dictionary: Dictionary['dashboard'];
-  pieceFormDictionary: Dictionary['supplierDetailPage']['form'];
+  dictionary: DashboardDictionary;
+  pieceFormDictionary: PieceFormDictionary;
   lang: Locale;
 }
 
