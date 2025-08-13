@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils';
 import type { Dictionary } from '@/lib/dictionaries';
 import { useTransition } from 'react';
 import { addPiece } from '../actions';
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 const pieceFormSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
@@ -44,6 +46,8 @@ interface PieceFormProps {
 export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const params = useParams();
+  const lang = params.lang as Locale;
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
@@ -58,7 +62,7 @@ export function PieceForm({ supplierId, onClose, defaultValues, dictionary }: Pi
 
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
-        const result = await addPiece({ ...data, supplier_id: supplierId });
+        const result = await addPiece({ ...data, supplier_id: supplierId }, lang);
         if(result.success) {
             toast({
               title: dictionary.toast.success.title,

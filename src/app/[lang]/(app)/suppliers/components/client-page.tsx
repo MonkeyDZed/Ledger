@@ -12,8 +12,10 @@ import { SupplierForm, type SupplierFormRef } from './supplier-form';
 import type { Supplier } from '@/lib/types';
 import type { Dictionary } from '@/lib/dictionaries';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { deleteSupplier } from '../../actions';
+import { deleteSupplier } from '../actions';
 import { useToast } from '@/hooks/use-toast';
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number };
@@ -31,6 +33,9 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
 
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
+  const params = useParams();
+  const lang = params.lang as Locale;
+
 
   const handleAutoFill = () => {
     supplierFormRef.current?.autoFill();
@@ -47,7 +52,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
-    const result = await deleteSupplier(dialogState.data.id);
+    const result = await deleteSupplier(dialogState.data.id, lang);
     if(result.success) {
         toast({
             title: dictionary.toast.deleteSuccess.title,

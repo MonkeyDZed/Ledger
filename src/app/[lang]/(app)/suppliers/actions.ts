@@ -1,0 +1,67 @@
+'use server';
+
+import { z } from 'zod';
+import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import type { Supplier } from '@/lib/types';
+import { Locale } from '@/i18n.config';
+
+const supplierFormSchema = z.object({
+  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
+  wilaya: z.string().optional(),
+  phone: z.string().optional(),
+  nif: z.string().optional(),
+  bank_info: z.string().optional(),
+  solde_initial: z.coerce.number().default(0),
+  notes: z.string().optional(),
+});
+
+type SupplierFormValues = z.infer<typeof supplierFormSchema>;
+
+
+export async function addSupplier(data: SupplierFormValues, lang: Locale) : Promise<{success: boolean, message?: string}> {
+    const validation = supplierFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
+    }
+    
+    try {
+        await addSupplierToDb(validation.data as Omit<Supplier, 'id' | 'created_at' | 'updated_at'>);
+        revalidatePath(`/${lang}/suppliers`);
+        revalidatePath(`/${lang}/dashboard`);
+        return { success: true };
+    } catch(e) {
+        console.error(e);
+        return { success: false, message: "Une erreur est survenue lors de l'ajout du fournisseur." };
+    }
+}
+
+export async function updateSupplier(id: string, data: SupplierFormValues, lang: Locale): Promise<{success: boolean, message?: string}> {
+    const validation = supplierFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
+    }
+
+    try {
+        await updateSupplierInDb(id, validation.data);
+        revalidatePath(`/${lang}/suppliers`);
+        revalidatePath(`/${lang}/suppliers/${id}`);
+        revalidatePath(`/${lang}/dashboard`);
+        return { success: true };
+    } catch (e) {
+        console.error(e);
+        return { success: false, message: "Une erreur est survenue lors de la mise à jour du fournisseur." };
+    }
+}
+
+export async function deleteSupplier(id: string, lang: Locale): Promise<{success: boolean, message?: string}> {
+    try {
+        await deleteSupplierFromDb(id);
+        revalidatePath(`/${lang}/suppliers`);
+        revalidatePath(`/${lang}/dashboard`);
+        return { success: true };
+    } catch(e) {
+        console.error(e);
+        return { success: false, message: "Une erreur est survenue lors de la suppression du fournisseur." };
+    }
+}

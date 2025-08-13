@@ -14,6 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../actions';
 import type { Dictionary } from '@/lib/dictionaries';
 import type { Supplier } from '@/lib/types';
+import { useParams } from 'next/navigation';
+import { Locale } from '@/i18n.config';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -40,6 +42,8 @@ export type SupplierFormRef = {
 export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const params = useParams();
+  const lang = params.lang as Locale;
   
   const isEditMode = !!supplierToEdit;
 
@@ -57,7 +61,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   });
 
   useEffect(() => {
-    if (isEditMode) {
+    if (isEditMode && supplierToEdit) {
       form.reset(supplierToEdit);
     } else {
         form.reset({
@@ -89,8 +93,8 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
         const action = isEditMode
-          ? updateSupplier(supplierToEdit.id, data)
-          : addSupplier(data);
+          ? updateSupplier(supplierToEdit.id, data, lang)
+          : addSupplier(data, lang);
 
         const result = await action;
         
