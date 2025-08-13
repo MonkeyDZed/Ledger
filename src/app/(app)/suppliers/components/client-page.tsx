@@ -1,13 +1,14 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { PlusCircle, FileDown } from 'lucide-react';
+import { PlusCircle, FileDown, Sparkles } from 'lucide-react';
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { SupplierForm } from './supplier-form';
+import { SupplierForm, type SupplierFormRef } from './supplier-form';
 import type { Supplier } from '@/lib/types';
 
 interface ClientPageProps {
@@ -16,6 +17,11 @@ interface ClientPageProps {
 
 export function ClientPage({ suppliers }: ClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
+  const supplierFormRef = useRef<SupplierFormRef>(null);
+
+  const handleAutoFill = () => {
+    supplierFormRef.current?.autoFill();
+  }
 
   return (
     <>
@@ -38,12 +44,17 @@ export function ClientPage({ suppliers }: ClientPageProps) {
       <Dialog open={isNewSupplierOpen} onOpenChange={setIsNewSupplierOpen}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>Ajouter un nouveau fournisseur</DialogTitle>
+            <div className="flex justify-between items-center">
+                <DialogTitle>Ajouter un nouveau fournisseur</DialogTitle>
+                <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
+                    <Sparkles className="h-4 w-4" /> Remplissage auto
+                </Button>
+            </div>
             <DialogDescription>
               Remplissez les informations ci-dessous pour créer un nouveau fournisseur.
             </DialogDescription>
           </DialogHeader>
-          <SupplierForm onClose={() => setIsNewSupplierOpen(false)} />
+          <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} />
         </DialogContent>
       </Dialog>
     </>

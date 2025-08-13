@@ -1,9 +1,10 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useTransition } from 'react';
+import { useTransition, forwardRef, useImperativeHandle } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -29,7 +30,11 @@ interface SupplierFormProps {
   defaultValues?: Partial<SupplierFormValues>;
 }
 
-export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
+export type SupplierFormRef = {
+    autoFill: () => void;
+};
+
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, defaultValues }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
@@ -45,6 +50,20 @@ export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
       notes: '',
     },
   });
+
+  useImperativeHandle(ref, () => ({
+    autoFill: () => {
+        form.reset({
+            name: 'Innovate SARL',
+            wilaya: 'Sétif',
+            phone: '0555-99-88-77',
+            nif: '987654321098765',
+            bank_info: 'BEA-00200082082210036974',
+            solde_initial: 25000,
+            notes: 'Fournisseur de solutions technologiques avancées et consulting.'
+        });
+    }
+  }));
 
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
@@ -174,4 +193,6 @@ export function SupplierForm({ onClose, defaultValues }: SupplierFormProps) {
       </form>
     </Form>
   );
-}
+});
+
+SupplierForm.displayName = 'SupplierForm';
