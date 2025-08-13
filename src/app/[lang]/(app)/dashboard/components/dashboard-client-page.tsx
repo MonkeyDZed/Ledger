@@ -126,24 +126,28 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
     <div className="space-y-8">
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-                <CardContent className="flex items-center p-6">
-                    <StatCardIcon className="bg-blue-100 text-primary"><UsersIcon /></StatCardIcon>
-                    <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">{dictionary.suppliers}</p>
-                        <p className="text-2xl font-semibold text-gray-900">{totalSuppliers}</p>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardContent className="flex items-center p-6">
-                    <StatCardIcon className="bg-green-100 text-secondary"><FileInvoiceIcon /></StatCardIcon>
-                    <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">{dictionary.pieces}</p>
-                        <p className="text-2xl font-semibold text-gray-900">{totalPieces}</p>
-                    </div>
-                </CardContent>
-            </Card>
+            <Link href={`/${lang}/suppliers`} className="block">
+                <Card className="h-full">
+                    <CardContent className="flex items-center p-6">
+                        <StatCardIcon className="bg-blue-100 text-primary"><UsersIcon /></StatCardIcon>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">{dictionary.suppliers}</p>
+                            <p className="text-2xl font-semibold text-gray-900">{totalSuppliers}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
+            <Link href={`/${lang}/pieces`} className="block">
+                <Card className="h-full">
+                    <CardContent className="flex items-center p-6">
+                        <StatCardIcon className="bg-green-100 text-secondary"><FileInvoiceIcon /></StatCardIcon>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">{dictionary.pieces}</p>
+                            <p className="text-2xl font-semibold text-gray-900">{totalPieces}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
             <Card>
                 <CardContent className="flex items-center p-6">
                     <StatCardIcon className="bg-amber-100 text-amber-500"><MoneyBillWaveIcon /></StatCardIcon>
@@ -318,3 +322,5 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
     </>
   );
 }
+
+    
