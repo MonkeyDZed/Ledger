@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gray-100 p-4">
       <Card className="grid w-full max-w-4xl grid-cols-1 overflow-hidden shadow-2xl md:grid-cols-2">
-        <div className="relative hidden items-center justify-center overflow-hidden bg-primary p-8 md:flex">
+        <div className="relative items-center justify-center bg-primary p-8 md:flex overflow-hidden">
            <img
             src="/login-illustration.png"
             alt="Illustration"
