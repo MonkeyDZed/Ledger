@@ -28,8 +28,8 @@ export default async function LoginPage({ params: { lang } }: { params: { lang: 
           style={{
             backgroundColor: '#ffffff',
             backgroundImage: `
-              linear-gradient(to right, #f0f0f0 1px, transparent 1px),
-              linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)
+              linear-gradient(to right, #dbeafe 1px, transparent 1px),
+              linear-gradient(to bottom, #dbeafe 1px, transparent 1px)
             `,
             backgroundSize: '2rem 2rem',
           }}
