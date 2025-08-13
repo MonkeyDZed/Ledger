@@ -9,14 +9,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { Locale } from '@/i18n.config';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
 
 export const columns: ColumnDef<PieceWithSupplierName>[] = (() => {
-  const params = useParams();
-  const lang = params.lang as Locale;
+  // This component is no longer used in a localized context directly,
+  // but keeping the structure in case it's reused.
+  // The correct, localized version is in /src/app/[lang]/(app)/pieces/components/columns.tsx
+  const lang: Locale = 'fr';
   
   return [
   {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -36,10 +37,10 @@ export default function AppLayout({
 
   const isActive = (path: string) => {
     const fullPath = `/${lang}${path}`;
-    if (fullPath === `/${lang}/dashboard`) return pathname === fullPath;
-    // For suppliers, we want to match /suppliers and /suppliers/[id]
-    if (path === '/suppliers') return pathname.startsWith(fullPath);
-    return pathname.startsWith(fullPath) && path !== '/dashboard';
+    // Exact match for dashboard
+    if (path === '/dashboard') return pathname === fullPath;
+    // Starts with for others to handle sub-pages like /suppliers/[id]
+    return pathname.startsWith(fullPath);
   };
 
   return (
