@@ -78,7 +78,7 @@
             "cancelButton": "Annuler",
             "saveButton": "Enregistrer",
             "savingButton": "Enregistrement...",
-            "saveChangesButton": "Sauvegarder les modifications",
+            "saveChangesButton": "Sauvegarder",
             "toast": {
                 "success": {
                     "title": "Fournisseur enregistré",
@@ -146,6 +146,8 @@
         "form": {
             "addTitle": "Ajouter une nouvelle pièce",
             "addDescription": "Saisissez les détails de la facture ou du bon de livraison.",
+            "editTitle": "Modifier la pièce",
+            "editDescription": "Mettez à jour les détails de la pièce.",
             "dateLabel": "Date de la pièce",
             "datePlaceholder": "Choisir une date",
             "typeLabel": "Type de pièce",
@@ -158,16 +160,32 @@
             "cancelButton": "Annuler",
             "saveButton": "Enregistrer la Pièce",
             "savingButton": "Enregistrement...",
+            "saveChangesButton": "Sauvegarder",
+            "savingChangesButton": "Sauvegarde...",
             "toast": {
                 "success": {
                     "title": "Pièce enregistrée",
                     "description": "La nouvelle pièce a été ajoutée avec succès."
                 },
+                "updateSuccess": {
+                    "title": "Pièce mise à jour",
+                    "description": "La pièce a été mise à jour avec succès."
+                },
+                 "deleteSuccess": {
+                    "title": "Pièce supprimée",
+                    "description": "La pièce a été supprimée avec succès."
+                },
                 "error": {
                     "title": "Erreur",
-                    "description": "Une erreur est survenue lors de l'ajout de la pièce."
+                    "description": "Une erreur est survenue."
                 }
             }
+        },
+        "deleteDialog": {
+            "title": "Êtes-vous sûr ?",
+            "description": "Cette action est irréversible. Elle supprimera définitivement la pièce.",
+            "cancel": "Annuler",
+            "confirm": "Supprimer"
         }
     },
     "piecesPage": {

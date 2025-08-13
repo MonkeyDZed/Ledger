@@ -10,9 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { FinancialOverviewChart } from '../../../components/financial-overview-chart';
+import { FinancialOverviewChart } from '@/app/(app)/components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { SupplierForm, type SupplierFormRef } from '../../../suppliers/components/supplier-form';
+import { SupplierForm, type SupplierFormRef } from '../../suppliers/components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { Dictionary, getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
@@ -67,24 +67,14 @@ interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
   dictionary: Dictionary['dashboard'];
+  formDictionary: Dictionary['suppliersPage']['form'];
   lang: Locale;
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: DashboardClientPageProps) {
+export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, lang }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
-  const [formDictionary, setFormDictionary] = useState<Dictionary['suppliersPage']['form'] | null>(null);
-
-  // Load dictionary for the form dynamically to avoid passing it down deeply
-  const openNewSupplierDialog = async () => {
-    if (!formDictionary) {
-      const dict = await getDictionary(lang);
-      setFormDictionary(dict.suppliersPage.form);
-    }
-    setIsNewSupplierOpen(true);
-  };
-
 
   const handleAutoFill = () => {
     supplierFormRef.current?.autoFill();
@@ -184,7 +174,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <QuickActionButton onClick={openNewSupplierDialog} className="bg-blue-100 text-primary" icon={<UserPlusIcon />} label={dictionary.addSupplier} />
+                            <QuickActionButton onClick={() => setIsNewSupplierOpen(true)} className="bg-blue-100 text-primary" icon={<UserPlusIcon />} label={dictionary.addSupplier} />
                             <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-secondary" icon={<FileInvoiceDollarIcon />} label={dictionary.newPiece} />
                             <QuickActionButton className="bg-amber-100 text-amber-500" icon={<FileExportIcon />} label={dictionary.export} />
                         </div>
@@ -293,24 +283,22 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, lang }: Das
             </div>
         </div>
     </div>
-    {formDictionary && (
-        <Dialog open={isNewSupplierOpen} onOpenChange={setIsNewSupplierOpen}>
-            <DialogContent className="sm:max-w-[625px]">
-              <DialogHeader>
-                <div className="flex justify-between items-center">
-                    <DialogTitle>{formDictionary.addTitle}</DialogTitle>
-                    <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
-                        <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
-                    </Button>
-                </div>
-                <DialogDescription>
-                  {formDictionary.addDescription}
-                </DialogDescription>
-              </DialogHeader>
-              <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} dictionary={formDictionary} />
-            </DialogContent>
-          </Dialog>
-    )}
+    <Dialog open={isNewSupplierOpen} onOpenChange={setIsNewSupplierOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <div className="flex justify-between items-center">
+                <DialogTitle>{formDictionary.addTitle}</DialogTitle>
+                <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
+                    <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
+                </Button>
+            </div>
+            <DialogDescription>
+              {formDictionary.addDescription}
+            </DialogDescription>
+          </DialogHeader>
+          <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} dictionary={formDictionary} />
+        </DialogContent>
+      </Dialog>
      <NewPieceDialog
         isOpen={isNewPieceOpen}
         onOpenChange={setIsNewPieceOpen}

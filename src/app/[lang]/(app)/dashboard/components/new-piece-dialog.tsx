@@ -6,7 +6,7 @@ import type { Supplier, Piece } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PieceForm } from '../../../suppliers/[id]/components/piece-form';
+import { PieceForm } from '../../suppliers/[id]/components/piece-form';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import type { Dictionary } from '@/lib/dictionaries';
@@ -65,7 +65,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
         <DialogHeader>
           <DialogTitle>{dictionary.newPiece}</DialogTitle>
            <DialogDescription>
-            {selectedSupplierId ? pieceFormDictionary?.addDescription : "Choisissez d'abord un fournisseur."}
+            {selectedSupplierId && pieceFormDictionary ? pieceFormDictionary.addDescription : "Choisissez d'abord un fournisseur."}
           </DialogDescription>
         </DialogHeader>
         

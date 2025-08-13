@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, ar } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -122,7 +122,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: Piec
                             )}
                             >
                             {field.value ? (
-                                format(field.value, "PPP", { locale: fr})
+                                format(field.value, "PPP", { locale: lang === 'ar' ? ar : fr})
                             ) : (
                                 <span>{dictionary.datePlaceholder}</span>
                             )}

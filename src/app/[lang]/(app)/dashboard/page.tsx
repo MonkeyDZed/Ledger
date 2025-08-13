@@ -1,3 +1,4 @@
+
 import { getSuppliers, getPieces } from '@/lib/db';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
@@ -9,5 +10,11 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
 
-  return <DashboardClientPage suppliers={suppliers} pieces={pieces} dictionary={dict.dashboard} lang={lang} />;
+  return <DashboardClientPage 
+    suppliers={suppliers} 
+    pieces={pieces} 
+    dictionary={dict.dashboard} 
+    formDictionary={dict.suppliersPage.form}
+    lang={lang} 
+  />;
 }

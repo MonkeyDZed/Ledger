@@ -146,6 +146,8 @@
         "form": {
             "addTitle": "إضافة مستند جديد",
             "addDescription": "أدخل تفاصيل الفاتورة أو وصل التسليم.",
+            "editTitle": "تعديل المستند",
+            "editDescription": "تحديث تفاصيل المستند.",
             "dateLabel": "تاريخ المستند",
             "datePlaceholder": "اختر تاريخًا",
             "typeLabel": "نوع المستند",
@@ -158,16 +160,32 @@
             "cancelButton": "إلغاء",
             "saveButton": "حفظ المستند",
             "savingButton": "جار الحفظ...",
+            "saveChangesButton": "حفظ التغييرات",
+            "savingChangesButton": "جار الحفظ...",
             "toast": {
                 "success": {
                     "title": "تم تسجيل المستند",
                     "description": "تمت إضافة المستند الجديد بنجاح."
                 },
+                 "updateSuccess": {
+                    "title": "تم تحديث المستند",
+                    "description": "تم تحديث المستند بنجاح."
+                },
+                "deleteSuccess": {
+                    "title": "تم حذف المستند",
+                    "description": "تم حذف المستند بنجاح."
+                },
                  "error": {
                     "title": "خطأ",
-                    "description": "حدث خطأ أثناء إضافة المستند."
+                    "description": "حدث خطأ ما."
                 }
             }
+        },
+        "deleteDialog": {
+            "title": "هل أنت متأكد؟",
+            "description": "هذا الإجراء لا يمكن التراجع عنه. سيؤدي إلى حذف المستند بشكل دائم.",
+            "cancel": "إلغاء",
+            "confirm": "حذف"
         }
     },
     "piecesPage": {
