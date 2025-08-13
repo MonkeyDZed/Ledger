@@ -1,0 +1,167 @@
+
+{
+    "loginPage": {
+        "title": "تسجيل الدخول",
+        "description": "أدخل بياناتك للوصول إلى حسابك",
+        "usernameLabel": "اسم المستخدم",
+        "usernamePlaceholder": "اسمك",
+        "passwordLabel": "كلمة المرور",
+        "forgotPasswordLink": "هل نسيت كلمة المرور؟",
+        "loginButton": "تسجيل الدخول",
+        "illustrationAlt": "رسم توضيحي لدفتر الأستاذ"
+    },
+    "dashboard": {
+        "suppliers": "الموردون",
+        "pieces": "المستندات",
+        "totalDebts": "إجمالي الديون",
+        "lastSync": "آخر مزامنة",
+        "upToDate": "محدث",
+        "quickActions": "إجراءات سريعة",
+        "addSupplier": "إضافة مورد",
+        "newPiece": "مستند جديد",
+        "export": "تصدير",
+        "recentSuppliers": "الموردون الجدد",
+        "seeAll": "عرض الكل",
+        "supplierName": "الاسم",
+        "wilaya": "الولاية",
+        "totalInvoiced": "إجمالي الفواتير",
+        "remaining": "المتبقي",
+        "action": "إجراء",
+        "nif": "الرقم التعريفي الجبائي",
+        "financialOverview": "نظرة مالية عامة",
+        "paid": "المدفوع",
+        "toPay": "المتبقي للدفع",
+        "exportPdf": "تصدير PDF",
+        "exportCsv": "تصدير CSV"
+    },
+    "suppliersPage": {
+        "title": "الموردون",
+        "description": "إدارة قائمة الموردين وديونهم.",
+        "export": "تصدير",
+        "newSupplier": "مورد جديد",
+        "table": {
+            "name": "الاسم",
+            "wilaya": "الولاية",
+            "phone": "الهاتف",
+            "totalDebt": "إجمالي الدين",
+            "actions": "الإجراءات",
+            "openMenu": "فتح القائمة",
+            "copyId": "نسخ المعرف",
+            "viewDetails": "عرض التفاصيل",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "filterPlaceholder": "تصفية بالاسم...",
+            "noResults": "لا توجد نتائج.",
+            "previous": "السابق",
+            "next": "التالي"
+        },
+        "form": {
+            "addTitle": "إضافة مورد جديد",
+            "addDescription": "املأ المعلومات أدناه لإنشاء مورد جديد.",
+            "editTitle": "تعديل المورد",
+            "editDescription": "تحديث معلومات المورد.",
+            "autoFill": "ملء تلقائي",
+            "nameLabel": "اسم المورد",
+            "namePlaceholder": "مثال: شركة حلول تقنية",
+            "wilayaLabel": "الولاية",
+            "wilayaPlaceholder": "مثال: الجزائر",
+            "phoneLabel": "الهاتف",
+            "phonePlaceholder": "مثال: 0555-123-456",
+            "nifLabel": "الرقم التعريفي الجبائي",
+            "nifPlaceholder": "الرقم التعريفي الجبائي",
+            "bankInfoLabel": "المعلومات البنكية",
+            "bankInfoPlaceholder": "رقم الحساب البنكي أو غيره",
+            "initialBalanceLabel": "الرصيد الأولي (دج)",
+            "notesLabel": "ملاحظات",
+            "notesPlaceholder": "إضافة ملاحظات حول المورد...",
+            "cancelButton": "إلغاء",
+            "saveButton": "حفظ",
+            "savingButton": "جار الحفظ...",
+            "saveChangesButton": "حفظ التغييرات",
+            "toast": {
+                "success": {
+                    "title": "تم تسجيل المورد",
+                    "description": "تمت إضافة المورد بنجاح:"
+                },
+                "updateSuccess": {
+                    "title": "تم تحديث المورد",
+                    "description": "تم تحديث المورد بنجاح:"
+                },
+                "deleteSuccess": {
+                    "title": "تم حذف المورد",
+                    "description": "تم حذف المورد بنجاح:"
+                },
+                "error": {
+                    "title": "خطأ",
+                    "description": "حدث خطأ ما."
+                }
+            }
+        },
+        "deleteDialog": {
+            "title": "هل أنت متأكد؟",
+            "description1": "هذا الإجراء لا يمكن التراجع عنه. سيؤدي إلى حذف المورد بشكل دائم",
+            "description2": "وجميع المستندات المرتبطة به من خوادمنا.",
+            "cancel": "إلغاء",
+            "confirm": "حذف"
+        }
+    },
+    "supplierDetailPage": {
+        "header": {
+            "description": "الوضع التفصيلي لـ",
+            "backButton": "العودة إلى القائمة",
+            "newPieceButton": "مستند جديد"
+        },
+        "stats": {
+            "initialBalance": "الرصيد الأولي",
+            "totalInvoiced": "إجمالي الفواتير",
+            "totalPaid": "إجمالي المدفوعات",
+            "totalDebt": "إجمالي الدين",
+            "debtDescription": "الرصيد الأولي + رصيد المستندات"
+        },
+        "info": {
+            "title": "معلومات المورد",
+            "wilaya": "الولاية",
+            "phone": "الهاتف",
+            "nif": "الرقم التعريفي الجبائي",
+            "bank": "البنك",
+            "notes": "ملاحظات"
+        },
+        "piecesTable": {
+            "title": "سجل المستندات",
+            "date": "التاريخ",
+            "type": "النوع",
+            "description": "الوصف",
+            "total": "الإجمالي",
+            "paid": "المدفوع",
+            "remaining": "المتبقي",
+            "actions": "الإجراءات",
+            "openMenu": "فتح القائمة",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "noResults": "لم يتم العثور على أي مستندات.",
+            "previous": "السابق",
+            "next": "التالي"
+        },
+        "form": {
+            "addTitle": "إضافة مستند جديد",
+            "addDescription": "أدخل تفاصيل الفاتورة أو وصل التسليم.",
+            "dateLabel": "تاريخ المستند",
+            "datePlaceholder": "اختر تاريخًا",
+            "typeLabel": "نوع المستند",
+            "typeInvoice": "فاتورة",
+            "typeBl": "وصل تسليم",
+            "totalLabel": "إجمالي المستند (دج)",
+            "paidLabel": "المبلغ المدفوع (دج)",
+            "descriptionLabel": "الوصف",
+            "descriptionPlaceholder": "وصف المستند...",
+            "cancelButton": "إلغاء",
+            "saveButton": "حفظ المستند",
+            "toast": {
+                "success": {
+                    "title": "تم تسجيل المستند",
+                    "description": "تمت إضافة المستند الجديد بنجاح."
+                }
+            }
+        }
+    }
+}

@@ -11,6 +11,7 @@ async function openDb() {
     filename: './database.db',
     driver: sqlite3.Database,
   });
+  await db.exec('PRAGMA foreign_keys = ON;'); // Ensure foreign key constraints are enforced
   await db.exec(`
     CREATE TABLE IF NOT EXISTS suppliers (
       id TEXT PRIMARY KEY,
@@ -35,7 +36,7 @@ async function openDb() {
         description TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
+        FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE
     );
   `);
   return db;
@@ -107,6 +108,27 @@ export async function addSupplier(data: Omit<Supplier, 'id' | 'created_at' | 'up
     );
     return newSupplier;
 }
+
+export async function updateSupplier(id: string, data: Partial<Omit<Supplier, 'id' | 'created_at' | 'updated_at'>>): Promise<void> {
+    const db = await openDb();
+    const now = new Date().toISOString();
+    const fields = Object.keys(data).map(field => `${field} = ?`).join(', ');
+    const values = Object.values(data);
+    
+    await db.run(
+        `UPDATE suppliers SET ${fields}, updated_at = ? WHERE id = ?`,
+        ...values,
+        now,
+        id
+    );
+}
+
+export async function deleteSupplier(id: string): Promise<void> {
+    const db = await openDb();
+    // Foreign key ON DELETE CASCADE will handle deleting pieces
+    await db.run('DELETE FROM suppliers WHERE id = ?', id);
+}
+
 
 export async function getPieces(): Promise<Piece[]> {
     const db = await openDb();

@@ -12,7 +12,13 @@ import type { Dictionary } from '@/lib/dictionaries';
 
 type SupplierWithDebt = Supplier & { totalDebt: number };
 
-export const columns = (dict: Dictionary['suppliersPage']['table']): ColumnDef<SupplierWithDebt>[] => [
+type ColumnsProps = {
+  onEdit: (supplier: SupplierWithDebt) => void;
+  onDelete: (supplier: SupplierWithDebt) => void;
+  dict: Dictionary['suppliersPage']['table'];
+}
+
+export const columns = ({ onEdit, onDelete, dict }: ColumnsProps): ColumnDef<SupplierWithDebt>[] => [
   {
     accessorKey: 'name',
     header: ({ column }) => {
@@ -86,8 +92,8 @@ export const columns = (dict: Dictionary['suppliersPage']['table']): ColumnDef<S
               <Link href={`/suppliers/${supplier.id}`}>
                 <DropdownMenuItem>{dict.viewDetails}</DropdownMenuItem>
               </Link>
-              <DropdownMenuItem>{dict.edit}</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">{dict.delete}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(supplier)}>{dict.edit}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(supplier)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">{dict.delete}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

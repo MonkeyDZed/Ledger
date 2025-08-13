@@ -1,0 +1,167 @@
+
+{
+    "loginPage": {
+        "title": "Accès",
+        "description": "Entrez vos identifiants pour accéder à votre espace",
+        "usernameLabel": "Nom d'utilisateur",
+        "usernamePlaceholder": "votrenom",
+        "passwordLabel": "Mot de passe",
+        "forgotPasswordLink": "Mot de passe oublié?",
+        "loginButton": "Se connecter",
+        "illustrationAlt": "Illustration d'un grand livre comptable"
+    },
+    "dashboard": {
+        "suppliers": "Fournisseurs",
+        "pieces": "Pièces",
+        "totalDebts": "Créances totales",
+        "lastSync": "Dernière synchro",
+        "upToDate": "À jour",
+        "quickActions": "Actions Rapides",
+        "addSupplier": "Ajout Fournisseur",
+        "newPiece": "Nouvelle Pièce",
+        "export": "Exporter",
+        "recentSuppliers": "Fournisseurs Récents",
+        "seeAll": "Voir tout",
+        "supplierName": "Nom",
+        "wilaya": "Wilaya",
+        "totalInvoiced": "Total Facturé",
+        "remaining": "Reste",
+        "action": "Action",
+        "nif": "NIF",
+        "financialOverview": "Vue Financière",
+        "paid": "Payé",
+        "toPay": "Reste à payer",
+        "exportPdf": "Exporter PDF",
+        "exportCsv": "Exporter CSV"
+    },
+    "suppliersPage": {
+        "title": "Fournisseurs",
+        "description": "Gérez la liste de vos fournisseurs et de leurs créances.",
+        "export": "Exporter",
+        "newSupplier": "Nouveau Fournisseur",
+        "table": {
+            "name": "Nom",
+            "wilaya": "Wilaya",
+            "phone": "Téléphone",
+            "totalDebt": "Créance Totale",
+            "actions": "Actions",
+            "openMenu": "Ouvrir menu",
+            "copyId": "Copier ID",
+            "viewDetails": "Voir la situation",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "filterPlaceholder": "Filtrer par nom...",
+            "noResults": "Aucun résultat.",
+            "previous": "Précédent",
+            "next": "Suivant"
+        },
+        "form": {
+            "addTitle": "Ajouter un nouveau fournisseur",
+            "addDescription": "Remplissez les informations ci-dessous pour créer un nouveau fournisseur.",
+            "editTitle": "Modifier le fournisseur",
+            "editDescription": "Mettez à jour les informations du fournisseur.",
+            "autoFill": "Remplissage auto",
+            "nameLabel": "Nom du Fournisseur",
+            "namePlaceholder": "Ex: Tech Solutions Inc.",
+            "wilayaLabel": "Wilaya",
+            "wilayaPlaceholder": "Ex: Alger",
+            "phoneLabel": "Téléphone",
+            "phonePlaceholder": "Ex: 0555-123-456",
+            "nifLabel": "NIF",
+            "nifPlaceholder": "Numéro d'Identification Fiscale",
+            "bankInfoLabel": "Informations Bancaires",
+            "bankInfoPlaceholder": "RIB ou autre",
+            "initialBalanceLabel": "Solde Initial (DZD)",
+            "notesLabel": "Notes",
+            "notesPlaceholder": "Ajouter des notes sur le fournisseur...",
+            "cancelButton": "Annuler",
+            "saveButton": "Enregistrer",
+            "savingButton": "Enregistrement...",
+            "saveChangesButton": "Sauvegarder les modifications",
+            "toast": {
+                "success": {
+                    "title": "Fournisseur enregistré",
+                    "description": "Le fournisseur a été ajouté avec succès:"
+                },
+                "updateSuccess": {
+                    "title": "Fournisseur mis à jour",
+                    "description": "Le fournisseur a été mis à jour avec succès:"
+                },
+                "deleteSuccess": {
+                    "title": "Fournisseur supprimé",
+                    "description": "Le fournisseur a été supprimé avec succès:"
+                },
+                "error": {
+                    "title": "Erreur",
+                    "description": "Une erreur est survenue."
+                }
+            }
+        },
+        "deleteDialog": {
+            "title": "Êtes-vous sûr ?",
+            "description1": "Cette action est irréversible. Elle supprimera définitivement le fournisseur",
+            "description2": "et toutes les pièces associées de nos serveurs.",
+            "cancel": "Annuler",
+            "confirm": "Supprimer"
+        }
+    },
+    "supplierDetailPage": {
+        "header": {
+            "description": "Situation détaillée pour",
+            "backButton": "Retour à la liste",
+            "newPieceButton": "Nouvelle Pièce"
+        },
+        "stats": {
+            "initialBalance": "Solde Initial",
+            "totalInvoiced": "Total Facturé",
+            "totalPaid": "Total Payé",
+            "totalDebt": "Créance Totale",
+            "debtDescription": "Solde initial + solde des pièces"
+        },
+        "info": {
+            "title": "Informations du Fournisseur",
+            "wilaya": "Wilaya",
+            "phone": "Téléphone",
+            "nif": "NIF",
+            "bank": "Banque",
+            "notes": "Notes"
+        },
+        "piecesTable": {
+            "title": "Historique des Pièces",
+            "date": "Date",
+            "type": "Type",
+            "description": "Description",
+            "total": "Total",
+            "paid": "Payé",
+            "remaining": "Reste",
+            "actions": "Actions",
+            "openMenu": "Ouvrir menu",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "noResults": "Aucune pièce trouvée.",
+            "previous": "Précédent",
+            "next": "Suivant"
+        },
+        "form": {
+            "addTitle": "Ajouter une nouvelle pièce",
+            "addDescription": "Saisissez les détails de la facture ou du bon de livraison.",
+            "dateLabel": "Date de la pièce",
+            "datePlaceholder": "Choisir une date",
+            "typeLabel": "Type de pièce",
+            "typeInvoice": "Facture",
+            "typeBl": "BL",
+            "totalLabel": "Total Pièce (DZD)",
+            "paidLabel": "Montant Payé (DZD)",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Description de la pièce...",
+            "cancelButton": "Annuler",
+            "saveButton": "Enregistrer la Pièce",
+            "toast": {
+                "success": {
+                    "title": "Pièce enregistrée",
+                    "description": "La nouvelle pièce a été ajoutée avec succès."
+                }
+            }
+        }
+    }
+}

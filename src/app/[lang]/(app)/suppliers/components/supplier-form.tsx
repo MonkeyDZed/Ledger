@@ -4,15 +4,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useTransition, forwardRef, useImperativeHandle } from 'react';
+import { useTransition, forwardRef, useImperativeHandle, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { addSupplier } from '../actions';
+import { addSupplier, updateSupplier } from '../actions';
 import type { Dictionary } from '@/lib/dictionaries';
+import type { Supplier } from '@/lib/types';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -28,21 +29,23 @@ type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
 interface SupplierFormProps {
   onClose: () => void;
-  defaultValues?: Partial<SupplierFormValues>;
   dictionary: Dictionary['suppliersPage']['form'];
+  supplierToEdit?: Supplier;
 }
 
 export type SupplierFormRef = {
     autoFill: () => void;
 };
 
-export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, defaultValues, dictionary }, ref) => {
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  
+  const isEditMode = !!supplierToEdit;
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
-    defaultValues: defaultValues || {
+    defaultValues: {
       name: '',
       wilaya: '',
       phone: '',
@@ -52,6 +55,22 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
       notes: '',
     },
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      form.reset(supplierToEdit);
+    } else {
+        form.reset({
+            name: '',
+            wilaya: '',
+            phone: '',
+            nif: '',
+            bank_info: '',
+            solde_initial: 0,
+            notes: '',
+        });
+    }
+  }, [supplierToEdit, isEditMode, form]);
 
   useImperativeHandle(ref, () => ({
     autoFill: () => {
@@ -69,11 +88,16 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
 
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
-        const result = await addSupplier(data);
+        const action = isEditMode
+          ? updateSupplier(supplierToEdit.id, data)
+          : addSupplier(data);
+
+        const result = await action;
+        
         if (result.success) {
             toast({
-              title: dictionary.toast.success.title,
-              description: `${dictionary.toast.success.description} ${data.name}.`,
+              title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.success.title,
+              description: `${isEditMode ? dictionary.toast.updateSuccess.description : dictionary.toast.success.description} ${data.name}.`,
             });
             onClose();
         } else {
@@ -189,7 +213,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>{dictionary.cancelButton}</Button>
             <Button type="submit" disabled={isPending}>
-                {isPending ? dictionary.savingButton : dictionary.saveButton}
+                {isPending ? dictionary.savingButton : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}
             </Button>
         </div>
       </form>

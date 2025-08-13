@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addSupplier as addSupplierToDb } from '@/lib/db';
+import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import type { Supplier } from '@/lib/types';
 
@@ -32,5 +32,35 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
     } catch(e) {
         console.error(e);
         return { success: false, message: "Une erreur est survenue lors de l'ajout du fournisseur." };
+    }
+}
+
+export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
+    const validation = supplierFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
+    }
+
+    try {
+        await updateSupplierInDb(id, validation.data);
+        revalidatePath('/suppliers');
+        revalidatePath(`/suppliers/${id}`);
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (e) {
+        console.error(e);
+        return { success: false, message: "Une erreur est survenue lors de la mise à jour du fournisseur." };
+    }
+}
+
+export async function deleteSupplier(id: string): Promise<{success: boolean, message?: string}> {
+    try {
+        await deleteSupplierFromDb(id);
+        revalidatePath('/suppliers');
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch(e) {
+        console.error(e);
+        return { success: false, message: "Une erreur est survenue lors de la suppression du fournisseur." };
     }
 }
