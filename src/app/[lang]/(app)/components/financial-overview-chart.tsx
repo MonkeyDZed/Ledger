@@ -12,21 +12,11 @@ interface FinancialOverviewChartProps {
 }
 
 export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const chartData = [
     { name: 'Payé', value: data.paid },
     { name: 'Reste à payer', value: data.toPay },
   ];
   const total = data.paid + data.toPay;
-
-  if (!isClient) {
-    return <div className="w-full h-[200px] relative flex items-center justify-center">Chargement...</div>;
-  }
 
   return (
     <div className="w-full h-[200px] relative">

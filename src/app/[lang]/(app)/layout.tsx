@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useParams } from 'next/navigation';
 import { Search, Bell } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { LanguageSwitcherMenu } from './components/language-switcher-menu';
-import { Locale } from '@/i18n.config';
+import type { Locale } from '@/i18n.config';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -30,11 +30,10 @@ const navLinks = [
 
 export default function AppLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: { lang: Locale }
 }) {
+  const params = useParams() as { lang: Locale };
   const pathname = usePathname();
   const [hoveredPath, setHoveredPath] = useState(pathname);
 
@@ -49,14 +48,14 @@ export default function AppLayout({
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-50" dir={params.lang === 'ar' ? 'rtl' : 'ltr'}>
        <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16 items-center">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
-                    <div className="flex-shrink-0 flex items-center">
+                    <div className="flex flex-shrink-0 items-center">
                         <Logo />
                     </div>
                     <nav 
-                      className="hidden md:ms-6 md:flex md:space-x-1 rtl:space-x-reverse relative"
+                      className="relative hidden md:ms-6 md:flex md:space-x-1 rtl:space-x-reverse"
                       onMouseLeave={() => setHoveredPath(pathname)}
                     >
                         {navLinks.map((link) => {
@@ -75,7 +74,7 @@ export default function AppLayout({
                             >
                               {isActive(link.href) && (
                                 <motion.div
-                                  className="absolute inset-0 bg-primary rounded-md z-[-1]"
+                                  className="absolute inset-0 z-[-1] rounded-md bg-primary"
                                   layoutId="active-nav-link"
                                   transition={{
                                     type: 'spring',
@@ -91,16 +90,16 @@ export default function AppLayout({
                     </nav>
                 </div>
                 <div className="flex items-center">
-                     <Button variant="ghost" size="icon" className="bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
+                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700">
                        <Search className="h-4 w-4"/>
                     </Button>
-                     <Button variant="ghost" size="icon" className="ms-3 bg-gray-100 text-gray-500 hover:text-gray-700 rounded-full h-8 w-8">
+                     <Button variant="ghost" size="icon" className="ms-3 h-8 w-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700">
                        <Bell className="h-4 w-4"/>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                         <div className="ms-3 relative">
-                            <button className="flex text-sm rounded-full focus:outline-none">
+                         <div className="relative ms-3">
+                            <button className="flex rounded-full text-sm focus:outline-none">
                                 <Image className="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" width={32} height={32} />
                             </button>
                         </div>
@@ -121,7 +120,7 @@ export default function AppLayout({
             </div>
         </div>
     </header>
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         {children}
       </main>
     </div>
