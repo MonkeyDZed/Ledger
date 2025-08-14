@@ -95,9 +95,23 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
           </Link>
         ),
       },
-      {
-        accessorKey: 'phone',
-        header: dict.phone,
+       {
+        accessorKey: 'solde_initial',
+        header: ({ column }) => (
+            <div className="text-end">
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                >
+                    {dict.initialBalance}
+                    <ArrowUpDown className="ms-2 h-4 w-4" />
+                </Button>
+            </div>
+        ),
+        cell: ({ row }) => {
+            const amount = parseFloat(row.getValue('solde_initial'));
+            return <div className="text-end font-mono">{formatCurrency(amount)} DZD</div>
+        },
       },
       {
         accessorKey: 'totalInvoiced',
@@ -234,5 +248,3 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
     </>
   );
 }
-
-    

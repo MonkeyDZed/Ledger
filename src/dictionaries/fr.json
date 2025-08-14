@@ -42,6 +42,7 @@
         "table": {
             "name": "Nom",
             "phone": "Téléphone",
+            "initialBalance": "Solde Initial",
             "totalInvoiced": "Total Facturé",
             "totalPaid": "Payé",
             "totalDebt": "Créance Totale",

@@ -42,6 +42,7 @@
         "table": {
             "name": "الاسم",
             "phone": "الهاتف",
+            "initialBalance": "الرصيد الأولي",
             "totalInvoiced": "إجمالي الفواتير",
             "totalPaid": "المدفوع",
             "totalDebt": "إجمالي الدين",

@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PieceForm } from '../../components/piece-form';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
-import { Locale } from '@/i18n.config';
 
 // Define the dictionary types locally to avoid importing from a 'server-only' module.
 type DashboardDictionary = {
@@ -18,6 +17,7 @@ type PieceFormDictionary = {
     addDescription: string;
     [key: string]: any; // Add other keys as needed or define the full type.
 };
+type Locale = 'fr' | 'ar';
 
 interface NewPieceDialogProps {
   isOpen: boolean;
@@ -89,7 +89,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                             <p className="font-semibold text-gray-800">{selectedSupplier?.name}</p>
                             <CardDescription>Créance actuelle avant cette pièce</CardDescription>
                         </div>
-                        <p className={`text-lg font-bold ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
+                        <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
                             {formatCurrency(selectedSupplierDebt)} DA
                         </p>
                     </div>
