@@ -183,6 +183,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
   const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
   const balanceFromPieces = totalFromPieces - paidFromPieces;
   const totalDebt = supplier.solde_initial + balanceFromPieces;
+  const currency = dictionary.currency;
 
   return (
     <>
@@ -203,9 +204,9 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
       </PageHeader>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencySimple(supplier.solde_initial)} DZD`} icon={<BadgeCentIcon />} />
-        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencySimple(totalFromPieces)} DZD`} icon={<FileTextIcon />} />
-        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencySimple(paidFromPieces)} DZD`} icon={<BanknoteIcon />} />
+        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencySimple(supplier.solde_initial)} ${currency}`} icon={<BadgeCentIcon />} />
+        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencySimple(totalFromPieces)} ${currency}`} icon={<FileTextIcon />} />
+        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencySimple(paidFromPieces)} ${currency}`} icon={<BanknoteIcon />} />
         <Card className="bg-blue-50">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-primary flex justify-between items-center">
@@ -213,7 +214,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencySimple(totalDebt)} DZD</p>
+                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencySimple(totalDebt)} {currency}</p>
                 <CardDescription>{dictionary.stats.debtDescription}</CardDescription>
             </CardContent>
         </Card>

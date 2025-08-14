@@ -19,5 +19,5 @@ export default async function PiecesPage({ params: { lang } }: { params: { lang:
     };
   });
 
-  return <ClientPage pieces={piecesWithSupplier} dictionary={dictionary.piecesPage} lang={lang} />;
+  return <ClientPage pieces={piecesWithSupplier} dictionary={dictionary.piecesPage as any} lang={lang} />;
 }

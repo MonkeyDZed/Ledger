@@ -32,13 +32,15 @@
         "paid": "المدفوع",
         "toPay": "المتبقي للدفع",
         "exportPdf": "تصدير PDF",
-        "exportCsv": "تصدير CSV"
+        "exportCsv": "تصدير CSV",
+        "currency": "دج"
     },
     "suppliersPage": {
         "title": "الموردون",
         "description": "إدارة قائمة الموردين وديونهم.",
         "export": "تصدير",
         "newSupplier": "مورد جديد",
+        "currency": "دج",
         "table": {
             "name": "الاسم",
             "phone": "الهاتف",
@@ -145,6 +147,7 @@
             "previous": "السابق",
             "next": "التالي"
         },
+        "currency": "دج",
         "form": {
             "addTitle": "إضافة مستند جديد",
             "addDescription": "أدخل تفاصيل الفاتورة أو وصل التسليم.",
@@ -196,6 +199,7 @@
         "totalBilled": "إجمالي الفواتير",
         "totalPaid": "إجمالي المدفوعات",
         "totalRemaining": "إجمالي المتبقي",
+        "currency": "دج",
         "table": {
             "supplier": "المورد",
             "date": "التاريخ",

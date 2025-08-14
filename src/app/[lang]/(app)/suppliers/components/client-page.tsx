@@ -113,6 +113,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
       return { totalInitialBalance, totalInvoiced, totalPaid, totalDebt };
   }, [suppliers]);
 
+  const currency = dictionary.currency;
 
   const columns = useMemo((): ColumnDef<SupplierWithDebt>[] => {
     const dict = dictionary.table;
@@ -154,7 +155,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         ),
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue('solde_initial'));
-            return <div className="text-end font-mono">{formatCurrencySimple(amount)} DZD</div>
+            return <div className="text-end font-mono">{formatCurrencySimple(amount)} {currency}</div>
         },
       },
       {
@@ -162,7 +163,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         header: () => <div className="text-end font-mono">{dict.totalInvoiced}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalInvoiced'));
-          return <div className="text-end font-mono">{formatCurrencySimple(amount)} DZD</div>;
+          return <div className="text-end font-mono">{formatCurrencySimple(amount)} {currency}</div>;
         },
       },
       {
@@ -170,7 +171,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         header: () => <div className="text-end font-mono">{dict.totalPaid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalPaid'));
-          return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)} DZD</div>;
+          return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)} {currency}</div>;
         },
       },
       {
@@ -192,7 +193,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
           const amount = parseFloat(row.getValue('totalDebt'));
           return <div className="text-end font-mono">
             <Badge variant={amount > 0 ? "destructive" : "default"} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
-                {formatCurrencySimple(amount)} DZD
+                {formatCurrencySimple(amount)} {currency}
             </Badge>
           </div>;
         },
@@ -228,7 +229,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         },
       },
     ];
-  }, [lang, dictionary.table]);
+  }, [lang, dictionary]);
 
   return (
     <>
@@ -247,10 +248,10 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
       </PageHeader>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrencySimple(totals.totalInitialBalance)} DZD`} icon={<BalanceIcon />} iconBgColor='bg-blue-100' />
-          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrencySimple(totals.totalInvoiced)} DZD`} icon={<ReceiptIcon />} iconBgColor='bg-indigo-100'/>
-          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} DZD`} icon={<CreditCardIcon />} iconBgColor='bg-green-100'/>
-          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrencySimple(totals.totalDebt)} DZD`} icon={<AlertCircleIcon />} iconBgColor='bg-amber-100'/>
+          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrencySimple(totals.totalInitialBalance)} ${currency}`} icon={<BalanceIcon />} iconBgColor='bg-blue-100' />
+          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrencySimple(totals.totalInvoiced)} ${currency}`} icon={<ReceiptIcon />} iconBgColor='bg-indigo-100'/>
+          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} ${currency}`} icon={<CreditCardIcon />} iconBgColor='bg-green-100'/>
+          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrencySimple(totals.totalDebt)} ${currency}`} icon={<AlertCircleIcon />} iconBgColor='bg-amber-100'/>
       </div>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>

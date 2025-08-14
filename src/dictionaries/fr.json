@@ -32,13 +32,15 @@
         "paid": "Payé",
         "toPay": "Reste à payer",
         "exportPdf": "Exporter PDF",
-        "exportCsv": "Exporter CSV"
+        "exportCsv": "Exporter CSV",
+        "currency": "DZD"
     },
     "suppliersPage": {
         "title": "Fournisseurs",
         "description": "Gérez la liste de vos fournisseurs et de leurs créances.",
         "export": "Exporter",
         "newSupplier": "Nouveau Fournisseur",
+        "currency": "DZD",
         "table": {
             "name": "Nom",
             "phone": "Téléphone",
@@ -145,6 +147,7 @@
             "previous": "Précédent",
             "next": "Suivant"
         },
+        "currency": "DZD",
         "form": {
             "addTitle": "Ajouter une nouvelle pièce",
             "addDescription": "Saisissez les détails de la facture ou du bon de livraison.",
@@ -196,6 +199,7 @@
         "totalBilled": "Total Facturé",
         "totalPaid": "Total Payé",
         "totalRemaining": "Total Restant",
+        "currency": "DZD",
         "table": {
             "supplier": "Fournisseur",
             "date": "Date",

@@ -99,7 +99,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                             <CardDescription>Créance actuelle avant cette pièce</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
-                            {formatCurrencySimple(selectedSupplierDebt)} DA
+                            {formatCurrencySimple(selectedSupplierDebt)} {dictionary.currency}
                         </p>
                     </div>
                 </CardContent>

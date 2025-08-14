@@ -35,6 +35,7 @@ type PiecesPageDictionary = {
     totalBilled: string;
     totalPaid: string;
     totalRemaining: string;
+    currency: string;
     table: {
         supplier: string;
         date: string;
@@ -91,8 +92,6 @@ const dateBetweenFilterFn: FilterFn<any> = (
   const date = new Date(row.getValue(columnId));
   const { from, to } = value;
   if (!from && !to) return true;
-  if (from && !to) return date >= startOfDay(from);
-  if (!from && to) return date <= endOfDay(to);
   if (from && to) return isWithinInterval(date, { start: startOfDay(from), end: endOfDay(to) });
   return true;
 };
@@ -203,14 +202,14 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
       />
 
         <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <StatCard title={dictionary.totalBilled} value={`${formatCurrencySimple(totals.totalBilled)} DZD`} />
-            <StatCard title={dictionary.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} DZD`} />
+            <StatCard title={dictionary.totalBilled} value={`${formatCurrencySimple(totals.totalBilled)} ${dictionary.currency}`} />
+            <StatCard title={dictionary.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} ${dictionary.currency}`} />
             <Card className="bg-amber-50">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencySimple(totals.totalRemaining)} DZD</p>
+                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencySimple(totals.totalRemaining)} ${dictionary.currency}</p>
                 </CardContent>
             </Card>
         </div>

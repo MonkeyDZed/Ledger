@@ -18,12 +18,16 @@ function formatCurrencySimple(amount: number, fractionDigits = 2) {
 
 interface FinancialOverviewChartProps {
     data: { paid: number; toPay: number };
+    labels: {
+        paid: string;
+        toPay: string;
+    }
 }
 
-export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
+export function FinancialOverviewChart({ data, labels }: FinancialOverviewChartProps) {
   const chartData = [
-    { name: 'Payé', value: data.paid },
-    { name: 'Reste à payer', value: data.toPay },
+    { name: labels.paid, value: data.paid },
+    { name: labels.toPay, value: data.toPay },
   ];
   const total = data.paid + data.toPay;
 
@@ -37,7 +41,7 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
               borderColor: "hsl(var(--border))",
               borderRadius: "var(--radius)",
             }}
-            formatter={(value) => `${formatCurrencySimple(value as number)} DA`}
+            formatter={(value) => `${formatCurrencySimple(value as number)} DZD`}
           />
           <Pie
             data={chartData}
