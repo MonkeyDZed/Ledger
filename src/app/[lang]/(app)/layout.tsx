@@ -47,17 +47,17 @@ export default function AppLayout({
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-50" dir={params.lang === 'ar' ? 'rtl' : 'ltr'}>
-       <header className="bg-white shadow-sm">
+       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
-                <div className="flex items-center">
-                    <div className="flex flex-shrink-0 items-center">
-                        <Logo />
-                    </div>
-                    <nav 
-                      className="relative hidden md:ms-6 md:flex md:space-x-1 rtl:space-x-reverse"
-                      onMouseLeave={() => setHoveredPath(pathname)}
-                    >
+                <div className="flex-shrink-0">
+                   <Logo />
+                </div>
+                <nav 
+                  className="relative hidden h-full md:flex items-center justify-center"
+                  onMouseLeave={() => setHoveredPath(pathname)}
+                >
+                    <div className="flex items-center space-x-1 rtl:space-x-reverse">
                         {navLinks.map((link) => {
                            const fullPath = `/${params.lang}${link.href}`;
                            const isLinkActive = isActive(link.href);
@@ -68,17 +68,18 @@ export default function AppLayout({
                               key={link.href}
                               href={fullPath}
                               className={cn(
-                                'relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200 ease-in-out active:scale-95 z-10',
+                                'relative rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200 ease-in-out active:scale-95',
                                 isLinkActive
-                                  ? 'text-primary-foreground'
+                                  ? 'text-primary'
                                   : 'text-gray-500 hover:text-gray-900'
                               )}
                               onMouseOver={() => setHoveredPath(fullPath)}
                             >
-                               {isHovered && !isLinkActive && (
+                               <span>{params.lang === 'ar' ? link.labelAr : link.label}</span>
+                               {isHovered && (
                                 <motion.div
-                                  className="absolute inset-0 z-[-1] rounded-md bg-gray-100"
-                                  layoutId="active-nav-link"
+                                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                                  layoutId="active-nav-link-indicator"
                                   aria-hidden="true"
                                   transition={{
                                     type: 'spring',
@@ -87,29 +88,21 @@ export default function AppLayout({
                                   }}
                                 />
                                )}
-                               {isLinkActive && (
-                                <motion.div
-                                  className="absolute inset-0 z-[-1] rounded-md bg-primary"
-                                  layoutId="active-nav-link"
-                                  aria-hidden="true"
-                                />
-                               )}
-                              <span>{params.lang === 'ar' ? link.labelAr : link.label}</span>
                             </Link>
                            )
                         })}
-                    </nav>
-                </div>
-                <div className="flex items-center">
+                    </div>
+                </nav>
+                <div className="flex items-center gap-1">
                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700">
                        <Search className="h-4 w-4"/>
                     </Button>
-                     <Button variant="ghost" size="icon" className="ms-3 h-8 w-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700">
+                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700">
                        <Bell className="h-4 w-4"/>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                         <div className="relative ms-3">
+                         <div className="relative ms-2">
                             <button className="flex rounded-full text-sm focus:outline-none">
                                 <Image className="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" width={32} height={32} />
                             </button>

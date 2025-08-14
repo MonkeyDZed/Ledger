@@ -15,8 +15,8 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useParams } from 'next/navigation';
-import { Locale } from '@/i18n.config';
 
+type Locale = 'fr' | 'ar';
 type PieceWithSupplierName = Piece & { supplierName: string };
 
 // Inferred type from the parent server component
