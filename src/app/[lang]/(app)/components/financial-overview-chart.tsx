@@ -28,7 +28,7 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
   const total = data.paid + data.toPay;
 
   return (
-    <div className="w-full h-[200px] relative">
+    <div className="w-full h-[250px] relative">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Tooltip
@@ -37,19 +37,19 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
               borderColor: "hsl(var(--border))",
               borderRadius: "var(--radius)",
             }}
-            formatter={(value) => formatCurrencySimple(value as number)}
+            formatter={(value) => `${formatCurrencySimple(value as number)} DA`}
           />
           <Pie
             data={chartData}
             cx="50%"
             cy="50%"
-            innerRadius={60}
-            outerRadius={80}
+            innerRadius={80}
+            outerRadius={110}
             fill="#8884d8"
-            paddingAngle={2}
+            paddingAngle={5}
             dataKey="value"
             stroke="hsl(var(--background))"
-            strokeWidth={3}
+            strokeWidth={5}
           >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -57,9 +57,9 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
           </Pie>
         </PieChart>
       </ResponsiveContainer>
-      <div className="absolute inset-0 flex items-center justify-center flex-col">
-        <span className="text-2xl font-bold font-mono">{formatCurrencySimple(total / 1000)}k</span>
-        <span className="text-sm text-muted-foreground">Total</span>
+      <div className="absolute inset-0 flex items-center justify-center flex-col text-center">
+        <span className="text-sm text-muted-foreground">Total des Créances</span>
+        <span className="text-2xl font-bold font-mono text-gray-800 break-all px-4">{formatCurrencySimple(total)} DA</span>
       </div>
     </div>
   )
