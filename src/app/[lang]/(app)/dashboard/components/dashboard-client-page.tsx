@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, Download } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
@@ -27,24 +27,6 @@ const QuickActionButton = ({ className, icon, label, onClick }: { className?: st
     </button>
 );
 
-const UsersIcon = () => (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>
-);
-const FileInvoiceIcon = () => (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path><path fillRule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd"></path></svg>
-);
-const MoneyBillWaveIcon = () => (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2.586l3 3a1 1 0 001.414-1.414L10.414 13H15a1 1 0 001-1v-2a1 1 0 00-1-1h-.586l1.293-1.293a1 1 0 00-1.414-1.414l-7-7z"></path></svg>
-);
-const UserPlusIcon = () => (
-     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 11a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1v-1z"></path></svg>
-);
-const FileInvoiceDollarIcon = () => (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M13.414 4.586a2 2 0 112.828 2.828L13.03 10.687a1 1 0 01-1.414 0L9.414 8.586a2 2 0 112.828-2.828L13.414 4.586zM1 12a1 1 0 011-1h16a1 1 0 110 2H2a1 1 0 01-1-1z"></path><path d="M4 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2h1V3a1 1 0 011-1z"></path></svg>
-);
-const FileExportIcon = () => (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"></path></svg>
-);
 const EyeIcon = () => (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fillRule="evenodd" d="M.458 10C3.732 4.943 7.523 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-7.03 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"></path></svg>
 );
@@ -118,8 +100,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
             <Link href={`/${lang}/suppliers`} className="block active:scale-[0.98] transition-transform">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">{dictionary.suppliers}</CardTitle>
-                        <UsersIcon className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium text-blue-600">{dictionary.suppliers}</CardTitle>
+                        <Users className="h-4 w-4 text-blue-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalSuppliers}</div>
@@ -129,8 +111,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
             <Link href={`/${lang}/pieces`} className="block active:scale-[0.98] transition-transform">
                 <Card>
                      <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">{dictionary.pieces}</CardTitle>
-                        <FileInvoiceIcon className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium text-green-600">{dictionary.pieces}</CardTitle>
+                        <FileText className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalPieces}</div>
@@ -139,8 +121,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
             </Link>
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">{dictionary.totalDebts}</CardTitle>
-                    <MoneyBillWaveIcon className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium text-amber-600">{dictionary.totalDebts}</CardTitle>
+                    <CircleDollarSign className="h-4 w-4 text-amber-500" />
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold font-mono">{formatCurrencyWithLocale(grandTotalDebt, lang, dictionary)}</div>
@@ -148,8 +130,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
             </Card>
             <Card>
                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">{dictionary.lastSync}</CardTitle>
-                    <svg className="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 18a7.002 7.002 0 006.323-3.676l-1.226-1.226A4.985 4.985 0 0110 14.95a4.985 4.985 0 01-5.1-3.852l-1.226 1.226A7.002 7.002 0 0010 18z" clipRule="evenodd"></path></svg>
+                    <CardTitle className="text-sm font-medium text-slate-600">{dictionary.lastSync}</CardTitle>
+                    <RefreshCw className="w-4 h-4 text-slate-500"/>
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{dictionary.upToDate}</div>
@@ -171,9 +153,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <QuickActionButton onClick={() => setIsNewSupplierOpen(true)} className="bg-blue-100 text-primary" icon={<UserPlusIcon />} label={dictionary.addSupplier} />
-                            <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-secondary" icon={<FileInvoiceDollarIcon />} label={dictionary.newPiece} />
-                            <QuickActionButton className="bg-amber-100 text-amber-500" icon={<FileExportIcon />} label={dictionary.export} />
+                            <QuickActionButton onClick={() => setIsNewSupplierOpen(true)} className="bg-blue-100 text-primary" icon={<UserPlus />} label={dictionary.addSupplier} />
+                            <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-secondary" icon={<FilePlus />} label={dictionary.newPiece} />
+                            <QuickActionButton className="bg-amber-100 text-amber-500" icon={<Download />} label={dictionary.export} />
                         </div>
                     </CardContent>
                 </Card>
@@ -316,3 +298,4 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     
 
     
+
