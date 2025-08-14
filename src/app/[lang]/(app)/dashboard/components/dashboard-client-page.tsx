@@ -3,7 +3,7 @@
 
 import { useRef, useState } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/formatters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,8 +15,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
-import { type Locale } from '@/i18n.config';
-import { type Dictionary } from '@/lib/dictionaries';
+import type { Locale } from '@/i18n.config';
+import type { Dictionary } from '@/lib/dictionaries';
 
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (

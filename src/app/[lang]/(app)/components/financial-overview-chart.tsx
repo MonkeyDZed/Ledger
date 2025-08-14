@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency } from "@/lib/formatters"
 
 const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-4))"];
 
@@ -49,7 +49,7 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex items-center justify-center flex-col">
-        <span className="text-2xl font-bold">{formatCurrency(total / 1000)}k</span>
+        <span className="text-2xl font-bold font-mono">{formatCurrency(total / 1000)}k</span>
         <span className="text-sm text-muted-foreground">Total</span>
       </div>
     </div>

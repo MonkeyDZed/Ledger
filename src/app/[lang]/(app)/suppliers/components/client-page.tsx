@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import { Locale } from '@/i18n.config';
 import type { ColumnDef } from '@tanstack/react-table';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/formatters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
@@ -90,9 +90,12 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
           );
         },
         cell: ({ row }) => (
-          <Link href={`/${lang}/suppliers/${row.original.id}`} className="font-medium text-primary hover:underline">
-            {row.getValue('name')}
-          </Link>
+          <div>
+            <Link href={`/${lang}/suppliers/${row.original.id}`} className="font-medium text-primary hover:underline">
+              {row.getValue('name')}
+            </Link>
+            <div className="text-gray-900">{row.original.phone}</div>
+          </div>
         ),
       },
        {
@@ -115,7 +118,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
       },
       {
         accessorKey: 'totalInvoiced',
-        header: () => <div className="text-end">{dict.totalInvoiced}</div>,
+        header: () => <div className="text-end font-mono">{dict.totalInvoiced}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalInvoiced'));
           return <div className="text-end font-mono">{formatCurrency(amount)} DZD</div>;
@@ -123,7 +126,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
       },
       {
         accessorKey: 'totalPaid',
-        header: () => <div className="text-end">{dict.totalPaid}</div>,
+        header: () => <div className="text-end font-mono">{dict.totalPaid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalPaid'));
           return <div className="text-end font-mono text-green-600">{formatCurrency(amount)} DZD</div>;
