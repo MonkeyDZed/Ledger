@@ -9,7 +9,6 @@ import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import type { Supplier } from '@/lib/types';
-import type { Dictionary } from '@/lib/dictionaries';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { deleteSupplier } from '../actions';
 import { useToast } from '@/hooks/use-toast';
@@ -21,14 +20,16 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { getDictionary } from '@/lib/dictionaries';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 type Locale = 'fr' | 'ar';
+type SuppliersPageDictionary = Awaited<ReturnType<typeof getDictionary>>['suppliersPage'];
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
-  dictionary: Dictionary['suppliersPage'];
+  dictionary: SuppliersPageDictionary;
 }
 
 const StatCard = ({ title, value, icon }: { title: string, value: string, icon?: React.ReactNode }) => (

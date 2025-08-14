@@ -33,7 +33,6 @@ import { Calendar as CalendarIcon, Filter } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { formatDate } from '@/lib/formatters';
 
 type DataTableDictionary = {
     filterPlaceholder: string;
@@ -148,7 +147,7 @@ export function DataTable<TData, TValue>({
                             {dictionary.dateFilter.custom}
                         </div>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
+                    <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                             initialFocus
                             mode="range"

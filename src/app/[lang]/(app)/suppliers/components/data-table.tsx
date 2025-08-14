@@ -24,13 +24,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Dictionary } from '@/lib/dictionaries';
+import type { getDictionary } from '@/lib/dictionaries';
 
+type SuppliersPageDictionary = Awaited<ReturnType<typeof getDictionary>>['suppliersPage'];
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  dictionary: Dictionary['suppliersPage']['table'];
+  dictionary: SuppliersPageDictionary['table'];
 }
 
 export function DataTable<TData, TValue>({
