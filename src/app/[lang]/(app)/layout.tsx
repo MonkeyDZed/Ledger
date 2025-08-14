@@ -68,17 +68,17 @@ export default function AppLayout({
                               key={link.href}
                               href={fullPath}
                               className={cn(
-                                'relative rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200 ease-in-out active:scale-95',
+                                'relative rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200 ease-in-out active:scale-95 z-10',
                                 isLinkActive
                                   ? 'text-primary'
-                                  : 'text-gray-500 hover:text-gray-900'
+                                  : 'text-gray-500 hover:text-primary'
                               )}
                               onMouseOver={() => setHoveredPath(fullPath)}
                             >
                                <span>{params.lang === 'ar' ? link.labelAr : link.label}</span>
                                {isHovered && (
                                 <motion.div
-                                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                                  className="absolute inset-0 bg-primary/10 rounded-lg"
                                   layoutId="active-nav-link-indicator"
                                   aria-hidden="true"
                                   transition={{
