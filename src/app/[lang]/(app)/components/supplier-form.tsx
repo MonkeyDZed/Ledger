@@ -13,9 +13,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
-import { useParams } from 'next/navigation';
-import { Locale } from '@/i18n.config';
-
 
 // Local type definition to avoid importing server-only modules
 type SupplierFormDictionary = {
@@ -74,8 +71,6 @@ export type SupplierFormRef = {
 export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const params = useParams();
-  const lang = params.lang as Locale;
   
   const isEditMode = !!supplierToEdit;
 
@@ -125,8 +120,8 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
         const action = isEditMode
-          ? updateSupplier(supplierToEdit!.id, data, lang)
-          : addSupplier(data, lang);
+          ? updateSupplier(supplierToEdit!.id, data)
+          : addSupplier(data);
 
         const result = await action;
         

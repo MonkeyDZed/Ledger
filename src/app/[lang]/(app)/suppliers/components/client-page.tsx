@@ -57,7 +57,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
-    const result = await deleteSupplier(dialogState.data.id, lang);
+    const result = await deleteSupplier(dialogState.data.id);
     if(result.success) {
         toast({
             title: dictionary.toast.deleteSuccess.title,
@@ -187,7 +187,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         },
       },
     ];
-  }, [lang, dictionary.table]);
+  }, [lang, dictionary.table, handleDelete]);
 
   return (
     <>

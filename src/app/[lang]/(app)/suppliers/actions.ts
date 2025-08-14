@@ -1,10 +1,10 @@
+
 'use server';
 
 import { z } from 'zod';
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import type { Supplier } from '@/lib/types';
-import { Locale } from '@/i18n.config';
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -19,7 +19,7 @@ const supplierFormSchema = z.object({
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
 
-export async function addSupplier(data: SupplierFormValues, lang: Locale) : Promise<{success: boolean, message?: string}> {
+export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
     const validation = supplierFormSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
@@ -27,8 +27,7 @@ export async function addSupplier(data: SupplierFormValues, lang: Locale) : Prom
     
     try {
         await addSupplierToDb(validation.data as Omit<Supplier, 'id' | 'created_at' | 'updated_at'>);
-        revalidatePath(`/${lang}/suppliers`);
-        revalidatePath(`/${lang}/dashboard`);
+        revalidatePath('/(.)');
         return { success: true };
     } catch(e) {
         console.error(e);
@@ -36,7 +35,7 @@ export async function addSupplier(data: SupplierFormValues, lang: Locale) : Prom
     }
 }
 
-export async function updateSupplier(id: string, data: SupplierFormValues, lang: Locale): Promise<{success: boolean, message?: string}> {
+export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
     const validation = supplierFormSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
@@ -44,9 +43,7 @@ export async function updateSupplier(id: string, data: SupplierFormValues, lang:
 
     try {
         await updateSupplierInDb(id, validation.data);
-        revalidatePath(`/${lang}/suppliers`);
-        revalidatePath(`/${lang}/suppliers/${id}`);
-        revalidatePath(`/${lang}/dashboard`);
+        revalidatePath('/(.)');
         return { success: true };
     } catch (e) {
         console.error(e);
@@ -54,11 +51,10 @@ export async function updateSupplier(id: string, data: SupplierFormValues, lang:
     }
 }
 
-export async function deleteSupplier(id: string, lang: Locale): Promise<{success: boolean, message?: string}> {
+export async function deleteSupplier(id: string): Promise<{success: boolean, message?: string}> {
     try {
         await deleteSupplierFromDb(id);
-        revalidatePath(`/${lang}/suppliers`);
-        revalidatePath(`/${lang}/dashboard`);
+        revalidatePath('/(.)');
         return { success: true };
     } catch(e) {
         console.error(e);
