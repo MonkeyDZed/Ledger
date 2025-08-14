@@ -33,8 +33,8 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
     }
 
     try {
-        // Exclude fields that should not be updated directly
-        const { ...updateData } = validation.data;
+        const { name, wilaya, phone, nif, bank_info, solde_initial, notes } = validation.data;
+        const updateData = { name, wilaya, phone, nif, bank_info, solde_initial, notes };
         
         await updateSupplierInDb(id, updateData);
         revalidatePath('/(.)');

@@ -5,7 +5,6 @@ import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece } from '@/lib/types';
 import { useMemo } from 'react';
-import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row, FilterFn } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,16 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DateRange } from 'react-day-picker';
 import { isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+
+// Internal formatter to avoid importing from a module with server-side dependencies
+function formatCurrencySimple(amount: number) {
+  return new Intl.NumberFormat('fr-DZ', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 
 type Locale = 'fr' | 'ar';
 type PieceWithSupplierName = Piece & { supplierName: string; formattedDate: string; };
@@ -142,7 +151,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           header: () => <div className="text-end">{dict.total}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
-            return <div className="text-end font-mono">{formatCurrency(amount)}</div>;
+            return <div className="text-end font-mono">{formatCurrencySimple(amount)}</div>;
           },
         },
         {
@@ -150,7 +159,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end font-mono text-green-600">{formatCurrency(amount)}</div>;
+            return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)}</div>;
           },
         },
         {
@@ -158,7 +167,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           header: () => <div className="text-end">{dict.remaining}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
-            return <div className="text-end font-mono text-destructive">{formatCurrency(amount)}</div>;
+            return <div className="text-end font-mono text-destructive">{formatCurrencySimple(amount)}</div>;
           },
         },
         {
@@ -194,14 +203,14 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
       />
 
         <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <StatCard title={dictionary.totalBilled} value={`${formatCurrency(totals.totalBilled)} DZD`} />
-            <StatCard title={dictionary.totalPaid} value={`${formatCurrency(totals.totalPaid)} DZD`} />
+            <StatCard title={dictionary.totalBilled} value={`${formatCurrencySimple(totals.totalBilled)} DZD`} />
+            <StatCard title={dictionary.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} DZD`} />
             <Card className="bg-amber-50">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrency(totals.totalRemaining)} DZD</p>
+                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencySimple(totals.totalRemaining)} DZD</p>
                 </CardContent>
             </Card>
         </div>

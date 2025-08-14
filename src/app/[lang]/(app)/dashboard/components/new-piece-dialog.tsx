@@ -6,8 +6,16 @@ import type { Supplier, Piece } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PieceForm } from '../../components/piece-form';
-import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
+
+// Internal formatter to avoid importing from a module with server-side dependencies
+function formatCurrencySimple(amount: number) {
+  return new Intl.NumberFormat('fr-DZ', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
 
 // Define the dictionary types locally to avoid importing from a 'server-only' module.
 type DashboardDictionary = {
@@ -94,7 +102,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                             <CardDescription>Créance actuelle avant cette pièce</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
-                            {formatCurrency(selectedSupplierDebt)} DA
+                            {formatCurrencySimple(selectedSupplierDebt)} DA
                         </p>
                     </div>
                 </CardContent>

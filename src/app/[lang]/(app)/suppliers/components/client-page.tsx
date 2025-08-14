@@ -14,12 +14,21 @@ import { deleteSupplier } from '../actions';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
-import { formatCurrency } from '@/lib/formatters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+// Internal formatter to avoid importing from a module with server-side dependencies
+function formatCurrencySimple(amount: number) {
+  return new Intl.NumberFormat('fr-DZ', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 type Locale = 'fr' | 'ar';
@@ -152,7 +161,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         ),
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue('solde_initial'));
-            return <div className="text-end font-mono">{formatCurrency(amount)} DZD</div>
+            return <div className="text-end font-mono">{formatCurrencySimple(amount)} DZD</div>
         },
       },
       {
@@ -160,7 +169,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         header: () => <div className="text-end font-mono">{dict.totalInvoiced}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalInvoiced'));
-          return <div className="text-end font-mono">{formatCurrency(amount)} DZD</div>;
+          return <div className="text-end font-mono">{formatCurrencySimple(amount)} DZD</div>;
         },
       },
       {
@@ -168,7 +177,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         header: () => <div className="text-end font-mono">{dict.totalPaid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalPaid'));
-          return <div className="text-end font-mono text-green-600">{formatCurrency(amount)} DZD</div>;
+          return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)} DZD</div>;
         },
       },
       {
@@ -190,7 +199,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
           const amount = parseFloat(row.getValue('totalDebt'));
           return <div className="text-end font-mono">
             <Badge variant={amount > 0 ? "destructive" : "default"} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
-                {formatCurrency(amount)} DZD
+                {formatCurrencySimple(amount)} DZD
             </Badge>
           </div>;
         },
@@ -245,10 +254,10 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
       </PageHeader>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrency(totals.totalInitialBalance)} DZD`} icon={<BalanceIcon />} iconBgColor='bg-blue-100' />
-          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrency(totals.totalInvoiced)} DZD`} icon={<ReceiptIcon />} iconBgColor='bg-indigo-100'/>
-          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrency(totals.totalPaid)} DZD`} icon={<CreditCardIcon />} iconBgColor='bg-green-100'/>
-          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrency(totals.totalDebt)} DZD`} icon={<AlertCircleIcon />} iconBgColor='bg-amber-100'/>
+          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrencySimple(totals.totalInitialBalance)} DZD`} icon={<BalanceIcon />} iconBgColor='bg-blue-100' />
+          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrencySimple(totals.totalInvoiced)} DZD`} icon={<ReceiptIcon />} iconBgColor='bg-indigo-100'/>
+          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} DZD`} icon={<CreditCardIcon />} iconBgColor='bg-green-100'/>
+          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrencySimple(totals.totalDebt)} DZD`} icon={<AlertCircleIcon />} iconBgColor='bg-amber-100'/>
       </div>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>

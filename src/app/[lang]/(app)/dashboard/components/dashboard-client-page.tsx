@@ -3,7 +3,6 @@
 
 import { useRef, useState } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
-import { formatCurrency } from '@/lib/formatters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,6 +14,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
+
+// Internal formatter to avoid importing from a module with server-side dependencies
+function formatCurrencySimple(amount: number) {
+  return new Intl.NumberFormat('fr-DZ', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 
 // Define types locally to avoid importing server-only modules
 type Locale = 'fr' | 'ar';
@@ -178,7 +187,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <StatCardIcon className="bg-amber-100 text-amber-500"><MoneyBillWaveIcon /></StatCardIcon>
                     <div className="ms-4">
                         <p className="text-sm font-medium text-gray-600">{dictionary.totalDebts}</p>
-                        <p className="text-2xl font-semibold text-gray-900 font-mono">{formatCurrency(grandTotalDebt)} DA</p>
+                        <p className="text-2xl font-semibold text-gray-900 font-mono">{formatCurrencySimple(grandTotalDebt)} DA</p>
                     </div>
                 </CardContent>
             </Card>
@@ -253,10 +262,10 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                                               </div>
                                           </TableCell>
                                           <TableCell className="text-sm text-gray-500">{supplier.wilaya}</TableCell>
-                                          <TableCell className="text-sm font-medium text-gray-900 font-mono">{formatCurrency(supplier.totalFromPieces)} DA</TableCell>
+                                          <TableCell className="text-sm font-medium text-gray-900 font-mono">{formatCurrencySimple(supplier.totalFromPieces)} DA</TableCell>
                                           <TableCell>
                                             <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`}>
-                                              {formatCurrency(supplier.totalDebt)} DA
+                                              {formatCurrencySimple(supplier.totalDebt)} DA
                                             </Badge>
                                           </TableCell>
                                           <TableCell>
@@ -287,7 +296,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 me-2"></span>{dictionary.paid}</span>
-                                    <span className="text-sm font-medium text-gray-900 font-mono">{formatCurrency(totalPaid)} DA</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono">{formatCurrencySimple(totalPaid)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-2 h-2 rounded-full" style={{ width: `${((totalPaid/grandTotal) || 0) * 100}%` }}></div>
@@ -297,7 +306,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 me-2"></span>{dictionary.toPay}</span>
-                                    <span className="text-sm font-medium text-gray-900 font-mono">{formatCurrency(totalToPay)} DA</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono">{formatCurrencySimple(totalToPay)} DA</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-4 h-2 rounded-full" style={{ width: `${((totalToPay/grandTotal) || 0) * 100}%` }}></div>
