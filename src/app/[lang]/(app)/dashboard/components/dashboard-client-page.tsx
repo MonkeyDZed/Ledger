@@ -15,8 +15,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
-import type { Locale } from '@/i18n.config';
 
+// Define types locally to avoid importing server-only modules
+type Locale = 'fr' | 'ar';
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
     <div className={`p-3 rounded-lg ${className}`}>
