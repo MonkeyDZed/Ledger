@@ -14,15 +14,11 @@ import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
 import { getSupplierFormSchema } from '@/lib/schemas';
-import type { Dictionary } from '@/lib/dictionaries';
-
-type SupplierFormDictionary = Dictionary['suppliersPage']['form'];
-type SchemaDictionary = Dictionary['schemas'];
 
 interface SupplierFormProps {
   onClose: () => void;
-  dictionary: SupplierFormDictionary;
-  schemaDictionary: SchemaDictionary;
+  dictionary: any;
+  schemaDictionary: any;
   supplierToEdit?: Supplier;
 }
 

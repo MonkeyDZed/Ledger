@@ -22,18 +22,15 @@ import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { getPieceFormSchema } from '@/lib/schemas';
-import type { Dictionary } from '@/lib/dictionaries';
 
 type Locale = 'fr' | 'ar';
-type PieceFormDictionary = Dictionary['supplierDetailPage']['form'];
-type SchemaDictionary = Dictionary['schemas'];
 
 interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
   pieceToEdit?: Piece;
-  dictionary: PieceFormDictionary;
-  schemaDictionary: SchemaDictionary;
+  dictionary: any;
+  schemaDictionary: any;
 }
 
 export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schemaDictionary }: PieceFormProps) {
@@ -44,7 +41,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
   
   const isEditMode = !!pieceToEdit;
 
-  const { formSchema: pieceFormSchema, addPieceSchema } = getPieceFormSchema(schemaDictionary);
+  const { formSchema: pieceFormSchema } = getPieceFormSchema(schemaDictionary);
   type PieceFormValues = z.infer<typeof pieceFormSchema>;
 
   const form = useForm<PieceFormValues>({

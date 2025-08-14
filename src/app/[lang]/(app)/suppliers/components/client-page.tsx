@@ -221,22 +221,22 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
       </PageHeader>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-slate-100 border-slate-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-blue-800">{dictionary.table.initialBalance}</CardTitle>
-                <div className="text-blue-700"><BalanceIcon /></div>
+                <CardTitle className="text-sm font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
+                <div className="text-slate-500"><BalanceIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-blue-900 font-mono">{formatCurrencyWithLocale(totals.totalInitialBalance, lang, dictionary)}</div>
+                <div className="text-2xl font-bold text-slate-900 font-mono">{formatCurrencyWithLocale(totals.totalInitialBalance, lang, dictionary)}</div>
             </CardContent>
         </Card>
-        <Card className="bg-indigo-50 border-indigo-200">
+        <Card className="bg-blue-50 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-indigo-800">{dictionary.table.totalInvoiced}</CardTitle>
-                <div className="text-indigo-700"><ReceiptIcon /></div>
+                <CardTitle className="text-sm font-medium text-blue-800">{dictionary.table.totalInvoiced}</CardTitle>
+                <div className="text-blue-700"><ReceiptIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-indigo-900 font-mono">{formatCurrencyWithLocale(totals.totalInvoiced, lang, dictionary)}</div>
+                <div className="text-2xl font-bold text-blue-900 font-mono">{formatCurrencyWithLocale(totals.totalInvoiced, lang, dictionary)}</div>
             </CardContent>
         </Card>
         <Card className="bg-green-50 border-green-200">
@@ -306,7 +306,3 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
     </>
   );
 }
-
-    
-
-    
