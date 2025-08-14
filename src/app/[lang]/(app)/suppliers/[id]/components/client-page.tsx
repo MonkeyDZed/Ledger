@@ -12,7 +12,6 @@ import { PieceForm } from '../../../components/piece-form';
 import type { Supplier, Piece } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate, formatCurrency } from '@/lib/formatters';
-import { Dictionary } from '@/lib/dictionaries';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { deletePiece } from '../actions';
@@ -21,6 +20,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import type { Dictionary } from '@/lib/dictionaries';
+
 
 type Locale = 'fr' | 'ar';
 
@@ -158,7 +159,7 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
         },
       },
     ];
-  }, [lang, dictionary.piecesTable]);
+  }, [lang, dictionary.piecesTable, handleDelete]);
 
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);

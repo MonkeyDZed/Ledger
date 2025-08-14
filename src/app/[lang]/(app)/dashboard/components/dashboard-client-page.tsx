@@ -133,9 +133,14 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
   const totalPieces = pieces.length;
   const totalSuppliers = suppliers.length;
 
+  // Financial Overview Calculation
   const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-  const totalToPay = pieces.reduce((sum,p) => sum + p.reste, 0);
+  const totalInitialBalances = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
+  const totalResteFromPieces = pieces.reduce((sum, p) => sum + p.reste, 0);
+  const totalToPay = totalInitialBalances + totalResteFromPieces;
+  
   const grandTotal = totalPaid + totalToPay;
+
 
   const recentSuppliers = [...supplierDataWithCalculations]
     .sort((a, b) => b.mostRecentPieceDate.getTime() - a.mostRecentPieceDate.getTime())
