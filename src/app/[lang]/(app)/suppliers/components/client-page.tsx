@@ -20,6 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
@@ -29,6 +30,24 @@ interface ClientPageProps {
   suppliers: SupplierWithDebt[];
   dictionary: Dictionary['suppliersPage'];
 }
+
+const StatCard = ({ title, value, icon }: { title: string, value: string, icon?: React.ReactNode }) => (
+    <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+            {icon}
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold text-gray-900 font-mono">{value}</div>
+        </CardContent>
+    </Card>
+);
+
+const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
+const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
+const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
+const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
+
 
 export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
   const [dialogState, setDialogState] = useState<{
@@ -72,6 +91,15 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
     }
     closeDialogs();
   };
+  
+  const totals = useMemo(() => {
+      const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
+      const totalInvoiced = suppliers.reduce((sum, s) => sum + s.totalInvoiced, 0);
+      const totalPaid = suppliers.reduce((sum, s) => sum + s.totalPaid, 0);
+      const totalDebt = suppliers.reduce((sum, s) => sum + s.totalDebt, 0);
+      return { totalInitialBalance, totalInvoiced, totalPaid, totalDebt };
+  }, [suppliers]);
+
 
   const columns = useMemo((): ColumnDef<SupplierWithDebt>[] => {
     const dict = dictionary.table;
@@ -205,6 +233,13 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         </Button>
       </PageHeader>
       
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrency(totals.totalInitialBalance)} DZD`} icon={<BalanceIcon />} />
+          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrency(totals.totalInvoiced)} DZD`} icon={<ReceiptIcon />} />
+          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrency(totals.totalPaid)} DZD`} icon={<CreditCardIcon />} />
+          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrency(totals.totalDebt)} DZD`} icon={<AlertCircleIcon />} />
+      </div>
+      
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
 
       {/* Add/Edit Dialog */}
@@ -251,3 +286,5 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
     </>
   );
 }
+
+    

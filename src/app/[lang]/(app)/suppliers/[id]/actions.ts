@@ -4,27 +4,7 @@
 import { z } from 'zod';
 import { addPiece as addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import type { Piece } from '@/lib/types';
-
-const basePieceSchema = z.object({
-  date: z.date({ required_error: 'La date est requise.' }),
-  type: z.enum(['BL', 'FACTURE'], { required_error: 'Le type est requis.' }),
-  total_piece: z.coerce.number().min(0, { message: 'Le total doit être positif.' }),
-  montant_paye: z.coerce.number().min(0, { message: 'Le montant payé doit être positif.' }),
-  description: z.string().optional(),
-});
-
-const pieceFormSchema = basePieceSchema.refine(data => data.montant_paye <= data.total_piece, {
-    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
-    path: ["montant_paye"],
-});
-
-const addPieceSchema = basePieceSchema.extend({
-    supplier_id: z.string(),
-}).refine(data => data.montant_paye <= data.total_piece, {
-    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
-    path: ["montant_paye"],
-});
+import { pieceFormSchema, addPieceSchema } from '@/lib/schemas';
 
 
 export async function addPiece(data: z.infer<typeof addPieceSchema>) : Promise<{success: boolean, message?: string}> {
@@ -40,9 +20,6 @@ export async function addPiece(data: z.infer<typeof addPieceSchema>) : Promise<{
             supplier_id: supplier_id,
             description: pieceData.description || '',
         });
-        // Revalidating the path is tricky without the lang parameter.
-        // A simple revalidation of the root layout or specific paths might be needed.
-        // For simplicity, let's revalidate the most important paths.
         revalidatePath('/(.)');
         return { success: true };
     } catch(e) {

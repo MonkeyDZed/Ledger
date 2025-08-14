@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
+import { supplierFormSchema } from '@/lib/schemas';
 
 // Local type definition to avoid importing server-only modules
 type SupplierFormDictionary = {
@@ -44,17 +45,6 @@ type SupplierFormDictionary = {
         error: { title: string; description: string };
     };
 };
-
-
-const supplierFormSchema = z.object({
-  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
-  wilaya: z.string().optional(),
-  phone: z.string().optional(),
-  nif: z.string().optional(),
-  bank_info: z.string().optional(),
-  solde_initial: z.coerce.number().default(0),
-  notes: z.string().optional(),
-});
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 

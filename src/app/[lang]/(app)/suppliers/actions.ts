@@ -5,16 +5,7 @@ import { z } from 'zod';
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import type { Supplier } from '@/lib/types';
-
-const supplierFormSchema = z.object({
-  name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
-  wilaya: z.string().optional(),
-  phone: z.string().optional(),
-  nif: z.string().optional(),
-  bank_info: z.string().optional(),
-  solde_initial: z.coerce.number().default(0),
-  notes: z.string().optional(),
-});
+import { supplierFormSchema } from '@/lib/schemas';
 
 type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 

@@ -21,6 +21,7 @@ import { useTransition, useEffect } from 'react';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
+import { pieceFormSchema } from '@/lib/schemas';
 
 type Locale = 'fr' | 'ar';
 
@@ -51,17 +52,6 @@ type PieceFormDictionary = {
     };
 };
 
-
-const pieceFormSchema = z.object({
-  date: z.date({ required_error: 'La date est requise.' }),
-  type: z.enum(['BL', 'FACTURE'], { required_error: 'Le type est requis.' }),
-  total_piece: z.coerce.number().min(0, { message: 'Le total doit être positif.' }),
-  montant_paye: z.coerce.number().min(0, { message: 'Le montant payé doit être positif.' }),
-  description: z.string().optional(),
-}).refine(data => data.montant_paye <= data.total_piece, {
-    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
-    path: ["montant_paye"],
-});
 
 type PieceFormValues = z.infer<typeof pieceFormSchema>;
 
