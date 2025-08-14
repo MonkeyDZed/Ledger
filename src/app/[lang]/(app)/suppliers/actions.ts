@@ -4,14 +4,15 @@
 import { z } from 'zod';
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import type { Supplier } from '@/lib/types';
-import { supplierFormSchema } from '@/lib/schemas';
+import { getSupplierFormSchema } from '@/lib/schemas';
+import { getDictionary } from '@/lib/dictionaries';
+import { i18n } from '@/i18n.config';
 
-type SupplierFormValues = z.infer<typeof supplierFormSchema>;
-
-
-export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
+export async function addSupplier(data: z.infer<ReturnType<typeof getSupplierFormSchema>>) : Promise<{success: boolean, message?: string}> {
+    const dictionary = await getDictionary(i18n.defaultLocale);
+    const supplierFormSchema = getSupplierFormSchema(dictionary.schemas);
     const validation = supplierFormSchema.safeParse(data);
+    
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }
@@ -22,6 +23,7 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');
         revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/pieces', 'page');
 
         return { success: true };
     } catch(e) {
@@ -31,8 +33,11 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
     }
 }
 
-export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
+export async function updateSupplier(id: string, data: z.infer<ReturnType<typeof getSupplierFormSchema>>): Promise<{success: boolean, message?: string}> {
+    const dictionary = await getDictionary(i18n.defaultLocale);
+    const supplierFormSchema = getSupplierFormSchema(dictionary.schemas);
     const validation = supplierFormSchema.safeParse(data);
+
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }
@@ -43,6 +48,7 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');
         revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/pieces', 'page');
         revalidatePath('/[lang]/suppliers/[id]', 'page');
 
         return { success: true };
@@ -60,6 +66,7 @@ export async function deleteSupplier(id: string): Promise<{success: boolean, mes
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');
         revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/pieces', 'page');
 
         return { success: true };
     } catch(e) {

@@ -224,7 +224,17 @@
                 "apply": "Appliquer"
             }
         }
+    },
+    "schemas": {
+        "supplier": {
+            "nameMin": "Le nom doit contenir au moins 2 caractères."
+        },
+        "piece": {
+            "dateRequired": "La date est requise.",
+            "typeRequired": "Le type est requis.",
+            "totalPositive": "Le total doit être positif.",
+            "paidPositive": "Le montant payé doit être positif.",
+            "paidExceedsTotal": "Le montant payé ne peut pas dépasser le total de la pièce."
+        }
     }
 }
-
-    

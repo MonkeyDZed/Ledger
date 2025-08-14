@@ -19,6 +19,7 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Dictionary } from '@/lib/dictionaries';
 
 // Internal formatter to avoid importing from a module with server-side dependencies
 function formatCurrencySimple(amount: number) {
@@ -32,21 +33,13 @@ function formatCurrencySimple(amount: number) {
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 type Locale = 'fr' | 'ar';
-// This type is inferred from the parent, no need for direct import
-type SuppliersPageDictionary = {
-    title: string;
-    description: string;
-    export: string;
-    newSupplier: string;
-    table: any;
-    form: any;
-    deleteDialog: any;
-    toast: any;
-};
+type SuppliersPageDictionary = Dictionary['suppliersPage'];
+type SchemaDictionary = Dictionary['schemas'];
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
   dictionary: SuppliersPageDictionary;
+  schemaDictionary: SchemaDictionary;
 }
 
 const StatCard = ({ title, value, icon, iconBgColor }: { title: string, value: string, icon?: React.ReactNode, iconBgColor?: string }) => (
@@ -69,7 +62,7 @@ const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" 
 const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-amber-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
 
 
-export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
+export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPageProps) {
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
@@ -235,7 +228,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         },
       },
     ];
-  }, [lang, dictionary.table, handleDelete]);
+  }, [lang, dictionary.table]);
 
   return (
     <>
@@ -282,6 +275,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
             ref={supplierFormRef} 
             onClose={closeDialogs} 
             dictionary={dictionary.form}
+            schemaDictionary={schemaDictionary}
             supplierToEdit={dialogState.data}
           />
         </DialogContent>
@@ -306,5 +300,3 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
     </>
   );
 }
-
-    

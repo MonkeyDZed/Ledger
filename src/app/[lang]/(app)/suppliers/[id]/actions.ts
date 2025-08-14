@@ -4,11 +4,16 @@
 import { z } from 'zod';
 import { addPiece as addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { pieceFormSchema, addPieceSchema } from '@/lib/schemas';
+import { getPieceFormSchema } from '@/lib/schemas';
+import { getDictionary } from '@/lib/dictionaries';
+import { i18n } from '@/i18n.config';
 
 
-export async function addPiece(data: z.infer<typeof addPieceSchema>) : Promise<{success: boolean, message?: string}> {
+export async function addPiece(data: z.infer<ReturnType<typeof getPieceFormSchema>['addPieceSchema']>) : Promise<{success: boolean, message?: string}> {
+    const dictionary = await getDictionary(i18n.defaultLocale);
+    const { addPieceSchema } = getPieceFormSchema(dictionary.schemas);
     const validation = addPieceSchema.safeParse(data);
+
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }
@@ -35,8 +40,11 @@ export async function addPiece(data: z.infer<typeof addPieceSchema>) : Promise<{
     }
 }
 
-export async function updatePiece(id: string, supplier_id: string, data: z.infer<typeof pieceFormSchema>): Promise<{success: boolean, message?: string}> {
-    const validation = pieceFormSchema.safeParse(data);
+export async function updatePiece(id: string, supplier_id: string, data: z.infer<ReturnType<typeof getPieceFormSchema>['formSchema']>): Promise<{success: boolean, message?: string}> {
+    const dictionary = await getDictionary(i18n.defaultLocale);
+    const { formSchema } = getPieceFormSchema(dictionary.schemas);
+    const validation = formSchema.safeParse(data);
+
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PieceForm } from '../../components/piece-form';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
+import type { Dictionary } from '@/lib/dictionaries';
 
 // Internal formatter to avoid importing from a module with server-side dependencies
 function formatCurrencySimple(amount: number) {
@@ -17,15 +18,10 @@ function formatCurrencySimple(amount: number) {
   }).format(amount);
 }
 
-// Define the dictionary types locally to avoid importing from a 'server-only' module.
-type DashboardDictionary = {
-  newPiece: string;
-};
-type PieceFormDictionary = {
-    addDescription: string;
-    [key: string]: any; // Add other keys as needed or define the full type.
-};
 type Locale = 'fr' | 'ar';
+type DashboardDictionary = Dictionary['dashboard'];
+type PieceFormDictionary = Dictionary['supplierDetailPage']['form'];
+type SchemaDictionary = Dictionary['schemas'];
 
 interface NewPieceDialogProps {
   isOpen: boolean;
@@ -34,10 +30,11 @@ interface NewPieceDialogProps {
   pieces: Piece[];
   dictionary: DashboardDictionary;
   pieceFormDictionary: PieceFormDictionary;
+  schemaDictionary: SchemaDictionary;
   lang: Locale;
 }
 
-export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, lang }: NewPieceDialogProps) {
+export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, schemaDictionary, lang }: NewPieceDialogProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
 
   const handleClose = () => {
@@ -107,7 +104,12 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                     </div>
                 </CardContent>
             </Card>
-            <PieceForm supplierId={selectedSupplierId} onClose={handleClose} dictionary={pieceFormDictionary}/>
+            <PieceForm 
+              supplierId={selectedSupplierId} 
+              onClose={handleClose} 
+              dictionary={pieceFormDictionary}
+              schemaDictionary={schemaDictionary}
+            />
           </div>
         )}
       </DialogContent>

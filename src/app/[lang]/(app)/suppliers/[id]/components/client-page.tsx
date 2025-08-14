@@ -22,7 +22,6 @@ import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
 import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
 
-
 // Internal formatter to avoid importing from a module with server-side dependencies
 function formatCurrencySimple(amount: number) {
   return new Intl.NumberFormat('fr-DZ', {
@@ -40,9 +39,7 @@ function formatDateSimple(dateString: string, lang: 'fr' | 'ar') {
   });
 }
 
-
 type Locale = 'fr' | 'ar';
-
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
     <Card>
@@ -63,15 +60,15 @@ const BadgeCentIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox
 const FileTextIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V7a1 1 0 00-1-1H6z" clipRule="evenodd"></path></svg>;
 const BanknoteIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 4a1 1 0 011 1v1.586l5.293-5.293a1 1 0 111.414 1.414L12.414 7H14a1 1 0 011 1v6a1 1 0 01-1 1h-1.586l5.293 5.293a1 1 0 11-1.414 1.414L10 13.414V15a1 1 0 01-1 1H8a1 1 0 01-1-1v-1.586l-5.293 5.293a1 1 0 11-1.414-1.414L7.586 13H6a1 1 0 01-1-1V6a1 1 0 011-1h1.586L2.293 1.293a1 1 0 111.414-1.414L10 4z"></path></svg>;
 
-
 interface ClientPageProps {
   supplier: Supplier;
   pieces: Piece[];
   dictionary: Dictionary['supplierDetailPage'];
   supplierFormDictionary: Dictionary['suppliersPage']['form'];
+  schemaDictionary: Dictionary['schemas'];
 }
 
-export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary }: ClientPageProps) {
+export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary, schemaDictionary }: ClientPageProps) {
   const { toast } = useToast();
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -180,7 +177,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         },
       },
     ];
-  }, [lang, dictionary.piecesTable, handleDelete]);
+  }, [lang, dictionary.piecesTable]);
 
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
@@ -259,6 +256,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             pieceToEdit={dialogState.data}
             onClose={closeDialogs} 
             dictionary={dictionary.form}
+            schemaDictionary={schemaDictionary}
           />
         </DialogContent>
       </Dialog>
@@ -275,6 +273,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             ref={supplierFormRef} 
             onClose={() => setIsEditSupplierOpen(false)} 
             dictionary={supplierFormDictionary}
+            schemaDictionary={schemaDictionary}
             supplierToEdit={supplier}
           />
         </DialogContent>
@@ -298,5 +297,3 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
     </>
   );
 }
-
-    

@@ -20,7 +20,6 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
     pieces={supplierPieces} 
     dictionary={dictionary.supplierDetailPage} 
     supplierFormDictionary={dictionary.suppliersPage.form}
+    schemaDictionary={dictionary.schemas}
   />;
 }
-
-    

@@ -1,3 +1,4 @@
+
 import { getSuppliers, getPieces } from '@/lib/db';
 import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
@@ -17,5 +18,5 @@ export default async function SuppliersPage({ params: { lang } }: { params: { la
     return { ...supplier, totalDebt, totalInvoiced, totalPaid };
   });
 
-  return <ClientPage suppliers={suppliersWithDebt} dictionary={dictionary.suppliersPage} />;
+  return <ClientPage suppliers={suppliersWithDebt} dictionary={dictionary.suppliersPage} schemaDictionary={dictionary.schemas} />;
 }

@@ -13,56 +13,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
-import { supplierFormSchema } from '@/lib/schemas';
+import { getSupplierFormSchema } from '@/lib/schemas';
+import type { Dictionary } from '@/lib/dictionaries';
 
-// Local type definition to avoid importing server-only modules
-type SupplierFormDictionary = {
-    addTitle: string;
-    addDescription: string;
-    editTitle: string;
-    editDescription: string;
-    autoFill: string;
-    nameLabel: string;
-    namePlaceholder: string;
-    wilayaLabel: string;
-    wilayaPlaceholder: string;
-    phoneLabel: string;
-    phonePlaceholder: string;
-    nifLabel: string;
-    nifPlaceholder: string;
-    bankInfoLabel: string;
-    bankInfoPlaceholder: string;
-    initialBalanceLabel: string;
-    notesLabel: string;
-    notesPlaceholder: string;
-    cancelButton: string;
-    saveButton: string;
-    savingButton: string;
-    saveChangesButton: string;
-    toast: {
-        success: { title: string; description: string };
-        updateSuccess: { title: string; description: string };
-        error: { title: string; description: string };
-    };
-};
-
-type SupplierFormValues = z.infer<typeof supplierFormSchema>;
+type SupplierFormDictionary = Dictionary['suppliersPage']['form'];
+type SchemaDictionary = Dictionary['schemas'];
 
 interface SupplierFormProps {
   onClose: () => void;
   dictionary: SupplierFormDictionary;
+  schemaDictionary: SchemaDictionary;
   supplierToEdit?: Supplier;
 }
 
-export type SupplierFormRef = {
-    autoFill: () => void;
-};
-
-export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, schemaDictionary, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   
   const isEditMode = !!supplierToEdit;
+
+  const supplierFormSchema = getSupplierFormSchema(schemaDictionary);
+  type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
@@ -92,7 +63,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
         });
     }
   }, [supplierToEdit, isEditMode, form]);
-
+  
   useImperativeHandle(ref, () => ({
     autoFill: () => {
         form.reset({
@@ -117,7 +88,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
         
         if (result.success) {
             toast({
-              title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.success.title,
+              title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.updateSuccess.description,
               description: `${isEditMode ? dictionary.toast.updateSuccess.description : dictionary.toast.success.description} ${data.name}.`,
             });
             onClose();
@@ -243,3 +214,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
 });
 
 SupplierForm.displayName = 'SupplierForm';
+
+export type SupplierFormRef = {
+    autoFill: () => void;
+};

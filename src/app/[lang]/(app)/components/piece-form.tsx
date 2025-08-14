@@ -21,54 +21,31 @@ import { useTransition, useEffect } from 'react';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
-import { pieceFormSchema } from '@/lib/schemas';
+import { getPieceFormSchema } from '@/lib/schemas';
+import type { Dictionary } from '@/lib/dictionaries';
 
 type Locale = 'fr' | 'ar';
-
-// Local type definition to avoid importing server-only modules
-type PieceFormDictionary = {
-    addTitle: string;
-    addDescription: string;
-    editTitle: string;
-    editDescription: string;
-    dateLabel: string;
-    datePlaceholder: string;
-    typeLabel: string;
-    typeInvoice: string;
-    typeBl: string;
-    totalLabel: string;
-    paidLabel: string;
-    descriptionLabel: string;
-    descriptionPlaceholder: string;
-    cancelButton: string;
-    saveButton: string;
-    savingButton: string;
-    saveChangesButton: string;
-    savingChangesButton: string;
-    toast: {
-        success: { title: string; description: string };
-        updateSuccess: { title: string; description: string };
-        error: { title: string; description: string };
-    };
-};
-
-
-type PieceFormValues = z.infer<typeof pieceFormSchema>;
+type PieceFormDictionary = Dictionary['supplierDetailPage']['form'];
+type SchemaDictionary = Dictionary['schemas'];
 
 interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
   pieceToEdit?: Piece;
   dictionary: PieceFormDictionary;
+  schemaDictionary: SchemaDictionary;
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schemaDictionary }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
   const lang = params.lang as Locale;
   
   const isEditMode = !!pieceToEdit;
+
+  const { formSchema: pieceFormSchema, addPieceSchema } = getPieceFormSchema(schemaDictionary);
+  type PieceFormValues = z.infer<typeof pieceFormSchema>;
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),

@@ -7,11 +7,11 @@ import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts"
 const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-4))"];
 
 // Internal formatter to avoid importing from a module with server-side dependencies
-function formatCurrencySimple(amount: number) {
+function formatCurrencySimple(amount: number, fractionDigits = 2) {
   return new Intl.NumberFormat('fr-DZ', {
     style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(amount);
 }
 
@@ -59,7 +59,10 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
       </ResponsiveContainer>
       <div className="absolute inset-0 flex items-center justify-center flex-col text-center">
         <span className="text-sm text-muted-foreground">Total des Créances</span>
-        <span className="text-2xl font-bold font-mono text-gray-800 break-all px-4">{formatCurrencySimple(total)} DA</span>
+        <div className="text-2xl font-bold font-mono text-gray-800 break-all px-4">
+          {formatCurrencySimple(total, 0)}
+        </div>
+        <div className="text-sm font-mono text-muted-foreground">DZD</div>
       </div>
     </div>
   )
