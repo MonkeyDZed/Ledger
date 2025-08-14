@@ -7,19 +7,24 @@ import { revalidatePath } from 'next/cache';
 import type { Piece } from '@/lib/types';
 import { Locale } from '@/i18n.config';
 
-const pieceFormSchema = z.object({
+const basePieceSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
   type: z.enum(['BL', 'FACTURE'], { required_error: 'Le type est requis.' }),
   total_piece: z.coerce.number().min(0, { message: 'Le total doit être positif.' }),
   montant_paye: z.coerce.number().min(0, { message: 'Le montant payé doit être positif.' }),
   description: z.string().optional(),
-}).refine(data => data.montant_paye <= data.total_piece, {
+});
+
+const pieceFormSchema = basePieceSchema.refine(data => data.montant_paye <= data.total_piece, {
     message: "Le montant payé ne peut pas dépasser le total de la pièce.",
     path: ["montant_paye"],
 });
 
-const addPieceSchema = pieceFormSchema.extend({
+const addPieceSchema = basePieceSchema.extend({
     supplier_id: z.string(),
+}).refine(data => data.montant_paye <= data.total_piece, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
 });
 
 

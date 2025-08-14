@@ -4,7 +4,8 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '@/components/ui/dropdown-menu'
 import { Check } from 'lucide-react'
-import { Locale } from '@/i18n.config'
+
+type Locale = 'fr' | 'ar';
 
 export function LanguageSwitcherMenu({ params }: { params: { lang: Locale }}) {
   const router = useRouter()
