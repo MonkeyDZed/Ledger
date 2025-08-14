@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ColumnDef,
   flexRender,
@@ -13,6 +13,8 @@ import {
   type SortingState,
   type ColumnFiltersState,
 } from '@tanstack/react-table';
+import { DateRange } from 'react-day-picker';
+import { subDays, startOfMonth, endOfMonth } from 'date-fns';
 
 import {
   Table,
@@ -26,6 +28,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Calendar as CalendarIcon, Filter } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import { formatDate } from '@/lib/formatters';
 
 type DataTableDictionary = {
     filterPlaceholder: string;
@@ -35,6 +43,15 @@ type DataTableDictionary = {
     noResults: string;
     previous: string;
     next: string;
+    dateFilter: {
+        title: string;
+        all: string;
+        today: string;
+        yesterday: string;
+        thisMonth: string;
+        custom: string;
+        apply: string;
+    }
     [key: string]: any;
 };
 
@@ -51,6 +68,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const table = useReactTable({
     data,
@@ -67,9 +85,26 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  useEffect(() => {
+    const dateFilter = columnFilters.find(f => f.id === 'date');
+    if (!dateFilter) {
+        setDateRange(undefined);
+    }
+  }, [columnFilters]);
+
+
+  const applyDateFilter = (range: DateRange | undefined) => {
+    setDateRange(range);
+    if (range) {
+        table.getColumn('date')?.setFilterValue(range);
+    } else {
+        table.getColumn('date')?.setFilterValue(undefined);
+    }
+  }
+
   return (
     <Card>
-      <CardContent className="p-4 flex gap-4">
+      <CardContent className="p-4 flex items-center gap-4">
         <Input
           placeholder={dictionary.filterPlaceholder}
           value={(table.getColumn('supplierName')?.getFilterValue() as string) ?? ''}
@@ -93,6 +128,40 @@ export function DataTable<TData, TValue>({
                 <SelectItem value="BL">{dictionary.typeBl || 'BL'}</SelectItem>
             </SelectContent>
         </Select>
+
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ms-auto gap-2">
+                    <Filter className="h-4 w-4" />
+                    {dictionary.dateFilter.title}
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuCheckboxItem checked={!dateRange} onSelect={() => applyDateFilter(undefined)}>{dictionary.dateFilter.all}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem onSelect={() => applyDateFilter({ from: new Date(), to: new Date() })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
+                 <DropdownMenuSeparator />
+                <Popover>
+                    <PopoverTrigger asChild>
+                         <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                            {dictionary.dateFilter.custom}
+                        </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={dateRange?.from}
+                            selected={dateRange}
+                            onSelect={(range) => applyDateFilter(range)}
+                            numberOfMonths={2}
+                        />
+                    </PopoverContent>
+                </Popover>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
       </CardContent>
       <div className="border-t">
         <Table>

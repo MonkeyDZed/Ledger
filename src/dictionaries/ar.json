@@ -212,7 +212,16 @@
             "filterPlaceholder": "تصفية حسب المورد...",
             "noResults": "لا توجد نتائج.",
             "previous": "السابق",
-            "next": "التالي"
+            "next": "التالي",
+            "dateFilter": {
+                "title": "تصفية بالتاريخ",
+                "all": "كل التواريخ",
+                "today": "اليوم",
+                "yesterday": "أمس",
+                "thisMonth": "هذا الشهر",
+                "custom": "مخصص...",
+                "apply": "تطبيق"
+            }
         }
     }
 }

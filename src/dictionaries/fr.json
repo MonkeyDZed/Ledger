@@ -212,7 +212,16 @@
             "filterPlaceholder": "Filtrer par fournisseur...",
             "noResults": "Aucun résultat.",
             "previous": "Précédent",
-            "next": "Suivant"
+            "next": "Suivant",
+            "dateFilter": {
+                "title": "Filtrer par date",
+                "all": "Toutes les dates",
+                "today": "Aujourd'hui",
+                "yesterday": "Hier",
+                "thisMonth": "Ce mois-ci",
+                "custom": "Personnalisé...",
+                "apply": "Appliquer"
+            }
         }
     }
 }

@@ -5,19 +5,19 @@ import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece } from '@/lib/types';
 import { useMemo } from 'react';
-import { formatDate } from '@/lib/formatters';
 import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Row, FilterFn } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useParams } from 'next/navigation';
+import { DateRange } from 'react-day-picker';
+import { isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 
 type Locale = 'fr' | 'ar';
-type PieceWithSupplierName = Piece & { supplierName: string };
+type PieceWithSupplierName = Piece & { supplierName: string; formattedDate: string; };
 
 // Inferred type from the parent server component
 type PiecesPageDictionary = {
@@ -44,12 +44,22 @@ type PiecesPageDictionary = {
         noResults: string;
         previous: string;
         next: string;
+        dateFilter: {
+            title: string;
+            all: string;
+            today: string;
+            yesterday: string;
+            thisMonth: string;
+            custom: string;
+            apply: string;
+        }
     };
 };
 
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
   dictionary: PiecesPageDictionary;
+  lang: Locale;
 }
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
@@ -63,9 +73,23 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
     </Card>
 );
 
-export function ClientPage({ pieces, dictionary }: ClientPageProps) {
-    const params = useParams();
-    const lang = params.lang as Locale;
+const dateBetweenFilterFn: FilterFn<any> = (
+  row: Row<any>,
+  columnId: string,
+  value: DateRange,
+  addMeta: (meta: any) => void
+) => {
+  const date = new Date(row.getValue(columnId));
+  const { from, to } = value;
+  if (!from && !to) return true;
+  if (from && !to) return date >= startOfDay(from);
+  if (!from && to) return date <= endOfDay(to);
+  if (from && to) return isWithinInterval(date, { start: startOfDay(from), end: endOfDay(to) });
+  return true;
+};
+
+
+export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
 
     const totals = useMemo(() => {
         const totalBilled = pieces.reduce((sum, p) => sum + p.total_piece, 0);
@@ -99,7 +123,8 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => formatDate(row.getValue('date'), lang),
+          cell: ({ row }) => row.original.formattedDate,
+          filterFn: dateBetweenFilterFn,
         },
         {
           accessorKey: 'type',
