@@ -33,7 +33,10 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
     }
 
     try {
-        await updateSupplierInDb(id, validation.data);
+        // Exclude fields that should not be updated directly
+        const { ...updateData } = validation.data;
+        
+        await updateSupplierInDb(id, updateData);
         revalidatePath('/(.)');
         return { success: true };
     } catch (e) {
