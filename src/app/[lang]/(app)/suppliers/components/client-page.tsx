@@ -24,29 +24,40 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 type Locale = 'fr' | 'ar';
 // This type is inferred from the parent, no need for direct import
-type SuppliersPageDictionary = any;
+type SuppliersPageDictionary = {
+    title: string;
+    description: string;
+    export: string;
+    newSupplier: string;
+    table: any;
+    form: any;
+    deleteDialog: any;
+    toast: any;
+};
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
   dictionary: SuppliersPageDictionary;
 }
 
-const StatCard = ({ title, value, icon }: { title: string, value: string, icon?: React.ReactNode }) => (
+const StatCard = ({ title, value, icon, iconBgColor }: { title: string, value: string, icon?: React.ReactNode, iconBgColor?: string }) => (
     <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
-            {icon}
         </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold text-gray-900 font-mono">{value}</div>
+        <CardContent className="flex items-center justify-between">
+            <p className="text-2xl font-bold text-gray-900 font-mono">{value}</p>
+            <div className={`p-3 rounded-lg ${iconBgColor || 'bg-gray-100'}`}>
+                {icon}
+            </div>
         </CardContent>
     </Card>
 );
 
-const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
-const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
-const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
-const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
+const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-blue-600"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
+const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-indigo-600"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
+const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-green-600"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
+const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-amber-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
 
 
 export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
@@ -234,10 +245,10 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
       </PageHeader>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrency(totals.totalInitialBalance)} DZD`} icon={<BalanceIcon />} />
-          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrency(totals.totalInvoiced)} DZD`} icon={<ReceiptIcon />} />
-          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrency(totals.totalPaid)} DZD`} icon={<CreditCardIcon />} />
-          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrency(totals.totalDebt)} DZD`} icon={<AlertCircleIcon />} />
+          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrency(totals.totalInitialBalance)} DZD`} icon={<BalanceIcon />} iconBgColor='bg-blue-100' />
+          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrency(totals.totalInvoiced)} DZD`} icon={<ReceiptIcon />} iconBgColor='bg-indigo-100'/>
+          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrency(totals.totalPaid)} DZD`} icon={<CreditCardIcon />} iconBgColor='bg-green-100'/>
+          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrency(totals.totalDebt)} DZD`} icon={<AlertCircleIcon />} iconBgColor='bg-amber-100'/>
       </div>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
