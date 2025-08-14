@@ -14,7 +14,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
-import type { Dictionary } from '@/lib/dictionaries';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 type Locale = 'fr' | 'ar';
@@ -62,18 +61,13 @@ const CsvIcon = () => (
     <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
 );
 
-type DashboardDictionary = Dictionary['dashboard'];
-type SupplierFormDictionary = Dictionary['suppliersPage']['form'];
-type PieceFormDictionary = Dictionary['supplierDetailPage']['form'];
-type SchemaDictionary = Dictionary['schemas'];
-
 interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
-  dictionary: DashboardDictionary;
-  formDictionary: SupplierFormDictionary;
-  pieceFormDictionary: PieceFormDictionary;
-  schemaDictionary: SchemaDictionary;
+  dictionary: any;
+  formDictionary: any;
+  pieceFormDictionary: any;
+  schemaDictionary: any;
   lang: Locale;
 }
 
@@ -257,7 +251,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                         <h2 className="text-lg font-semibold text-gray-900">{dictionary.financialOverview}</h2>
                     </CardHeader>
                     <CardContent>
-                        <FinancialOverviewChart data={{ paid: totalPaid, toPay: totalToPay }} labels={{ paid: dictionary.paid, toPay: dictionary.toPay }} />
+                        <FinancialOverviewChart data={{ paid: totalPaid, toPay: totalToPay }} labels={{ paid: dictionary.paid, toPay: dictionary.toPay, currency: dictionary.currency }} />
 
                         <div className="space-y-4 mt-6">
                             <div>
@@ -323,3 +317,5 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    

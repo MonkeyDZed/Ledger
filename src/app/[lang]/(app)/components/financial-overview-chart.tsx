@@ -21,6 +21,7 @@ interface FinancialOverviewChartProps {
     labels: {
         paid: string;
         toPay: string;
+        currency: string;
     }
 }
 
@@ -41,7 +42,7 @@ export function FinancialOverviewChart({ data, labels }: FinancialOverviewChartP
               borderColor: "hsl(var(--border))",
               borderRadius: "var(--radius)",
             }}
-            formatter={(value) => `${formatCurrencySimple(value as number)} DZD`}
+            formatter={(value) => `${formatCurrencySimple(value as number)} ${labels.currency}`}
           />
           <Pie
             data={chartData}
@@ -66,7 +67,7 @@ export function FinancialOverviewChart({ data, labels }: FinancialOverviewChartP
         <div className="text-2xl font-bold font-mono text-gray-800 break-all px-4">
           {formatCurrencySimple(total, 0)}
         </div>
-        <div className="text-sm font-mono text-muted-foreground font-bold mt-1">DZD</div>
+        <div className="text-sm font-mono text-muted-foreground font-bold mt-1">{labels.currency}</div>
       </div>
     </div>
   )
