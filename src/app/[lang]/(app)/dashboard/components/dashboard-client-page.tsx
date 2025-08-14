@@ -116,43 +116,43 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link href={`/${lang}/suppliers`} className="block active:scale-[0.98] transition-transform">
-                <Card className="h-full bg-blue-50 border-blue-200">
+                <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-blue-800">{dictionary.suppliers}</CardTitle>
-                        <div className="text-blue-700"><UsersIcon /></div>
+                        <CardTitle className="text-sm font-medium">{dictionary.suppliers}</CardTitle>
+                        <UsersIcon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-blue-900">{totalSuppliers}</div>
+                        <div className="text-2xl font-bold">{totalSuppliers}</div>
                     </CardContent>
                 </Card>
             </Link>
             <Link href={`/${lang}/pieces`} className="block active:scale-[0.98] transition-transform">
-                <Card className="h-full bg-green-50 border-green-200">
+                <Card>
                      <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-green-800">{dictionary.pieces}</CardTitle>
-                        <div className="text-green-700"><FileInvoiceIcon /></div>
+                        <CardTitle className="text-sm font-medium">{dictionary.pieces}</CardTitle>
+                        <FileInvoiceIcon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-900">{totalPieces}</div>
+                        <div className="text-2xl font-bold">{totalPieces}</div>
                     </CardContent>
                 </Card>
             </Link>
-            <Card className="bg-amber-50 border-amber-200">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-amber-800">{dictionary.totalDebts}</CardTitle>
-                    <div className="text-amber-700"><MoneyBillWaveIcon /></div>
+                    <CardTitle className="text-sm font-medium">{dictionary.totalDebts}</CardTitle>
+                    <MoneyBillWaveIcon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(grandTotalDebt, lang, dictionary)}</div>
+                    <div className="text-2xl font-bold font-mono">{formatCurrencyWithLocale(grandTotalDebt, lang, dictionary)}</div>
                 </CardContent>
             </Card>
-            <Card className="bg-rose-50 border-rose-200">
+            <Card>
                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium text-rose-800">{dictionary.lastSync}</CardTitle>
-                    <div className="text-rose-700"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 18a7.002 7.002 0 006.323-3.676l-1.226-1.226A4.985 4.985 0 0110 14.95a4.985 4.985 0 01-5.1-3.852l-1.226 1.226A7.002 7.002 0 0010 18z" clipRule="evenodd"></path></svg></div>
+                    <CardTitle className="text-sm font-medium">{dictionary.lastSync}</CardTitle>
+                    <svg className="w-5 h-5 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 18a7.002 7.002 0 006.323-3.676l-1.226-1.226A4.985 4.985 0 0110 14.95a4.985 4.985 0 01-5.1-3.852l-1.226 1.226A7.002 7.002 0 0010 18z" clipRule="evenodd"></path></svg>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-rose-900">{dictionary.upToDate}</div>
+                    <div className="text-2xl font-bold">{dictionary.upToDate}</div>
                 </CardContent>
             </Card>
         </div>
