@@ -20,11 +20,16 @@ const basePieceSchema = z.object({
   description: z.string().optional(),
 });
 
+// Schema for the form, without supplier_id
 export const pieceFormSchema = basePieceSchema.refine(data => data.montant_paye <= data.total_piece, {
     message: "Le montant payé ne peut pas dépasser le total de la pièce.",
     path: ["montant_paye"],
 });
 
-export const addPieceSchema = pieceFormSchema.extend({
+// Schema for adding a new piece to the DB, which requires supplier_id
+export const addPieceSchema = basePieceSchema.extend({
     supplier_id: z.string(),
+}).refine(data => data.montant_paye <= data.total_piece, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
 });

@@ -17,9 +17,10 @@ import {
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { LanguageSwitcherMenu } from './components/language-switcher-menu';
-import type { Locale } from '@/i18n.config';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+
+type Locale = 'fr' | 'ar';
 
 const navLinks = [
   { href: '/dashboard', label: 'Tableau de bord', labelAr: 'لوحة التحكم' },
