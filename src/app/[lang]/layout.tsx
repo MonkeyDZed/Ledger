@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={cn("min-h-screen bg-gray-50 font-sans antialiased", inter.variable)}>
         {children}
-        <Toastaster />
+        <Toaster />
       </body>
     </html>
   );

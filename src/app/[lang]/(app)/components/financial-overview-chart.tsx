@@ -3,9 +3,18 @@
 
 import * as React from "react"
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts"
-import { formatCurrency } from "@/lib/formatters"
 
 const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-4))"];
+
+// Internal formatter to avoid importing from a module with server-side dependencies
+function formatCurrencySimple(amount: number) {
+  return new Intl.NumberFormat('fr-DZ', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 
 interface FinancialOverviewChartProps {
     data: { paid: number; toPay: number };
@@ -28,7 +37,7 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
               borderColor: "hsl(var(--border))",
               borderRadius: "var(--radius)",
             }}
-            formatter={(value) => formatCurrency(value as number)}
+            formatter={(value) => formatCurrencySimple(value as number)}
           />
           <Pie
             data={chartData}
@@ -49,7 +58,7 @@ export function FinancialOverviewChart({ data }: FinancialOverviewChartProps) {
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex items-center justify-center flex-col">
-        <span className="text-2xl font-bold font-mono">{formatCurrency(total / 1000)}k</span>
+        <span className="text-2xl font-bold font-mono">{formatCurrencySimple(total / 1000)}k</span>
         <span className="text-sm text-muted-foreground">Total</span>
       </div>
     </div>
