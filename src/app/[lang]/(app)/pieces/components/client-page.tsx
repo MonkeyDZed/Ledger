@@ -8,7 +8,6 @@ import { useMemo } from 'react';
 import { formatDate } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dictionary } from '@/lib/dictionaries';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
@@ -20,9 +19,37 @@ import { Locale } from '@/i18n.config';
 
 type PieceWithSupplierName = Piece & { supplierName: string };
 
+// Inferred type from the parent server component
+type PiecesPageDictionary = {
+    title: string;
+    description: string;
+    totalBilled: string;
+    totalPaid: string;
+    totalRemaining: string;
+    table: {
+        supplier: string;
+        date: string;
+        type: string;
+        typeAll: string;
+        typeInvoice: string;
+        typeBl: string;
+        total: string;
+        paid: string;
+        remaining: string;
+        actions: string;
+        openMenu: string;
+        edit: string;
+        delete: string;
+        filterPlaceholder: string;
+        noResults: string;
+        previous: string;
+        next: string;
+    };
+};
+
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
-  dictionary: Dictionary['piecesPage'];
+  dictionary: PiecesPageDictionary;
 }
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
@@ -158,5 +185,3 @@ export function ClientPage({ pieces, dictionary }: ClientPageProps) {
     </>
   );
 }
-
-    

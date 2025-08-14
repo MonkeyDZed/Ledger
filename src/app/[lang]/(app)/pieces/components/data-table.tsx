@@ -25,13 +25,23 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Dictionary } from '@/lib/dictionaries';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type DataTableDictionary = {
+    filterPlaceholder: string;
+    typeAll: string;
+    typeInvoice: string;
+    typeBl: string;
+    noResults: string;
+    previous: string;
+    next: string;
+    [key: string]: any;
+};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  dictionary: Dictionary['piecesPage']['table']
+  dictionary: DataTableDictionary;
 }
 
 export function DataTable<TData, TValue>({

@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -17,19 +18,24 @@ const pieceFormSchema = z.object({
     path: ["montant_paye"],
 });
 
+const addPieceSchema = pieceFormSchema.extend({
+    supplier_id: z.string(),
+});
 
-export async function addPiece(data: z.infer<typeof pieceFormSchema> & { supplier_id: string }, lang: Locale) : Promise<{success: boolean, message?: string}> {
-    const validation = pieceFormSchema.safeParse(data);
+
+export async function addPiece(data: z.infer<typeof addPieceSchema>, lang: Locale) : Promise<{success: boolean, message?: string}> {
+    const validation = addPieceSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
     }
     
     try {
-        const pieceData = {
-            ...validation.data,
-            description: validation.data.description || '',
-        };
-        await addPieceToDb(pieceData as Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>);
+        const { supplier_id, ...pieceData } = validation.data;
+        await addPieceToDb({ 
+            ...pieceData,
+            supplier_id: supplier_id,
+            description: pieceData.description || '',
+        });
         revalidatePath(`/${lang}/suppliers/${data.supplier_id}`);
         revalidatePath(`/${lang}/dashboard`);
         revalidatePath(`/${lang}/pieces`);
@@ -78,3 +84,4 @@ export async function deletePiece(id: string, supplier_id: string, lang: Locale)
         return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }
+
