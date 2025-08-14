@@ -19,7 +19,6 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { Dictionary } from '@/lib/dictionaries';
 import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
 
 // Internal formatter to avoid importing from a module with server-side dependencies
@@ -63,9 +62,9 @@ const BanknoteIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox=
 interface ClientPageProps {
   supplier: Supplier;
   pieces: Piece[];
-  dictionary: Dictionary['supplierDetailPage'];
-  supplierFormDictionary: Dictionary['suppliersPage']['form'];
-  schemaDictionary: Dictionary['schemas'];
+  dictionary: any;
+  supplierFormDictionary: any;
+  schemaDictionary: any;
 }
 
 export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary, schemaDictionary }: ClientPageProps) {
