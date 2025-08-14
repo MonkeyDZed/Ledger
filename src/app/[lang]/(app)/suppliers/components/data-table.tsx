@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -24,14 +25,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import type { getDictionary } from '@/lib/dictionaries';
 
-type SuppliersPageDictionary = Awaited<ReturnType<typeof getDictionary>>['suppliersPage'];
+// Inferred from parent
+type SuppliersTableDictionary = {
+    filterPlaceholder: string;
+    noResults: string;
+    previous: string;
+    next: string;
+    [key: string]: any;
+};
+
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  dictionary: SuppliersPageDictionary['table'];
+  dictionary: SuppliersTableDictionary;
 }
 
 export function DataTable<TData, TValue>({

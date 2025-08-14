@@ -20,12 +20,11 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { getDictionary } from '@/lib/dictionaries';
-
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 type Locale = 'fr' | 'ar';
-type SuppliersPageDictionary = Awaited<ReturnType<typeof getDictionary>>['suppliersPage'];
+// This type is inferred from the parent, no need for direct import
+type SuppliersPageDictionary = any;
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];

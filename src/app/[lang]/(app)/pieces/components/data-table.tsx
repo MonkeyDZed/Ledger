@@ -113,10 +113,17 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
         <Select
-            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
-            onValueChange={(value) =>
-                table.getColumn('type')?.setFilterValue(value === 'all' ? '' : value)
-            }
+            value={(table.getColumn('type')?.getFilterValue() as string[] | string) ?? 'all'}
+            onValueChange={(value) => {
+                 const currentFilter = table.getColumn('type')?.getFilterValue();
+                 if (value === 'all') {
+                    table.getColumn('type')?.setFilterValue(undefined);
+                 } else if (Array.isArray(currentFilter)) {
+                    table.getColumn('type')?.setFilterValue([...currentFilter, value]);
+                 } else {
+                    table.getColumn('type')?.setFilterValue([value]);
+                 }
+            }}
         >
             <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filtrer par type" />
@@ -137,15 +144,15 @@ export function DataTable<TData, TValue>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuCheckboxItem checked={!dateRange} onSelect={() => applyDateFilter(undefined)}>{dictionary.dateFilter.all}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem onSelect={() => applyDateFilter({ from: new Date(), to: new Date() })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={dateRange?.from === new Date() && dateRange?.to === new Date()} onSelect={() => applyDateFilter({ from: new Date(), to: new Date() })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={dateRange?.from === subDays(new Date(), 1) && dateRange?.to === subDays(new Date(), 1)} onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={dateRange?.from === startOfMonth(new Date()) && dateRange?.to === endOfMonth(new Date())} onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
                  <DropdownMenuSeparator />
                 <Popover>
                     <PopoverTrigger asChild>
-                         <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
+                         <button className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full hover:bg-accent">
                             {dictionary.dateFilter.custom}
-                        </div>
+                        </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
@@ -153,7 +160,7 @@ export function DataTable<TData, TValue>({
                             mode="range"
                             defaultMonth={dateRange?.from}
                             selected={dateRange}
-                            onSelect={(range) => applyDateFilter(range)}
+                            onSelect={applyDateFilter}
                             numberOfMonths={2}
                         />
                     </PopoverContent>
