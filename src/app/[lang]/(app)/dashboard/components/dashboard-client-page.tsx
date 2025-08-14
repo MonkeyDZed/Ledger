@@ -25,7 +25,7 @@ const StatCardIcon = ({ className, children }: { className?: string, children: R
 );
 
 const QuickActionButton = ({ className, icon, label, onClick }: { className?: string, icon: React.ReactNode, label: string, onClick?: () => void }) => (
-    <button onClick={onClick} className="flex flex-col items-center justify-center p-4 rounded-lg border border-gray-200 hover:border-primary transition-all text-center w-full">
+    <button onClick={onClick} className="flex flex-col items-center justify-center p-4 rounded-lg border border-gray-200 hover:border-primary transition-all text-center w-full active:scale-[0.98]">
         <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${className}`}>
             {icon}
         </div>

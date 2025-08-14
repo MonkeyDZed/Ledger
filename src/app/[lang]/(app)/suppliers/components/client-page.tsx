@@ -14,7 +14,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { deleteSupplier } from '../actions';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
-import { Locale } from '@/i18n.config';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatCurrency } from '@/lib/formatters';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -24,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
+type Locale = 'fr' | 'ar';
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
@@ -150,7 +150,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalDebt'));
           return <div className="text-end font-mono">
-            <Badge variant={amount > 0 ? 'destructive' : 'default'} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
+            <Badge variant={amount > 0 ? "destructive" : "default"} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
                 {formatCurrency(amount)} DZD
             </Badge>
           </div>;
