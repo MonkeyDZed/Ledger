@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece } from '@/lib/types';
 import { useMemo } from 'react';
-import { formatDate } from '@/lib/utils';
+import { formatDate } from '@/lib/formatters';
 import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef } from '@tanstack/react-table';

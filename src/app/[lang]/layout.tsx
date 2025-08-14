@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import '../globals.css';
 import { Toaster } from "@/components/ui/toaster";
@@ -23,11 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
   params: { lang: Locale }
 }>) {
+  const lang = params.lang;
   return (
-    <html lang={params.lang} dir={params.lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+    <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={cn("min-h-screen bg-gray-50 font-sans antialiased", inter.variable)}>
         {children}
-        <Toaster />
+        <Toastaster />
       </body>
     </html>
   );
