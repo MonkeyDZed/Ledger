@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { PlusCircle, ArrowLeft } from 'lucide-react';
+import { PlusCircle, ArrowLeft, FileEdit } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PieceForm } from '../../../components/piece-form';
@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Dictionary } from '@/lib/dictionaries';
+import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
 
 
 type Locale = 'fr' | 'ar';
@@ -50,10 +51,13 @@ interface ClientPageProps {
   supplier: Supplier;
   pieces: Piece[];
   dictionary: Dictionary['supplierDetailPage'];
+  supplierFormDictionary: Dictionary['suppliersPage']['form'];
 }
 
-export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
+export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary }: ClientPageProps) {
   const { toast } = useToast();
+  const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
+  const supplierFormRef = useRef<SupplierFormRef>(null);
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
     data?: Piece;
@@ -203,7 +207,13 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
       </div>
 
       <Card className="mb-8">
-        <CardHeader><CardTitle>{dictionary.info.title}</CardTitle></CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>{dictionary.info.title}</CardTitle>
+            <Button variant="outline" size="sm" onClick={() => setIsEditSupplierOpen(true)}>
+                <FileEdit className="me-2 h-4 w-4" />
+                {dictionary.info.editButton}
+            </Button>
+        </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4 text-sm pt-4">
             <div><strong>{dictionary.info.wilaya}:</strong> {supplier.wilaya}</div>
             <div><strong>{dictionary.info.phone}:</strong> {supplier.phone}</div>
@@ -236,6 +246,23 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
         </DialogContent>
       </Dialog>
       
+       <Dialog open={isEditSupplierOpen} onOpenChange={setIsEditSupplierOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>{supplierFormDictionary.editTitle}</DialogTitle>
+            <DialogDescription>
+              {supplierFormDictionary.editDescription}
+            </DialogDescription>
+          </DialogHeader>
+          <SupplierForm 
+            ref={supplierFormRef} 
+            onClose={() => setIsEditSupplierOpen(false)} 
+            dictionary={supplierFormDictionary}
+            supplierToEdit={supplier}
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
         <AlertDialogContent>
@@ -254,3 +281,5 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
     </>
   );
 }
+
+    

@@ -15,5 +15,12 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
 
   const supplierPieces = await getPiecesBySupplierId(supplier.id);
 
-  return <ClientPage supplier={supplier} pieces={supplierPieces} dictionary={dictionary.supplierDetailPage} />;
+  return <ClientPage 
+    supplier={supplier} 
+    pieces={supplierPieces} 
+    dictionary={dictionary.supplierDetailPage} 
+    supplierFormDictionary={dictionary.suppliersPage.form}
+  />;
 }
+
+    

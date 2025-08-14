@@ -122,6 +122,7 @@
         },
         "info": {
             "title": "Informations du Fournisseur",
+            "editButton": "Modifier",
             "wilaya": "Wilaya",
             "phone": "Téléphone",
             "nif": "NIF",
@@ -225,3 +226,5 @@
         }
     }
 }
+
+    
