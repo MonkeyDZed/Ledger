@@ -16,7 +16,6 @@ import { SupplierForm, type SupplierFormRef } from '../../components/supplier-fo
 import { Sparkles } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import type { Locale } from '@/i18n.config';
-import type { Dictionary } from '@/lib/dictionaries';
 
 
 const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
@@ -62,13 +61,42 @@ const CsvIcon = () => (
     <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
 );
 
+// Inferred from parent
+type DashboardDictionary = {
+    suppliers: string;
+    pieces: string;
+    totalDebts: string;
+    lastSync: string;
+    upToDate: string;
+    quickActions: string;
+    addSupplier: string;
+    newPiece: string;
+    export: string;
+    recentSuppliers: string;
+    seeAll: string;
+    supplierName: string;
+    wilaya: string;
+    totalInvoiced: string;
+    remaining: string;
+    action: string;
+    nif: string;
+    financialOverview: string;
+    paid: string;
+    toPay: string;
+    exportPdf: string;
+    exportCsv: string;
+};
+// Inferred from parent
+type SupplierFormDictionary = any; 
+// Inferred from parent
+type PieceFormDictionary = any;
 
 interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
-  dictionary: Dictionary['dashboard'];
-  formDictionary: Dictionary['suppliersPage']['form'];
-  pieceFormDictionary: Dictionary['supplierDetailPage']['form'];
+  dictionary: DashboardDictionary;
+  formDictionary: SupplierFormDictionary;
+  pieceFormDictionary: PieceFormDictionary;
   lang: Locale;
 }
 
@@ -312,7 +340,3 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
-
-    
-
-    

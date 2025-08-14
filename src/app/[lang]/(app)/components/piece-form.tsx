@@ -17,12 +17,39 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { Dictionary } from '@/lib/dictionaries';
 import { useTransition, useEffect } from 'react';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
-import { Locale } from '@/i18n.config';
 import type { Piece } from '@/lib/types';
+
+type Locale = 'fr' | 'ar';
+
+// Local type definition to avoid importing server-only modules
+type PieceFormDictionary = {
+    addTitle: string;
+    addDescription: string;
+    editTitle: string;
+    editDescription: string;
+    dateLabel: string;
+    datePlaceholder: string;
+    typeLabel: string;
+    typeInvoice: string;
+    typeBl: string;
+    totalLabel: string;
+    paidLabel: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    cancelButton: string;
+    saveButton: string;
+    savingButton: string;
+    saveChangesButton: string;
+    savingChangesButton: string;
+    toast: {
+        success: { title: string; description: string };
+        updateSuccess: { title: string; description: string };
+        error: { title: string; description: string };
+    };
+};
 
 
 const pieceFormSchema = z.object({
@@ -42,7 +69,7 @@ interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
   pieceToEdit?: Piece;
-  dictionary: Dictionary['supplierDetailPage']['form']
+  dictionary: PieceFormDictionary;
 }
 
 export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary }: PieceFormProps) {

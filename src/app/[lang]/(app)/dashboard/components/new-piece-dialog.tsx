@@ -82,7 +82,11 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
             </div>
         ) : (
           <div>
-            <Card className="mb-4 bg-gray-50 border-dashed">
+            <Card 
+              className="mb-4 bg-gray-50 border-dashed cursor-pointer"
+              onDoubleClick={() => setSelectedSupplierId(null)}
+              title="Double-cliquez pour changer de fournisseur"
+            >
                 <CardContent className="p-4">
                     <div className="flex justify-between items-center">
                         <div>

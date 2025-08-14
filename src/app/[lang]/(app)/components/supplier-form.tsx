@@ -12,10 +12,42 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
-import type { Dictionary } from '@/lib/dictionaries';
 import type { Supplier } from '@/lib/types';
 import { useParams } from 'next/navigation';
 import { Locale } from '@/i18n.config';
+
+
+// Local type definition to avoid importing server-only modules
+type SupplierFormDictionary = {
+    addTitle: string;
+    addDescription: string;
+    editTitle: string;
+    editDescription: string;
+    autoFill: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    wilayaLabel: string;
+    wilayaPlaceholder: string;
+    phoneLabel: string;
+    phonePlaceholder: string;
+    nifLabel: string;
+    nifPlaceholder: string;
+    bankInfoLabel: string;
+    bankInfoPlaceholder: string;
+    initialBalanceLabel: string;
+    notesLabel: string;
+    notesPlaceholder: string;
+    cancelButton: string;
+    saveButton: string;
+    savingButton: string;
+    saveChangesButton: string;
+    toast: {
+        success: { title: string; description: string };
+        updateSuccess: { title: string; description: string };
+        error: { title: string; description: string };
+    };
+};
+
 
 const supplierFormSchema = z.object({
   name: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères.' }),
@@ -31,7 +63,7 @@ type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
 interface SupplierFormProps {
   onClose: () => void;
-  dictionary: Dictionary['suppliersPage']['form'];
+  dictionary: SupplierFormDictionary;
   supplierToEdit?: Supplier;
 }
 
