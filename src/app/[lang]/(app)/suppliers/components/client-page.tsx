@@ -248,13 +248,13 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
                 <div className="text-2xl font-bold text-green-900 font-mono">{formatCurrencyWithLocale(totals.totalPaid, lang, dictionary)}</div>
             </CardContent>
         </Card>
-        <Card className="bg-amber-50 border-amber-200">
+        <Card className="bg-rose-50 border-rose-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-amber-800">{dictionary.table.totalDebt}</CardTitle>
-                <div className="text-amber-700"><AlertCircleIcon /></div>
+                <CardTitle className="text-sm font-medium text-rose-800">{dictionary.table.totalDebt}</CardTitle>
+                <div className="text-rose-700"><AlertCircleIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(totals.totalDebt, lang, dictionary)}</div>
+                <div className="text-2xl font-bold text-rose-900 font-mono">{formatCurrencyWithLocale(totals.totalDebt, lang, dictionary)}</div>
             </CardContent>
         </Card>
       </div>
@@ -306,5 +306,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
     </>
   );
 }
+
+    
 
     

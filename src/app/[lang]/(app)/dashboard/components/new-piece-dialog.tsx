@@ -7,7 +7,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PieceForm } from '../../components/piece-form';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
-import type { Dictionary } from '@/lib/dictionaries';
 
 // Internal formatter to avoid importing from a module with server-side dependencies
 function formatCurrencySimple(amount: number) {
@@ -19,18 +18,15 @@ function formatCurrencySimple(amount: number) {
 }
 
 type Locale = 'fr' | 'ar';
-type DashboardDictionary = Dictionary['dashboard'];
-type PieceFormDictionary = Dictionary['supplierDetailPage']['form'];
-type SchemaDictionary = Dictionary['schemas'];
 
 interface NewPieceDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   suppliers: Supplier[];
   pieces: Piece[];
-  dictionary: DashboardDictionary;
-  pieceFormDictionary: PieceFormDictionary;
-  schemaDictionary: SchemaDictionary;
+  dictionary: any;
+  pieceFormDictionary: any;
+  schemaDictionary: any;
   lang: Locale;
 }
 
