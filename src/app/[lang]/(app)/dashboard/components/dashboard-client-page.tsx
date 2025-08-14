@@ -4,25 +4,19 @@
 import { useRef, useState } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import { Sparkles } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 type Locale = 'fr' | 'ar';
-
-const StatCardIcon = ({ className, children }: { className?: string, children: React.ReactNode }) => (
-    <div className={`p-3 rounded-lg ${className}`}>
-        {children}
-    </div>
-);
 
 const QuickActionButton = ({ className, icon, label, onClick }: { className?: string, icon: React.ReactNode, label: string, onClick?: () => void }) => (
     <button onClick={onClick} className="flex flex-col items-center justify-center p-4 rounded-lg border border-gray-200 hover:border-primary transition-all text-center w-full active:scale-[0.98]">
@@ -122,45 +116,43 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link href={`/${lang}/suppliers`} className="block active:scale-[0.98] transition-transform">
-                <Card className="h-full">
-                    <CardContent className="flex items-center p-6">
-                        <StatCardIcon className="bg-blue-100 text-primary"><UsersIcon /></StatCardIcon>
-                        <div className="ms-4">
-                            <p className="text-sm font-medium text-gray-600">{dictionary.suppliers}</p>
-                            <p className="text-2xl font-semibold text-gray-900">{totalSuppliers}</p>
-                        </div>
+                <Card className="h-full bg-blue-50 border-blue-200">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-blue-800">{dictionary.suppliers}</CardTitle>
+                        <div className="text-blue-700"><UsersIcon /></div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-blue-900">{totalSuppliers}</div>
                     </CardContent>
                 </Card>
             </Link>
             <Link href={`/${lang}/pieces`} className="block active:scale-[0.98] transition-transform">
-                <Card className="h-full">
-                    <CardContent className="flex items-center p-6">
-                        <StatCardIcon className="bg-green-100 text-secondary"><FileInvoiceIcon /></StatCardIcon>
-                        <div className="ms-4">
-                            <p className="text-sm font-medium text-gray-600">{dictionary.pieces}</p>
-                            <p className="text-2xl font-semibold text-gray-900">{totalPieces}</p>
-                        </div>
+                <Card className="h-full bg-green-50 border-green-200">
+                     <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium text-green-800">{dictionary.pieces}</CardTitle>
+                        <div className="text-green-700"><FileInvoiceIcon /></div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-900">{totalPieces}</div>
                     </CardContent>
                 </Card>
             </Link>
-            <Card>
-                <CardContent className="flex items-center p-6">
-                    <StatCardIcon className="bg-amber-100 text-amber-500"><MoneyBillWaveIcon /></StatCardIcon>
-                    <div className="ms-4">
-                        <p className="text-sm font-medium text-gray-600">{dictionary.totalDebts}</p>
-                        <p className="text-2xl font-semibold text-gray-900 font-mono">{formatCurrencyWithLocale(grandTotalDebt, lang, dictionary)}</p>
-                    </div>
+            <Card className="bg-amber-50 border-amber-200">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-amber-800">{dictionary.totalDebts}</CardTitle>
+                    <div className="text-amber-700"><MoneyBillWaveIcon /></div>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(grandTotalDebt, lang, dictionary)}</div>
                 </CardContent>
             </Card>
-            <Card>
-                 <CardContent className="flex items-center p-6">
-                    <StatCardIcon className="bg-rose-100 text-rose-500">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 18a7.002 7.002 0 006.323-3.676l-1.226-1.226A4.985 4.985 0 0110 14.95a4.985 4.985 0 01-5.1-3.852l-1.226 1.226A7.002 7.002 0 0010 18z" clipRule="evenodd"></path></svg>
-                    </StatCardIcon>
-                    <div className="ms-4">
-                        <p className="text-sm font-medium text-gray-600">{dictionary.lastSync}</p>
-                        <p className="text-2xl font-semibold text-gray-900">{dictionary.upToDate}</p>
-                    </div>
+            <Card className="bg-rose-50 border-rose-200">
+                 <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium text-rose-800">{dictionary.lastSync}</CardTitle>
+                    <div className="text-rose-700"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.898 0V3a1 1 0 112 0v2.101a7.002 7.002 0 01-11.898 0V3a1 1 0 01-1-1zM10 18a7.002 7.002 0 006.323-3.676l-1.226-1.226A4.985 4.985 0 0110 14.95a4.985 4.985 0 01-5.1-3.852l-1.226 1.226A7.002 7.002 0 0010 18z" clipRule="evenodd"></path></svg></div>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold text-rose-900">{dictionary.upToDate}</div>
                 </CardContent>
             </Card>
         </div>
@@ -173,7 +165,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                 <Card className="mb-8">
                     <CardHeader>
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-900">{dictionary.quickActions}</h2>
+                            <CardTitle>{dictionary.quickActions}</CardTitle>
                             <Link href="#" className="text-sm text-primary font-medium">{dictionary.seeAll}</Link>
                         </div>
                     </CardHeader>
@@ -190,7 +182,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold text-gray-900">{dictionary.recentSuppliers}</h2>
+                            <CardTitle>{dictionary.recentSuppliers}</CardTitle>
                             <Link href={`/${lang}/suppliers`} className="text-sm text-primary font-medium">{dictionary.seeAll}</Link>
                         </div>
                     </CardHeader>
@@ -248,10 +240,13 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                 {/* Financial Overview */}
                 <Card className="mb-8">
                      <CardHeader>
-                        <h2 className="text-lg font-semibold text-gray-900">{dictionary.financialOverview}</h2>
+                        <CardTitle>{dictionary.financialOverview}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <FinancialOverviewChart data={{ paid: totalPaid, toPay: totalToPay }} labels={{ paid: dictionary.paid, toPay: dictionary.toPay, currency: dictionary.currency }} />
+                        <FinancialOverviewChart 
+                          data={{ paid: totalPaid, toPay: totalToPay }} 
+                          labels={{ paid: dictionary.paid, toPay: dictionary.toPay, currency: dictionary.currency }} 
+                        />
 
                         <div className="space-y-4 mt-6">
                             <div>
@@ -297,9 +292,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
                 </Button>
             </div>
-            <DialogDescription>
+            <CardDescription>
               {formDictionary.addDescription}
-            </DialogDescription>
+            </CardDescription>
           </DialogHeader>
           <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} dictionary={formDictionary} schemaDictionary={schemaDictionary} />
         </DialogContent>
@@ -317,5 +312,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
 
     

@@ -14,61 +14,14 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DateRange } from 'react-day-picker';
 import { isWithinInterval, startOfDay, endOfDay } from 'date-fns';
-
-// Internal formatter to avoid importing from a module with server-side dependencies
-function formatCurrencySimple(amount: number) {
-  return new Intl.NumberFormat('fr-DZ', {
-    style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
+import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 type Locale = 'fr' | 'ar';
 type PieceWithSupplierName = Piece & { supplierName: string; formattedDate: string; };
 
-// Inferred type from the parent server component
-type PiecesPageDictionary = {
-    title: string;
-    description: string;
-    totalBilled: string;
-    totalPaid: string;
-    totalRemaining: string;
-    currency: string;
-    table: {
-        supplier: string;
-        date: string;
-        type: string;
-        typeAll: string;
-        typeInvoice: string;
-        typeBl: string;
-        total: string;
-        paid: string;
-        remaining: string;
-        actions: string;
-        openMenu: string;
-        edit: string;
-        delete: string;
-        filterPlaceholder: string;
-        noResults: string;
-        previous: string;
-        next: string;
-        dateFilter: {
-            title: string;
-            all: string;
-            today: string;
-            yesterday: string;
-            thisMonth: string;
-            custom: string;
-            apply: string;
-        }
-    };
-};
-
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
-  dictionary: PiecesPageDictionary;
+  dictionary: any; // Changed from PiecesPageDictionary
   lang: Locale;
 }
 
@@ -150,7 +103,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           header: () => <div className="text-end">{dict.total}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
-            return <div className="text-end font-mono">{formatCurrencySimple(amount)}</div>;
+            return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
           },
         },
         {
@@ -158,7 +111,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)}</div>;
+            return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
           },
         },
         {
@@ -166,7 +119,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           header: () => <div className="text-end">{dict.remaining}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
-            return <div className="text-end font-mono text-destructive">{formatCurrencySimple(amount)}</div>;
+            return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
           },
         },
         {
@@ -202,14 +155,14 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
       />
 
         <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <StatCard title={dictionary.totalBilled} value={`${formatCurrencySimple(totals.totalBilled)} ${dictionary.currency}`} />
-            <StatCard title={dictionary.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} ${dictionary.currency}`} />
+            <StatCard title={dictionary.totalBilled} value={`${formatCurrencyWithLocale(totals.totalBilled, lang, dictionary)}`} />
+            <StatCard title={dictionary.totalPaid} value={`${formatCurrencyWithLocale(totals.totalPaid, lang, dictionary)}`} />
             <Card className="bg-amber-50">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencySimple(totals.totalRemaining)} ${dictionary.currency}</p>
+                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(totals.totalRemaining, lang, dictionary)}</p>
                 </CardContent>
             </Card>
         </div>

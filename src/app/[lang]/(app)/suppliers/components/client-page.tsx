@@ -19,47 +19,22 @@ import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Dictionary } from '@/lib/dictionaries';
-
-// Internal formatter to avoid importing from a module with server-side dependencies
-function formatCurrencySimple(amount: number) {
-  return new Intl.NumberFormat('fr-DZ', {
-    style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
+import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 type Locale = 'fr' | 'ar';
-type SuppliersPageDictionary = Dictionary['suppliersPage'];
-type SchemaDictionary = Dictionary['schemas'];
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
-  dictionary: SuppliersPageDictionary;
-  schemaDictionary: SchemaDictionary;
+  dictionary: any;
+  schemaDictionary: any;
 }
 
-const StatCard = ({ title, value, icon, iconBgColor }: { title: string, value: string, icon?: React.ReactNode, iconBgColor?: string }) => (
-    <Card>
-        <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-gray-900 font-mono">{value}</p>
-            <div className={`p-3 rounded-lg ${iconBgColor || 'bg-gray-100'}`}>
-                {icon}
-            </div>
-        </CardContent>
-    </Card>
-);
 
-const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-blue-600"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
-const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-indigo-600"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
-const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-green-600"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
-const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-amber-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
+const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
+const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
+const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
+const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
 
 
 export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPageProps) {
@@ -113,8 +88,6 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
       return { totalInitialBalance, totalInvoiced, totalPaid, totalDebt };
   }, [suppliers]);
 
-  const currency = dictionary.currency;
-
   const columns = useMemo((): ColumnDef<SupplierWithDebt>[] => {
     const dict = dictionary.table;
     return [
@@ -155,7 +128,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         ),
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue('solde_initial'));
-            return <div className="text-end font-mono">{formatCurrencySimple(amount)} {currency}</div>
+            return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>
         },
       },
       {
@@ -163,7 +136,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         header: () => <div className="text-end font-mono">{dict.totalInvoiced}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalInvoiced'));
-          return <div className="text-end font-mono">{formatCurrencySimple(amount)} {currency}</div>;
+          return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
         },
       },
       {
@@ -171,7 +144,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
         header: () => <div className="text-end font-mono">{dict.totalPaid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalPaid'));
-          return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)} {currency}</div>;
+          return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
         },
       },
       {
@@ -193,7 +166,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
           const amount = parseFloat(row.getValue('totalDebt'));
           return <div className="text-end font-mono">
             <Badge variant={amount > 0 ? "destructive" : "default"} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
-                {formatCurrencySimple(amount)} {currency}
+                {formatCurrencyWithLocale(amount, lang, dictionary)}
             </Badge>
           </div>;
         },
@@ -248,10 +221,42 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
       </PageHeader>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title={dictionary.table.initialBalance} value={`${formatCurrencySimple(totals.totalInitialBalance)} ${currency}`} icon={<BalanceIcon />} iconBgColor='bg-blue-100' />
-          <StatCard title={dictionary.table.totalInvoiced} value={`${formatCurrencySimple(totals.totalInvoiced)} ${currency}`} icon={<ReceiptIcon />} iconBgColor='bg-indigo-100'/>
-          <StatCard title={dictionary.table.totalPaid} value={`${formatCurrencySimple(totals.totalPaid)} ${currency}`} icon={<CreditCardIcon />} iconBgColor='bg-green-100'/>
-          <StatCard title={dictionary.table.totalDebt} value={`${formatCurrencySimple(totals.totalDebt)} ${currency}`} icon={<AlertCircleIcon />} iconBgColor='bg-amber-100'/>
+        <Card className="bg-blue-50 border-blue-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-blue-800">{dictionary.table.initialBalance}</CardTitle>
+                <div className="text-blue-700"><BalanceIcon /></div>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-blue-900 font-mono">{formatCurrencyWithLocale(totals.totalInitialBalance, lang, dictionary)}</div>
+            </CardContent>
+        </Card>
+        <Card className="bg-indigo-50 border-indigo-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-indigo-800">{dictionary.table.totalInvoiced}</CardTitle>
+                <div className="text-indigo-700"><ReceiptIcon /></div>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-indigo-900 font-mono">{formatCurrencyWithLocale(totals.totalInvoiced, lang, dictionary)}</div>
+            </CardContent>
+        </Card>
+        <Card className="bg-green-50 border-green-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-green-800">{dictionary.table.totalPaid}</CardTitle>
+                <div className="text-green-700"><CreditCardIcon /></div>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-green-900 font-mono">{formatCurrencyWithLocale(totals.totalPaid, lang, dictionary)}</div>
+            </CardContent>
+        </Card>
+        <Card className="bg-amber-50 border-amber-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-amber-800">{dictionary.table.totalDebt}</CardTitle>
+                <div className="text-amber-700"><AlertCircleIcon /></div>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(totals.totalDebt, lang, dictionary)}</div>
+            </CardContent>
+        </Card>
       </div>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
@@ -301,3 +306,5 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
     </>
   );
 }
+
+    
