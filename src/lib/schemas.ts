@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const supplierFormSchema = z.object({
@@ -24,9 +25,6 @@ export const pieceFormSchema = basePieceSchema.refine(data => data.montant_paye 
     path: ["montant_paye"],
 });
 
-export const addPieceSchema = basePieceSchema.extend({
+export const addPieceSchema = pieceFormSchema.extend({
     supplier_id: z.string(),
-}).refine(data => data.montant_paye <= data.total_piece, {
-    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
-    path: ["montant_paye"],
 });

@@ -20,7 +20,13 @@ export async function addPiece(data: z.infer<typeof addPieceSchema>) : Promise<{
             supplier_id: supplier_id,
             description: pieceData.description || '',
         });
-        revalidatePath('/(.)');
+        
+        revalidatePath('/');
+        revalidatePath('/[lang]/dashboard', 'page');
+        revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/pieces', 'page');
+        revalidatePath('/[lang]/suppliers/[id]', 'page');
+
         return { success: true };
     } catch(e) {
         const error = e as Error;
@@ -36,13 +42,14 @@ export async function updatePiece(id: string, supplier_id: string, data: z.infer
     }
 
     try {
-        const pieceData = {
-            ...validation.data,
-            date: validation.data.date.toISOString(),
-            description: validation.data.description || '',
-        };
-        await updatePieceInDb(id, pieceData);
-        revalidatePath('/(.)');
+        await updatePieceInDb(id, validation.data);
+        
+        revalidatePath('/');
+        revalidatePath('/[lang]/dashboard', 'page');
+        revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/pieces', 'page');
+        revalidatePath('/[lang]/suppliers/[id]', 'page');
+
         return { success: true };
     } catch (e) {
         const error = e as Error;
@@ -54,7 +61,13 @@ export async function updatePiece(id: string, supplier_id: string, data: z.infer
 export async function deletePiece(id: string, supplier_id: string): Promise<{success: boolean, message?: string}> {
     try {
         await deletePieceFromDb(id);
-        revalidatePath('/(.)');
+        
+        revalidatePath('/');
+        revalidatePath('/[lang]/dashboard', 'page');
+        revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/pieces', 'page');
+        revalidatePath('/[lang]/suppliers/[id]', 'page');
+        
         return { success: true };
     } catch (e) {
         const error = e as Error;

@@ -84,7 +84,9 @@ export async function getSupplierById(id: string): Promise<Supplier | undefined>
     return db.get('SELECT * FROM suppliers WHERE id = ?', id);
 }
 
-export async function addSupplier(data: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>): Promise<Supplier> {
+type NewSupplierData = Omit<Supplier, 'id' | 'created_at' | 'updated_at'>;
+
+export async function addSupplier(data: NewSupplierData): Promise<Supplier> {
     const db = await openDb();
     const now = new Date().toISOString();
     const newSupplier: Supplier = {
@@ -109,7 +111,7 @@ export async function addSupplier(data: Omit<Supplier, 'id' | 'created_at' | 'up
     return newSupplier;
 }
 
-export async function updateSupplier(id: string, data: Partial<Omit<Supplier, 'id' | 'created_at' | 'updated_at'>>): Promise<void> {
+export async function updateSupplier(id: string, data: Partial<NewSupplierData>): Promise<void> {
     const db = await openDb();
     const now = new Date().toISOString();
     const fields = Object.keys(data).map(field => `${field} = ?`).join(', ');
@@ -140,7 +142,8 @@ export async function getPiecesBySupplierId(supplierId: string): Promise<Piece[]
     return db.all('SELECT * FROM pieces WHERE supplier_id = ? ORDER BY date DESC', supplierId);
 }
 
-export async function addPiece(data: Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>): Promise<Piece> {
+type NewPieceData = Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>;
+export async function addPiece(data: NewPieceData): Promise<Piece> {
     const db = await openDb();
     const now = new Date().toISOString();
     const reste = data.total_piece - data.montant_paye;
@@ -167,7 +170,8 @@ export async function addPiece(data: Omit<Piece, 'id' | 'created_at' | 'updated_
     return newPiece;
 }
 
-export async function updatePieceInDb(id: string, data: Partial<Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'supplier_id'>>): Promise<void> {
+type UpdatePieceData = Partial<Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'supplier_id' | 'reste'>>;
+export async function updatePieceInDb(id: string, data: UpdatePieceData): Promise<void> {
     const db = await openDb();
     const now = new Date().toISOString();
 
@@ -176,13 +180,18 @@ export async function updatePieceInDb(id: string, data: Partial<Omit<Piece, 'id'
         throw new Error("Piece not found");
     }
 
+    // Create a new object for updated data to avoid mutating the original
     const updatedData = { ...currentPiece, ...data };
-    const reste = updatedData.total_piece - updatedData.montant_paye;
+    
+    // Recalculate 'reste' based on potentially updated total and paid amounts
+    const reste = (updatedData.total_piece ?? currentPiece.total_piece) - (updatedData.montant_paye ?? currentPiece.montant_paye);
     
     const fieldsToUpdate = { ...data, reste };
 
     const fields = Object.keys(fieldsToUpdate).map(field => `${field} = ?`).join(', ');
-    const values = Object.values(fieldsToUpdate);
+    
+    // Ensure date is in ISO string format if it's a Date object
+    const values = Object.values(fieldsToUpdate).map(val => val instanceof Date ? val.toISOString() : val);
 
     await db.run(
         `UPDATE pieces SET ${fields}, updated_at = ? WHERE id = ?`,

@@ -17,10 +17,15 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
     }
     
     try {
-        await addSupplierToDb(validation.data as Omit<Supplier, 'id' | 'created_at' | 'updated_at'>);
-        revalidatePath('/(.)');
+        await addSupplierToDb(validation.data);
+        
+        revalidatePath('/');
+        revalidatePath('/[lang]/dashboard', 'page');
+        revalidatePath('/[lang]/suppliers', 'page');
+
         return { success: true };
     } catch(e) {
+        const error = e as Error;
         console.error(e);
         return { success: false, message: "Une erreur est survenue lors de l'ajout du fournisseur." };
     }
@@ -33,13 +38,16 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
     }
 
     try {
-        const { name, wilaya, phone, nif, bank_info, solde_initial, notes } = validation.data;
-        const updateData = { name, wilaya, phone, nif, bank_info, solde_initial, notes };
+        await updateSupplierInDb(id, validation.data);
         
-        await updateSupplierInDb(id, updateData);
-        revalidatePath('/(.)');
+        revalidatePath('/');
+        revalidatePath('/[lang]/dashboard', 'page');
+        revalidatePath('/[lang]/suppliers', 'page');
+        revalidatePath('/[lang]/suppliers/[id]', 'page');
+
         return { success: true };
     } catch (e) {
+        const error = e as Error;
         console.error(e);
         return { success: false, message: "Une erreur est survenue lors de la mise à jour du fournisseur." };
     }
@@ -48,9 +56,14 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
 export async function deleteSupplier(id: string): Promise<{success: boolean, message?: string}> {
     try {
         await deleteSupplierFromDb(id);
-        revalidatePath('/(.)');
+        
+        revalidatePath('/');
+        revalidatePath('/[lang]/dashboard', 'page');
+        revalidatePath('/[lang]/suppliers', 'page');
+
         return { success: true };
     } catch(e) {
+        const error = e as Error;
         console.error(e);
         return { success: false, message: "Une erreur est survenue lors de la suppression du fournisseur." };
     }
