@@ -145,7 +145,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     <div className="space-y-8">
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href={`/${lang}/suppliers`} className="block">
+            <Link href={`/${lang}/suppliers`} className="block active:scale-[0.98] transition-transform">
                 <Card className="h-full">
                     <CardContent className="flex items-center p-6">
                         <StatCardIcon className="bg-blue-100 text-primary"><UsersIcon /></StatCardIcon>
@@ -156,7 +156,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     </CardContent>
                 </Card>
             </Link>
-            <Link href={`/${lang}/pieces`} className="block">
+            <Link href={`/${lang}/pieces`} className="block active:scale-[0.98] transition-transform">
                 <Card className="h-full">
                     <CardContent className="flex items-center p-6">
                         <StatCardIcon className="bg-green-100 text-secondary"><FileInvoiceIcon /></StatCardIcon>
@@ -232,7 +232,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                                 </TableHeader>
                                 <TableBody>
                                     {recentSuppliers.map((supplier) => (
-                                      <TableRow key={supplier.id}>
+                                      <TableRow key={supplier.id} className="cursor-pointer">
                                           <TableCell>
                                               <div className="flex items-center">
                                                   <div className="flex-shrink-0 h-10 w-10">

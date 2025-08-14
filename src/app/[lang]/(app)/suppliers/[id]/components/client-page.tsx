@@ -22,7 +22,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Locale } from '@/i18n.config';
+
+type Locale = 'fr' | 'ar';
 
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
@@ -69,7 +70,7 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
-    const result = await deletePiece(dialogState.data.id, supplier.id, params.lang as Locale);
+    const result = await deletePiece(dialogState.data.id, supplier.id);
     if(result.success) {
         toast({
             title: dictionary.form.toast.deleteSuccess.title,
@@ -253,5 +254,3 @@ export function ClientPage({ supplier, pieces, dictionary }: ClientPageProps) {
     </>
   );
 }
-
-    

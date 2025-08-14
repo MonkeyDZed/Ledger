@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { addPiece as addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import type { Piece } from '@/lib/types';
-import { Locale } from '@/i18n.config';
 
 const basePieceSchema = z.object({
   date: z.date({ required_error: 'La date est requise.' }),
@@ -28,7 +27,7 @@ const addPieceSchema = basePieceSchema.extend({
 });
 
 
-export async function addPiece(data: z.infer<typeof addPieceSchema>, lang: Locale) : Promise<{success: boolean, message?: string}> {
+export async function addPiece(data: z.infer<typeof addPieceSchema>) : Promise<{success: boolean, message?: string}> {
     const validation = addPieceSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
@@ -41,9 +40,10 @@ export async function addPiece(data: z.infer<typeof addPieceSchema>, lang: Local
             supplier_id: supplier_id,
             description: pieceData.description || '',
         });
-        revalidatePath(`/${lang}/suppliers/${data.supplier_id}`);
-        revalidatePath(`/${lang}/dashboard`);
-        revalidatePath(`/${lang}/pieces`);
+        // Revalidating the path is tricky without the lang parameter.
+        // A simple revalidation of the root layout or specific paths might be needed.
+        // For simplicity, let's revalidate the most important paths.
+        revalidatePath('/(.)');
         return { success: true };
     } catch(e) {
         const error = e as Error;
@@ -52,7 +52,7 @@ export async function addPiece(data: z.infer<typeof addPieceSchema>, lang: Local
     }
 }
 
-export async function updatePiece(id: string, supplier_id: string, data: z.infer<typeof pieceFormSchema>, lang: Locale): Promise<{success: boolean, message?: string}> {
+export async function updatePiece(id: string, supplier_id: string, data: z.infer<typeof pieceFormSchema>): Promise<{success: boolean, message?: string}> {
     const validation = pieceFormSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
@@ -65,9 +65,7 @@ export async function updatePiece(id: string, supplier_id: string, data: z.infer
             description: validation.data.description || '',
         };
         await updatePieceInDb(id, pieceData);
-        revalidatePath(`/${lang}/suppliers/${supplier_id}`);
-        revalidatePath(`/${lang}/dashboard`);
-        revalidatePath(`/${lang}/pieces`);
+        revalidatePath('/(.)');
         return { success: true };
     } catch (e) {
         const error = e as Error;
@@ -76,12 +74,10 @@ export async function updatePiece(id: string, supplier_id: string, data: z.infer
     }
 }
 
-export async function deletePiece(id: string, supplier_id: string, lang: Locale): Promise<{success: boolean, message?: string}> {
+export async function deletePiece(id: string, supplier_id: string): Promise<{success: boolean, message?: string}> {
     try {
         await deletePieceFromDb(id);
-        revalidatePath(`/${lang}/suppliers/${supplier_id}`);
-        revalidatePath(`/${lang}/dashboard`);
-        revalidatePath(`/${lang}/pieces`);
+        revalidatePath('/(.)');
         return { success: true };
     } catch (e) {
         const error = e as Error;
@@ -89,4 +85,3 @@ export async function deletePiece(id: string, supplier_id: string, lang: Locale)
         return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }
-
