@@ -4,14 +4,26 @@
 import { z } from 'zod';
 import { addPiece as addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { getPieceFormSchema } from '@/lib/schemas';
+import { getPieceBaseSchema } from '@/lib/schemas';
 import { getDictionary } from '@/lib/dictionaries';
 import { i18n } from '@/i18n.config';
 
 
-export async function addPiece(data: z.infer<ReturnType<typeof getPieceFormSchema>['addPieceSchema']>) : Promise<{success: boolean, message?: string}> {
+const getPieceFormSchema = async () => {
     const dictionary = await getDictionary(i18n.defaultLocale);
-    const { addPieceSchema } = getPieceFormSchema(dictionary.schemas);
+    const baseSchema = getPieceBaseSchema(dictionary.schemas);
+    
+    const formSchema = baseSchema; // The base schema is the form schema now
+    const addPieceSchema = baseSchema.extend({
+        supplier_id: z.string(),
+    });
+
+    return { formSchema, addPieceSchema };
+}
+
+
+export async function addPiece(data: z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>['addPieceSchema']>) : Promise<{success: boolean, message?: string}> {
+    const { addPieceSchema } = await getPieceFormSchema();
     const validation = addPieceSchema.safeParse(data);
 
     if (!validation.success) {
@@ -39,9 +51,8 @@ export async function addPiece(data: z.infer<ReturnType<typeof getPieceFormSchem
     }
 }
 
-export async function updatePiece(id: string, supplier_id: string, data: z.infer<ReturnType<typeof getPieceFormSchema>['formSchema']>): Promise<{success: boolean, message?: string}> {
-    const dictionary = await getDictionary(i18n.defaultLocale);
-    const { formSchema } = getPieceFormSchema(dictionary.schemas);
+export async function updatePiece(id: string, supplier_id: string, data: z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>['formSchema']>): Promise<{success: boolean, message?: string}> {
+    const { formSchema } = await getPieceFormSchema();
     const validation = formSchema.safeParse(data);
 
     if (!validation.success) {

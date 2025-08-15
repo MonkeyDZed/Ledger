@@ -24,15 +24,14 @@ import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Client-side schema without server-side dependencies
-const baseSchema = z.object({
+const pieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
     total_piece: z.coerce.number().min(0, { message: "Le total doit être positif." }),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être positif." }),
     description: z.string().optional(),
     payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
-});
-const pieceFormSchema = baseSchema.refine((data) => {
+}).refine((data) => {
     if (data.type === 'VERSEMENT') return true;
     return data.montant_paye <= data.total_piece;
 }, {

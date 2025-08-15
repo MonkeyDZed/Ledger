@@ -4,13 +4,17 @@
 import { z } from 'zod';
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { getSupplierFormSchema } from '@/lib/schemas';
+import { supplierBaseSchema } from '@/lib/schemas';
 import { getDictionary } from '@/lib/dictionaries';
 import { i18n } from '@/i18n.config';
 
-export async function addSupplier(data: z.infer<ReturnType<typeof getSupplierFormSchema>>) : Promise<{success: boolean, message?: string}> {
+const getSupplierFormSchema = async () => {
     const dictionary = await getDictionary(i18n.defaultLocale);
-    const supplierFormSchema = getSupplierFormSchema(dictionary.schemas);
+    return supplierBaseSchema(dictionary.schemas);
+}
+
+export async function addSupplier(data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>) : Promise<{success: boolean, message?: string}> {
+    const supplierFormSchema = await getSupplierFormSchema();
     const validation = supplierFormSchema.safeParse(data);
     
     if (!validation.success) {
@@ -33,9 +37,8 @@ export async function addSupplier(data: z.infer<ReturnType<typeof getSupplierFor
     }
 }
 
-export async function updateSupplier(id: string, data: z.infer<ReturnType<typeof getSupplierFormSchema>>): Promise<{success: boolean, message?: string}> {
-    const dictionary = await getDictionary(i18n.defaultLocale);
-    const supplierFormSchema = getSupplierFormSchema(dictionary.schemas);
+export async function updateSupplier(id: string, data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>): Promise<{success: boolean, message?: string}> {
+    const supplierFormSchema = await getSupplierFormSchema();
     const validation = supplierFormSchema.safeParse(data);
 
     if (!validation.success) {

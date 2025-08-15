@@ -1,21 +1,20 @@
 
 import { z } from 'zod';
 
-type SchemaDictionary = any;
+// This file is now safe to be imported by both client and server components.
+// It only contains Zod and base schemas, without any server-side dependencies like dictionaries.
 
-export const getSupplierFormSchema = (dictionary: SchemaDictionary) => {
-    return z.object({
-        name: z.string().min(2, { message: dictionary.supplier.nameMin }),
-        wilaya: z.string().optional(),
-        phone: z.string().optional(),
-        nif: z.string().optional(),
-        bank_info: z.string().optional(),
-        solde_initial: z.coerce.number().default(0),
-        notes: z.string().optional(),
-    });
-}
+export const supplierBaseSchema = (dictionary: any) => z.object({
+    name: z.string().min(2, { message: dictionary.supplier.nameMin }),
+    wilaya: z.string().optional(),
+    phone: z.string().optional(),
+    nif: z.string().optional(),
+    bank_info: z.string().optional(),
+    solde_initial: z.coerce.number().default(0),
+    notes: z.string().optional(),
+});
 
-export const getPieceFormSchema = (dictionary: SchemaDictionary) => {
+export const getPieceBaseSchema = (dictionary: any) => {
     const baseSchema = z.object({
         date: z.date({ required_error: dictionary.piece.dateRequired }),
         type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: dictionary.piece.typeRequired }),
@@ -24,7 +23,7 @@ export const getPieceFormSchema = (dictionary: SchemaDictionary) => {
         description: z.string().optional(),
         payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
     });
-    
+
     const refinement = (data: z.infer<typeof baseSchema>) => {
         if (data.type === 'VERSEMENT') return true;
         return data.montant_paye <= data.total_piece;
@@ -34,14 +33,5 @@ export const getPieceFormSchema = (dictionary: SchemaDictionary) => {
         path: ["montant_paye"],
     };
 
-    const formSchema = baseSchema.refine(refinement, refinement_error);
-    const addPieceSchema = baseSchema.extend({
-        supplier_id: z.string(),
-    }).refine(refinement, refinement_error);
-
-    return {
-        baseSchema,
-        formSchema,
-        addPieceSchema
-    };
+    return baseSchema.refine(refinement, refinement_error);
 };

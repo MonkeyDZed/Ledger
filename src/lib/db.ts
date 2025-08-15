@@ -203,14 +203,20 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
     
     const fieldsToUpdate = { ...data, total_piece, reste };
 
+    // Remove 'reste' from fieldsToUpdate if it exists, as it's calculated
+    if ('reste' in fieldsToUpdate) {
+        delete (fieldsToUpdate as any).reste;
+    }
+
     const fieldEntries = Object.entries(fieldsToUpdate);
     const setClause = fieldEntries.map(([key]) => `${key} = ?`).join(', ');
     const values = fieldEntries.map(([, value]) => value instanceof Date ? value.toISOString() : value);
 
 
     await db.run(
-        `UPDATE pieces SET ${setClause}, updated_at = ? WHERE id = ?`,
+        `UPDATE pieces SET ${setClause}, reste = ?, updated_at = ? WHERE id = ?`,
         ...values,
+        reste,
         now,
         id
     );
