@@ -67,7 +67,9 @@ export function DataTable<TData, TValue>({
   data,
   dictionary,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'date', desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
     { id: 'date', value: defaultDateRange }
   ]);
