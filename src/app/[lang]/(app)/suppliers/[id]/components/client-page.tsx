@@ -38,8 +38,6 @@ function formatDateSimple(dateString: string, lang: 'fr' | 'ar') {
   });
 }
 
-type Locale = 'fr' | 'ar';
-
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
     <Card>
         <CardHeader className="pb-2">
@@ -77,7 +75,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
   }>({ type: null });
 
   const params = useParams();
-  const lang = params.lang as Locale;
+  const lang = params.lang as 'fr' | 'ar';
 
   const openDialog = (type: 'new' | 'edit' | 'delete', data?: Piece) => {
     setDialogState({ type, data });

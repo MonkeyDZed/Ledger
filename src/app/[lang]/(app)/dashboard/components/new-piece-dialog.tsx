@@ -17,8 +17,6 @@ function formatCurrencySimple(amount: number) {
   }).format(amount);
 }
 
-type Locale = 'fr' | 'ar';
-
 interface NewPieceDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -27,7 +25,7 @@ interface NewPieceDialogProps {
   dictionary: any;
   pieceFormDictionary: any;
   schemaDictionary: any;
-  lang: Locale;
+  lang: 'fr' | 'ar';
 }
 
 export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, schemaDictionary, lang }: NewPieceDialogProps) {
