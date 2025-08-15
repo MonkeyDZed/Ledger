@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -21,14 +22,17 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import type { Piece } from '@/lib/types';
 
-interface DataTableProps<TData, TValue> {
+
+interface DataTableProps<TData extends { type: Piece['type'] }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   dictionary: any;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   columns,
   data,
   dictionary
@@ -79,6 +83,7 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className={cn({ "bg-emerald-50 hover:bg-emerald-100": row.original.type === 'VERSEMENT' })}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

@@ -15,11 +15,12 @@ export type Piece = {
   id: string;
   supplier_id: string;
   date: string;
-  type: 'BL' | 'FACTURE';
+  type: 'BL' | 'FACTURE' | 'VERSEMENT';
   total_piece: number;
   montant_paye: number;
   reste: number;
   description: string;
+  payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
   created_at: string;
   updated_at: string;
 };

@@ -12,8 +12,9 @@ import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, Download } from 'lucide-react';
+import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins, Download } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
+import { NewVersementDialog } from './new-versement-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 const QuickActionButton = ({ className, icon, label, onClick }: { className?: string, icon: React.ReactNode, label: string, onClick?: () => void }) => (
@@ -48,6 +49,7 @@ interface DashboardClientPageProps {
 export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, schemaDictionary, lang }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
+  const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
 
   const handleAutoFill = () => {
@@ -74,7 +76,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
   });
 
   const grandTotalDebt = supplierDataWithCalculations.reduce((sum, s) => sum + s.totalDebt, 0);
-  const totalPieces = pieces.length;
+  const totalPieces = pieces.filter(p => p.type !== 'VERSEMENT').length;
   const totalSuppliers = suppliers.length;
 
   // Financial Overview Calculation
@@ -146,14 +148,13 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             <CardTitle>{dictionary.quickActions}</CardTitle>
-                            <Link href="#" className="text-sm text-primary font-medium">{dictionary.seeAll}</Link>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <QuickActionButton onClick={() => setIsNewSupplierOpen(true)} className="bg-blue-100 text-primary" icon={<UserPlus />} label={dictionary.addSupplier} />
-                            <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-secondary" icon={<FilePlus />} label={dictionary.newPiece} />
-                            <QuickActionButton className="bg-amber-100 text-amber-500" icon={<Download />} label={dictionary.export} />
+                            <QuickActionButton onClick={() => setIsNewPieceOpen(true)} className="bg-green-100 text-green-600" icon={<FilePlus />} label={dictionary.newPiece} />
+                            <QuickActionButton onClick={() => setIsNewVersementOpen(true)} className="bg-amber-100 text-amber-600" icon={<HandCoins />} label={dictionary.newPayment} />
                         </div>
                     </CardContent>
                 </Card>
@@ -287,16 +288,16 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         dictionary={dictionary}
         pieceFormDictionary={pieceFormDictionary}
         schemaDictionary={schemaDictionary}
-        lang={lang}
       />
+      <NewVersementDialog
+        isOpen={isNewVersementOpen}
+        onOpenChange={setIsNewVersementOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+        dictionary={dictionary}
+        pieceFormDictionary={pieceFormDictionary}
+        schemaDictionary={schemaDictionary}
+       />
     </>
   );
 }
-
-    
-
-    
-
-
-
-    

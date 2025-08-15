@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 import { useParams } from 'next/navigation';
 
-interface NewPieceDialogProps {
+interface NewVersementDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   suppliers: Supplier[];
@@ -20,7 +20,7 @@ interface NewPieceDialogProps {
   schemaDictionary: any;
 }
 
-export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, schemaDictionary }: NewPieceDialogProps) {
+export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, schemaDictionary }: NewVersementDialogProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
@@ -52,9 +52,9 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
         }
       }}>
         <DialogHeader>
-          <DialogTitle>{dictionary.newPiece}</DialogTitle>
+          <DialogTitle>{dictionary.newPayment}</DialogTitle>
            <DialogDescription>
-            {selectedSupplierId ? pieceFormDictionary.addDescription : "Choisissez d'abord un fournisseur."}
+            {selectedSupplierId ? pieceFormDictionary.addPaymentDescription : "Choisissez d'abord un fournisseur pour enregistrer un versement."}
           </DialogDescription>
         </DialogHeader>
         
@@ -84,7 +84,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="font-semibold text-gray-800">{selectedSupplier?.name}</p>
-                            <CardDescription>Créance actuelle avant cette pièce</CardDescription>
+                            <CardDescription>Créance actuelle avant ce versement</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
                            {formatCurrencyWithLocale(selectedSupplierDebt, lang, dictionary)}
@@ -97,6 +97,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
               onClose={handleClose} 
               dictionary={pieceFormDictionary}
               schemaDictionary={schemaDictionary}
+              formType="VERSEMENT"
             />
           </div>
         )}

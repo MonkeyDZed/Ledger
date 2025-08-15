@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Banknote, Landmark, Hand, FileText } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { fr, ar } from 'date-fns/locale';
@@ -17,11 +17,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useTransition, useEffect } from 'react';
+import { useTransition, useEffect, useState } from 'react';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { getPieceFormSchema } from '@/lib/schemas';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface PieceFormProps {
   supplierId: string;
@@ -29,9 +30,10 @@ interface PieceFormProps {
   pieceToEdit?: Piece;
   dictionary: any;
   schemaDictionary: any;
+  formType?: 'VERSEMENT' | 'PIECE';
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schemaDictionary }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schemaDictionary, formType = 'PIECE' }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
@@ -42,6 +44,8 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
   const { formSchema: pieceFormSchema } = getPieceFormSchema(schemaDictionary);
   type PieceFormValues = z.infer<typeof pieceFormSchema>;
 
+  const defaultType = formType === 'VERSEMENT' ? 'VERSEMENT' : (isEditMode ? pieceToEdit.type : 'FACTURE');
+
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(pieceFormSchema),
     defaultValues: isEditMode && pieceToEdit ? {
@@ -49,12 +53,14 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
         date: new Date(pieceToEdit.date),
     } : {
         date: new Date(),
-        type: 'FACTURE',
+        type: defaultType,
         total_piece: 0,
         montant_paye: 0,
         description: ''
     },
   });
+
+  const [currentType, setCurrentType] = useState(form.getValues('type'));
   
   useEffect(() => {
     if (isEditMode && pieceToEdit) {
@@ -62,8 +68,18 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
       });
+      setCurrentType(pieceToEdit.type);
+    } else {
+        form.reset({
+            date: new Date(),
+            type: defaultType,
+            total_piece: 0,
+            montant_paye: 0,
+            description: '',
+        });
+        setCurrentType(defaultType);
     }
-  }, [pieceToEdit, isEditMode, form]);
+  }, [pieceToEdit, isEditMode, form, defaultType]);
 
 
   function onSubmit(data: PieceFormValues) {
@@ -89,6 +105,16 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
       }
     });
   }
+  
+  const handleTypeChange = (value: 'FACTURE' | 'BL' | 'VERSEMENT') => {
+    form.setValue('type', value);
+    setCurrentType(value);
+    if (value === 'VERSEMENT') {
+        form.setValue('total_piece', 0);
+    }
+  }
+
+  const isVersement = currentType === 'VERSEMENT';
 
   return (
     <Form {...form}>
@@ -99,7 +125,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
             name="date"
             render={({ field }) => (
                 <FormItem className="flex flex-col">
-                    <FormLabel>{dictionary.dateLabel}</FormLabel>
+                    <FormLabel>{isVersement ? dictionary.paymentDateLabel : dictionary.dateLabel}</FormLabel>
                     <Popover>
                         <PopoverTrigger asChild>
                         <FormControl>
@@ -143,21 +169,27 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
                     <FormLabel>{dictionary.typeLabel}</FormLabel>
                     <FormControl>
                         <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(v) => handleTypeChange(v as any)}
+                        value={field.value}
                         className="flex items-center space-x-4"
                         >
                         <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
                             <FormControl>
-                            <RadioGroupItem value="FACTURE" />
+                            <RadioGroupItem value="FACTURE" id="type_facture" disabled={isEditMode && isVersement} />
                             </FormControl>
-                            <FormLabel className="font-normal">{dictionary.typeInvoice}</FormLabel>
+                            <FormLabel htmlFor="type_facture" className="font-normal">{dictionary.typeInvoice}</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
                             <FormControl>
-                            <RadioGroupItem value="BL" />
+                            <RadioGroupItem value="BL" id="type_bl" disabled={isEditMode && isVersement} />
                             </FormControl>
-                            <FormLabel className="font-normal">{dictionary.typeBl}</FormLabel>
+                            <FormLabel htmlFor="type_bl" className="font-normal">{dictionary.typeBl}</FormLabel>
+                        </FormItem>
+                         <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
+                            <FormControl>
+                            <RadioGroupItem value="VERSEMENT" id="type_versement" disabled={isEditMode && !isVersement} />
+                            </FormControl>
+                            <FormLabel htmlFor="type_versement" className="font-normal">{dictionary.typeVersement}</FormLabel>
                         </FormItem>
                         </RadioGroup>
                     </FormControl>
@@ -165,7 +197,8 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
                     </FormItem>
                 )}
                 />
-            <FormField
+
+            {!isVersement && <FormField
               control={form.control}
               name="total_piece"
               render={({ field }) => (
@@ -177,13 +210,14 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            />}
+
              <FormField
               control={form.control}
               name="montant_paye"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{dictionary.paidLabel}</FormLabel>
+                  <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" {...field} />
                   </FormControl>
@@ -191,15 +225,40 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
                 </FormItem>
               )}
             />
+
+             {isVersement && <FormField
+                control={form.control}
+                name="payment_method"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>{dictionary.paymentMethodLabel}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder={dictionary.paymentMethodPlaceholder} />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            <SelectItem value="espece"><div className="flex items-center gap-2"><Hand />{dictionary.paymentMethods.cash}</div></SelectItem>
+                            <SelectItem value="cheque"><div className="flex items-center gap-2"><FileText />{dictionary.paymentMethods.check}</div></SelectItem>
+                            <SelectItem value="virement"><div className="flex items-center gap-2"><Landmark/>{dictionary.paymentMethods.transfer}</div></SelectItem>
+                            <SelectItem value="traite"><div className="flex items-center gap-2"><Banknote/>{dictionary.paymentMethods.draft}</div></SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />}
+
         </div>
         <FormField
           control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{dictionary.descriptionLabel}</FormLabel>
+              <FormLabel>{isVersement ? dictionary.paymentReasonLabel : dictionary.descriptionLabel}</FormLabel>
               <FormControl>
-                <Textarea placeholder={dictionary.descriptionPlaceholder} {...field} />
+                <Textarea placeholder={isVersement ? dictionary.paymentReasonPlaceholder : dictionary.descriptionPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

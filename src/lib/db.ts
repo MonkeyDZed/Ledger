@@ -12,6 +12,13 @@ async function openDb() {
     driver: sqlite3.Database,
   });
   await db.exec('PRAGMA foreign_keys = ON;'); // Ensure foreign key constraints are enforced
+  
+  // Migration for payment_method column
+  const piecesCols = await db.all("PRAGMA table_info(pieces);");
+  if (!piecesCols.some(col => col.name === 'payment_method')) {
+      await db.exec('ALTER TABLE pieces ADD COLUMN payment_method TEXT');
+  }
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS suppliers (
       id TEXT PRIMARY KEY,
@@ -34,11 +41,13 @@ async function openDb() {
         montant_paye REAL NOT NULL,
         reste REAL NOT NULL,
         description TEXT,
+        payment_method TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE
     );
   `);
+
   return db;
 }
 
@@ -62,9 +71,9 @@ async function initializeData() {
 
     if (pieceCount === 0) {
         console.log('Seeding pieces...');
-        const stmt = await db.prepare('INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        const stmt = await db.prepare('INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         for (const piece of pieces) {
-            await stmt.run(piece.id, piece.supplier_id, piece.date, piece.type, piece.total_piece, piece.montant_paye, piece.reste, piece.description, piece.created_at, piece.updated_at);
+            await stmt.run(piece.id, piece.supplier_id, piece.date, piece.type, piece.total_piece, piece.montant_paye, piece.reste, piece.description, piece.payment_method, piece.created_at, piece.updated_at);
         }
         await stmt.finalize();
     }
@@ -146,16 +155,20 @@ type NewPieceData = Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>;
 export async function addPiece(data: NewPieceData): Promise<Piece> {
     const db = await openDb();
     const now = new Date().toISOString();
-    const reste = data.total_piece - data.montant_paye;
+    
+    const total_piece = data.type === 'VERSEMENT' ? 0 : data.total_piece;
+    const reste = total_piece - data.montant_paye;
+
     const newPiece: Piece = {
         id: randomUUID(),
         ...data,
+        total_piece,
         reste,
         created_at: now,
         updated_at: now,
     };
     await db.run(
-        'INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         newPiece.id,
         newPiece.supplier_id,
         newPiece.date.toISOString(),
@@ -164,6 +177,7 @@ export async function addPiece(data: NewPieceData): Promise<Piece> {
         newPiece.montant_paye,
         newPiece.reste,
         newPiece.description,
+        newPiece.payment_method,
         newPiece.created_at,
         newPiece.updated_at
     );
@@ -184,9 +198,10 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
     const updatedData = { ...currentPiece, ...data };
     
     // Recalculate 'reste' based on potentially updated total and paid amounts
-    const reste = (updatedData.total_piece ?? currentPiece.total_piece) - (updatedData.montant_paye ?? currentPiece.montant_paye);
+    const total_piece = updatedData.type === 'VERSEMENT' ? 0 : (updatedData.total_piece ?? currentPiece.total_piece);
+    const reste = total_piece - (updatedData.montant_paye ?? currentPiece.montant_paye);
     
-    const fieldsToUpdate = { ...data, reste };
+    const fieldsToUpdate = { ...data, total_piece, reste };
 
     const fields = Object.keys(fieldsToUpdate).map(field => `${field} = ?`).join(', ');
     

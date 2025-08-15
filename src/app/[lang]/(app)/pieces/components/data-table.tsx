@@ -33,12 +33,14 @@ import { Calendar as CalendarIcon, Filter } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import type { Piece } from '@/lib/types';
 
 type DataTableDictionary = {
     filterPlaceholder: string;
     typeAll: string;
     typeInvoice: string;
     typeBl: string;
+    typeVersement: string;
     noResults: string;
     previous: string;
     next: string;
@@ -62,7 +64,7 @@ interface DataTableProps<TData, TValue> {
 
 const defaultDateRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   columns,
   data,
   dictionary,
@@ -140,6 +142,7 @@ export function DataTable<TData, TValue>({
                 <SelectItem value="all">{dictionary.typeAll || 'Toutes'}</SelectItem>
                 <SelectItem value="FACTURE">{dictionary.typeInvoice || 'Facture'}</SelectItem>
                 <SelectItem value="BL">{dictionary.typeBl || 'BL'}</SelectItem>
+                <SelectItem value="VERSEMENT">{dictionary.typeVersement || 'Versement'}</SelectItem>
             </SelectContent>
         </Select>
 
@@ -203,6 +206,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  className={cn({ "bg-emerald-50 hover:bg-emerald-100": row.original.type === 'VERSEMENT' })}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

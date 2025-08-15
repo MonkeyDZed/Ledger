@@ -5,7 +5,7 @@ import { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { PlusCircle, ArrowLeft, FileEdit } from 'lucide-react';
+import { PlusCircle, ArrowLeft, FileEdit, HandCoins } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PieceForm } from '../../../components/piece-form';
@@ -17,9 +17,10 @@ import { deletePiece } from '../actions';
 import { useParams } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { MoreHorizontal, ArrowUpDown, Banknote as BanknoteIcon, Hand, FileText as FileTextIcon, Landmark } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
+import { cn } from '@/lib/utils';
 
 // Internal formatter to avoid importing from a module with server-side dependencies
 function formatCurrencySimple(amount: number) {
@@ -54,8 +55,19 @@ const StatCard = ({ title, value, icon, description }: { title: string, value: s
 );
 
 const BadgeCentIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v8a1 1 0 102 0V7z" clipRule="evenodd"></path><path d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V11a1 1 0 11-2 0V7.414L5.707 9.707a1 1 0 01-1.414-1.414l4-4z"></path></svg>;
-const FileTextIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V7a1 1 0 00-1-1H6z" clipRule="evenodd"></path></svg>;
-const BanknoteIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 4a1 1 0 011 1v1.586l5.293-5.293a1 1 0 111.414 1.414L12.414 7H14a1 1 0 011 1v6a1 1 0 01-1 1h-1.586l5.293 5.293a1 1 0 11-1.414 1.414L10 13.414V15a1 1 0 01-1 1H8a1 1 0 01-1-1v-1.586l-5.293 5.293a1 1 0 11-1.414-1.414L7.586 13H6a1 1 0 01-1-1V6a1 1 0 011-1h1.586L2.293 1.293a1 1 0 111.414-1.414L10 4z"></path></svg>;
+
+const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => {
+    if (!method) return null;
+    const props = { className: "w-4 h-4 text-muted-foreground me-2" };
+    switch (method) {
+        case 'espece': return <Hand {...props} />;
+        case 'cheque': return <FileTextIcon {...props} />;
+        case 'virement': return <Landmark {...props} />;
+        case 'traite': return <BanknoteIcon {...props} />;
+        default: return null;
+    }
+}
+
 
 interface ClientPageProps {
   supplier: Supplier;
@@ -70,14 +82,14 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
   const [dialogState, setDialogState] = useState<{
-    type: 'new' | 'edit' | 'delete' | null;
+    type: 'new-piece' | 'new-versement' | 'edit' | 'delete' | null;
     data?: Piece;
   }>({ type: null });
 
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
 
-  const openDialog = (type: 'new' | 'edit' | 'delete', data?: Piece) => {
+  const openDialog = (type: 'new-piece' | 'new-versement' | 'edit' | 'delete', data?: Piece) => {
     setDialogState({ type, data });
   };
   const closeDialogs = () => setDialogState({ type: null });
@@ -119,18 +131,29 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         header: dict.type,
         cell: ({ row }) => {
             const type = row.getValue('type') as string;
-            return <Badge variant={type === 'FACTURE' ? 'secondary' : 'outline'}>{type}</Badge>
+            let variant: 'secondary' | 'outline' | 'default' = 'outline';
+            if (type === 'FACTURE') variant = 'secondary';
+            if (type === 'VERSEMENT') variant = 'default';
+
+            return <Badge variant={variant} className={cn({'bg-emerald-500 text-white': type === 'VERSEMENT'})}>{dict[type.toLowerCase()]}</Badge>
         }
       },
       {
         accessorKey: 'description',
         header: dict.description,
+        cell: ({ row }) => {
+            return <div className="flex items-center">
+                <PaymentMethodIcon method={row.original.payment_method} />
+                <span>{row.original.description}</span>
+            </div>
+        }
       },
       {
         accessorKey: 'total_piece',
         header: () => <div className="text-end">{dict.total}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('total_piece'));
+          if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
           return <div className="text-end font-mono">{formatCurrencySimple(amount)}</div>;
         },
       },
@@ -147,6 +170,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         header: () => <div className="text-end">{dict.remaining}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('reste'));
+          if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
           return <div className="text-end font-mono text-destructive">{formatCurrencySimple(amount)}</div>;
         },
       },
@@ -195,7 +219,11 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             {dictionary.header.backButton}
           </Link>
         </Button>
-        <Button onClick={() => openDialog('new')}>
+         <Button variant="secondary" onClick={() => openDialog('new-versement')}>
+          <HandCoins className="me-2 h-4 w-4" />
+          {dictionary.header.newPaymentButton}
+        </Button>
+        <Button onClick={() => openDialog('new-piece')}>
           <PlusCircle className="me-2 h-4 w-4" />
           {dictionary.header.newPieceButton}
         </Button>
@@ -241,12 +269,20 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         dictionary={dictionary.piecesTable} 
       />
       
-      <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>
+      <Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>{dialogState.type === 'edit' ? dictionary.form.editTitle : dictionary.form.addTitle}</DialogTitle>
+            <DialogTitle>{
+                dialogState.type === 'edit' ? dictionary.form.editTitle 
+                : dialogState.type === 'new-versement' ? dictionary.form.addPaymentTitle
+                : dictionary.form.addTitle
+            }</DialogTitle>
             <DialogDescription>
-              {dialogState.type === 'edit' ? dictionary.form.editDescription : dictionary.form.addDescription}
+              {
+                dialogState.type === 'edit' ? dictionary.form.editDescription 
+                : dialogState.type === 'new-versement' ? dictionary.form.addPaymentDescription
+                : dictionary.form.addDescription
+              }
             </DialogDescription>
           </DialogHeader>
           <PieceForm 
@@ -255,6 +291,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             onClose={closeDialogs} 
             dictionary={dictionary.form}
             schemaDictionary={schemaDictionary}
+            formType={dialogState.type === 'new-versement' || (dialogState.data?.type === 'VERSEMENT') ? 'VERSEMENT' : 'PIECE'}
           />
         </DialogContent>
       </Dialog>

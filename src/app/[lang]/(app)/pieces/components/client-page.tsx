@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -40,6 +40,19 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
         </CardContent>
     </Card>
 );
+
+const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => {
+    if (!method) return null;
+    const props = { className: "w-4 h-4 text-muted-foreground me-2" };
+    switch (method) {
+        case 'espece': return <Hand {...props} />;
+        case 'cheque': return <FileTextIcon {...props} />;
+        case 'virement': return <Landmark {...props} />;
+        case 'traite': return <Banknote {...props} />;
+        default: return null;
+    }
+}
+
 
 export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDictionary, lang }: ClientPageProps) {
     const { toast } = useToast();
@@ -73,9 +86,9 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
     };
 
     const totals = useMemo(() => {
-        const totalBilled = pieces.reduce((sum, p) => sum + p.total_piece, 0);
+        const totalBilled = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
         const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-        const totalRemaining = pieces.reduce((sum, p) => sum + p.reste, 0);
+        const totalRemaining = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.reste, 0);
         return { totalBilled, totalPaid, totalRemaining };
     }, [pieces]);
 
@@ -118,17 +131,32 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
           header: dict.type,
           cell: ({ row }) => {
               const type = row.getValue('type') as string;
-              return <Badge variant={type === 'FACTURE' ? 'secondary' : 'outline'}>{type}</Badge>
+              let variant: 'secondary' | 'outline' | 'default' = 'outline';
+              if (type === 'FACTURE') variant = 'secondary';
+              if (type === 'VERSEMENT') variant = 'default';
+
+              return <Badge variant={variant} className={cn({'bg-emerald-500 text-white': type === 'VERSEMENT'})}>{dict[type.toLowerCase()]}</Badge>
           },
           filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
           },
+        },
+         {
+          accessorKey: 'description',
+          header: dict.description,
+          cell: ({ row }) => {
+            return <div className="flex items-center">
+                <PaymentMethodIcon method={row.original.payment_method} />
+                <span>{row.original.description}</span>
+            </div>
+          }
         },
         {
           accessorKey: 'total_piece',
           header: () => <div className="text-end">{dict.total}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
+            if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
             return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
           },
         },
@@ -145,6 +173,7 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
           header: () => <div className="text-end">{dict.remaining}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
+             if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
             return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
           },
         },
@@ -211,6 +240,7 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
             onClose={closeDialogs} 
             dictionary={pieceFormDictionary.form}
             schemaDictionary={schemaDictionary}
+            formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
           />
         </DialogContent>
       </Dialog>
