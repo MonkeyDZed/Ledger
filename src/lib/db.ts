@@ -194,18 +194,16 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
         throw new Error("Piece not found");
     }
 
-    // Create a new object for updated data to avoid mutating the original
     const updatedData = { ...currentPiece, ...data };
     
-    // Recalculate 'reste' based on potentially updated total and paid amounts
-    const total_piece = updatedData.type === 'VERSEMENT' ? 0 : (updatedData.total_piece ?? currentPiece.total_piece);
-    const reste = total_piece - (updatedData.montant_paye ?? currentPiece.montant_paye);
+    const total_piece = updatedData.type === 'VERSEMENT' ? 0 : (data.total_piece ?? currentPiece.total_piece);
+    const montant_paye = data.montant_paye ?? currentPiece.montant_paye;
+    const reste = total_piece - montant_paye;
     
     const fieldsToUpdate = { ...data, total_piece, reste };
 
     const fields = Object.keys(fieldsToUpdate).map(field => `${field} = ?`).join(', ');
     
-    // Ensure date is in ISO string format if it's a Date object
     const values = Object.values(fieldsToUpdate).map(val => val instanceof Date ? val.toISOString() : val);
 
     await db.run(

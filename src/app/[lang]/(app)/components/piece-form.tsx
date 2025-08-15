@@ -110,7 +110,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
     form.setValue('type', value);
     setCurrentType(value);
     if (value === 'VERSEMENT') {
-        form.setValue('total_piece', 0);
+        form.setValue('total_piece', 0, { shouldValidate: true });
     }
   }
 
