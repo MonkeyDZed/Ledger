@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
+import { CurrencyInput } from './currency-input';
 
 // Client-side schema, completely independent of server-side dictionaries.
 const clientSupplierFormSchema = z.object({
@@ -184,7 +185,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
             <FormItem>
                 <FormLabel>{dictionary.initialBalanceLabel}</FormLabel>
                 <FormControl>
-                <Input type="number" {...field} />
+                    <CurrencyInput field={field} onValueChange={(value) => form.setValue('solde_initial', value)} />
                 </FormControl>
                 <FormMessage />
             </FormItem>

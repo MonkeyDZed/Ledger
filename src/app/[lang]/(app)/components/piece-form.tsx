@@ -22,6 +22,7 @@ import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CurrencyInput } from './currency-input';
 
 // Client-side schema, completely independent of server-side dictionaries.
 const clientPieceFormSchema = z.object({
@@ -220,7 +221,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 <FormItem>
                   <FormLabel>{dictionary.totalLabel}</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -234,7 +235,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 <FormItem>
                   <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value)} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
