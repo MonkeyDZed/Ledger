@@ -1,32 +1,14 @@
 
 'use server';
 
-import { z } from 'zod';
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { getDictionary } from '@/lib/dictionaries';
-import { Locale, i18n } from '@/i18n.config';
+import { getSupplierFormSchema } from '@/lib/schemas';
+import type { SupplierFormValues } from '@/lib/schemas';
 
-// This function returns a Zod schema configured with dictionary messages.
-// It is defined directly within the server action file to ensure no client-side code can import it.
-const getSupplierFormSchema = async (lang: Locale = i18n.defaultLocale) => {
-    const dictionary = await getDictionary(lang);
-    const supplierDictionary = dictionary.schemas.supplier;
-    return z.object({
-        name: z.string().min(2, { message: supplierDictionary.nameMin }),
-        wilaya: z.string().optional(),
-        phone: z.string().optional(),
-        nif: z.string().optional(),
-        bank_info: z.string().optional(),
-        solde_initial: z.coerce.number().default(0),
-        notes: z.string().optional(),
-    });
-}
-
-type SupplierFormValues = z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>;
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    const supplierFormSchema = await getSupplierFormSchema(); // Uses default locale
+    const supplierFormSchema = await getSupplierFormSchema();
     const validation = supplierFormSchema.safeParse(data);
     
     if (!validation.success) {
@@ -50,7 +32,7 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
-    const supplierFormSchema = await getSupplierFormSchema(); // Uses default locale
+    const supplierFormSchema = await getSupplierFormSchema();
     const validation = supplierFormSchema.safeParse(data);
 
     if (!validation.success) {
