@@ -2,7 +2,7 @@
 import { z } from 'zod';
 import type { Dictionary } from './dictionaries';
 
-type SchemaDictionary = Dictionary['schemas'];
+type SchemaDictionary = any;
 
 export const getSupplierFormSchema = (dictionary: SchemaDictionary) => {
     return z.object({
@@ -24,17 +24,22 @@ export const getPieceFormSchema = (dictionary: SchemaDictionary) => {
         montant_paye: z.coerce.number().min(0, { message: dictionary.piece.paidPositive }),
         description: z.string().optional(),
     });
-
-    const formSchema = baseSchema.refine(data => data.montant_paye <= data.total_piece, {
+    
+    const refinement = (data: z.infer<typeof baseSchema>) => data.montant_paye <= data.total_piece;
+    const refinement_error = {
         message: dictionary.piece.paidExceedsTotal,
         path: ["montant_paye"],
-    });
+    };
+
+    const formSchema = baseSchema.refine(refinement, refinement_error);
+    const addPieceSchema = baseSchema.extend({
+        supplier_id: z.string(),
+    }).refine(refinement, refinement_error);
+
 
     return {
         baseSchema,
         formSchema,
-        addPieceSchema: formSchema.extend({
-             supplier_id: z.string(),
-        })
+        addPieceSchema
     };
 };
