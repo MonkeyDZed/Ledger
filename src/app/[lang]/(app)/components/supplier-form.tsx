@@ -15,7 +15,7 @@ import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
 
 // Client-side schema, completely independent of server-side dictionaries.
-const supplierFormSchema = z.object({
+const clientSupplierFormSchema = z.object({
     name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
     wilaya: z.string().optional(),
     phone: z.string().optional(),
@@ -24,7 +24,7 @@ const supplierFormSchema = z.object({
     solde_initial: z.coerce.number().default(0),
     notes: z.string().optional(),
 });
-type SupplierFormValues = z.infer<typeof supplierFormSchema>;
+type SupplierFormValues = z.infer<typeof clientSupplierFormSchema>;
 
 interface SupplierFormProps {
   onClose: () => void;
@@ -39,7 +39,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   const isEditMode = !!supplierToEdit;
 
   const form = useForm<SupplierFormValues>({
-    resolver: zodResolver(supplierFormSchema),
+    resolver: zodResolver(clientSupplierFormSchema),
     defaultValues: {
       name: '',
       wilaya: '',

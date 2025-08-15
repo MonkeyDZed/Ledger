@@ -24,7 +24,7 @@ import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Client-side schema, completely independent of server-side dictionaries.
-const pieceFormSchema = z.object({
+const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
     total_piece: z.coerce.number().min(0, { message: "Le total doit être un nombre positif." }),
@@ -38,7 +38,7 @@ const pieceFormSchema = z.object({
     message: "Le montant payé ne peut pas dépasser le total de la pièce.",
     path: ["montant_paye"],
 });
-type PieceFormValues = z.infer<typeof pieceFormSchema>;
+type PieceFormValues = z.infer<typeof clientPieceFormSchema>;
 
 
 interface PieceFormProps {
@@ -60,7 +60,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   const defaultType = formType === 'VERSEMENT' ? 'VERSEMENT' : (isEditMode ? pieceToEdit.type : 'FACTURE');
 
   const form = useForm<PieceFormValues>({
-    resolver: zodResolver(pieceFormSchema),
+    resolver: zodResolver(clientPieceFormSchema),
     defaultValues: isEditMode && pieceToEdit ? {
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),

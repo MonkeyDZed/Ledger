@@ -16,17 +16,21 @@ export const getSupplierBaseSchema = (dictionary: any) => z.object({
     notes: z.string().optional(),
 });
 
-export const getPieceBaseSchema = (dictionary: any) => {
-    const baseSchema = z.object({
-        date: z.date({ required_error: dictionary.piece.dateRequired }),
-        type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: dictionary.piece.typeRequired }),
-        total_piece: z.coerce.number().min(0, { message: dictionary.piece.totalPositive }),
-        montant_paye: z.coerce.number().min(0, { message: dictionary.piece.paidPositive }),
-        description: z.string().optional(),
-        payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
-    });
+// This is the raw base schema without refinement. It can be safely extended.
+export const pieceBaseSchema = (dictionary: any) => z.object({
+    date: z.date({ required_error: dictionary.piece.dateRequired }),
+    type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: dictionary.piece.typeRequired }),
+    total_piece: z.coerce.number().min(0, { message: dictionary.piece.totalPositive }),
+    montant_paye: z.coerce.number().min(0, { message: dictionary.piece.paidPositive }),
+    description: z.string().optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
+});
 
-    return baseSchema.refine((data) => {
+
+// This function takes the dictionary and returns the refined schema.
+// It is used for validation where the full object (without supplier_id) is present, like updates.
+export const getPieceBaseSchema = (dictionary: any) => {
+    return pieceBaseSchema(dictionary).refine((data) => {
         if (data.type === 'VERSEMENT') return true;
         return data.montant_paye <= data.total_piece;
     }, {
@@ -34,5 +38,3 @@ export const getPieceBaseSchema = (dictionary: any) => {
         path: ["montant_paye"],
     });
 };
-
-    

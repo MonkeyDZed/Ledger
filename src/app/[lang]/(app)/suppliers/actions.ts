@@ -6,17 +6,17 @@ import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb,
 import { revalidatePath } from 'next/cache';
 import { getSupplierBaseSchema } from '@/lib/schemas';
 import { getDictionary } from '@/lib/dictionaries';
-import { i18n } from '@/i18n.config';
+import { Locale, i18n } from '@/i18n.config';
 
 // This function returns a Zod schema configured with dictionary messages.
 // It is a 'server-only' function because it depends on `getDictionary`.
-const getSupplierFormSchema = async (lang: 'fr' | 'ar' = i18n.defaultLocale) => {
+const getSupplierFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     const dictionary = await getDictionary(lang);
     return getSupplierBaseSchema(dictionary.schemas);
 }
 
 export async function addSupplier(data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>) : Promise<{success: boolean, message?: string}> {
-    const supplierFormSchema = await getSupplierFormSchema();
+    const supplierFormSchema = await getSupplierFormSchema(); // Uses default locale
     const validation = supplierFormSchema.safeParse(data);
     
     if (!validation.success) {
@@ -40,7 +40,7 @@ export async function addSupplier(data: z.infer<Awaited<ReturnType<typeof getSup
 }
 
 export async function updateSupplier(id: string, data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>): Promise<{success: boolean, message?: string}> {
-    const supplierFormSchema = await getSupplierFormSchema();
+    const supplierFormSchema = await getSupplierFormSchema(); // Uses default locale
     const validation = supplierFormSchema.safeParse(data);
 
     if (!validation.success) {
