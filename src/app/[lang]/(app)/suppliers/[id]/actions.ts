@@ -10,7 +10,7 @@ import { getDictionary } from '@/lib/dictionaries';
 type PieceFormValues = {
     date: Date;
     type: 'BL' | 'FACTURE' | 'VERSEMENT';
-    total_piece: number;
+    total_piece?: number;
     montant_paye: number;
     description?: string;
     payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
@@ -21,23 +21,20 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
     const dictionary = await getDictionary(lang);
     const pieceDictionary = dictionary.schemas.piece;
     
-    const PieceFormSchema = z.object({
+    const AddPieceSchema = z.object({
         date: z.date({ required_error: pieceDictionary.dateRequired }),
         type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: pieceDictionary.typeRequired }),
-        total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }),
+        total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }).optional().or(z.literal(0)),
         montant_paye: z.coerce.number().min(0, { message: pieceDictionary.paidPositive }),
         description: z.string().optional(),
+        supplier_id: z.string(),
         payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
     }).refine((data) => {
         if (data.type === 'VERSEMENT') return true;
-        return data.montant_paye <= data.total_piece;
+        return data.montant_paye <= (data.total_piece ?? 0);
     }, {
         message: pieceDictionary.paidExceedsTotal,
         path: ["montant_paye"],
-    });
-
-    const AddPieceSchema = PieceFormSchema.extend({
-        supplier_id: z.string(),
     });
     
     const validation = AddPieceSchema.safeParse(data);
@@ -59,7 +56,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
     } catch(e) {
         const error = e as Error;
         console.error(error);
-        return { success: false, message: error.message || "Une erreur est survenue lors de l'ajout de la pièce." };
+        return { success: false, message: "Une erreur est survenue lors de l'ajout de la pièce." };
     }
 }
 
@@ -71,13 +68,13 @@ export async function updatePiece(id: string, supplier_id: string, data: PieceFo
     const UpdatePieceSchema = z.object({
         date: z.date({ required_error: pieceDictionary.dateRequired }),
         type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: pieceDictionary.typeRequired }),
-        total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }),
+        total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }).optional().or(z.literal(0)),
         montant_paye: z.coerce.number().min(0, { message: pieceDictionary.paidPositive }),
         description: z.string().optional(),
         payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
     }).refine((data) => {
         if (data.type === 'VERSEMENT') return true;
-        return data.montant_paye <= data.total_piece;
+        return data.montant_paye <= (data.total_piece ?? 0);
     }, {
         message: pieceDictionary.paidExceedsTotal,
         path: ["montant_paye"],
