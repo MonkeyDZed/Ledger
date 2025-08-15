@@ -14,7 +14,7 @@ import {
   type ColumnFiltersState,
 } from '@tanstack/react-table';
 import { DateRange } from 'react-day-picker';
-import { subDays, startOfMonth, endOfMonth } from 'date-fns';
+import { subDays, startOfMonth, endOfMonth, isEqual } from 'date-fns';
 
 import {
   Table,
@@ -60,14 +60,18 @@ interface DataTableProps<TData, TValue> {
   dictionary: DataTableDictionary;
 }
 
+const defaultDateRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
+
 export function DataTable<TData, TValue>({
   columns,
   data,
   dictionary,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
+    { id: 'date', value: defaultDateRange }
+  ]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(defaultDateRange);
 
   const table = useReactTable({
     data,
@@ -99,6 +103,11 @@ export function DataTable<TData, TValue>({
     } else {
         table.getColumn('date')?.setFilterValue(undefined);
     }
+  }
+
+  const isChecked = (range?: { from: Date, to: Date }) => {
+    if (!dateRange || !range) return !dateRange && !range;
+    return isEqual(dateRange.from!, range.from) && isEqual(dateRange.to!, range.to);
   }
 
   return (
@@ -141,9 +150,9 @@ export function DataTable<TData, TValue>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuCheckboxItem checked={!dateRange} onSelect={() => applyDateFilter(undefined)}>{dictionary.dateFilter.all}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={dateRange?.from === new Date() && dateRange?.to === new Date()} onSelect={() => applyDateFilter({ from: new Date(), to: new Date() })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={dateRange?.from === subDays(new Date(), 1) && dateRange?.to === subDays(new Date(), 1)} onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={dateRange?.from === startOfMonth(new Date()) && dateRange?.to === endOfMonth(new Date())} onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={isChecked({ from: new Date(new Date().setHours(0,0,0,0)), to: new Date(new Date().setHours(23,59,59,999)) })} onSelect={() => applyDateFilter({ from: new Date(new Date().setHours(0,0,0,0)), to: new Date(new Date().setHours(23,59,59,999)) })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={isChecked({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })} onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={isChecked({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })} onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
                  <DropdownMenuSeparator />
                 <Popover>
                     <PopoverTrigger asChild>
