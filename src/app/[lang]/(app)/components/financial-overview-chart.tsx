@@ -18,17 +18,15 @@ function formatCurrencySimple(amount: number, fractionDigits = 2) {
 
 interface FinancialOverviewChartProps {
     data: { paid: number; toPay: number };
-    labels: {
-        paid: string;
-        toPay: string;
-        currency: string;
-    }
+    paidLabel: string;
+    toPayLabel: string;
+    currencyLabel: string;
 }
 
-export function FinancialOverviewChart({ data, labels }: FinancialOverviewChartProps) {
+export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLabel }: FinancialOverviewChartProps) {
   const chartData = [
-    { name: labels.paid, value: data.paid },
-    { name: labels.toPay, value: data.toPay },
+    { name: paidLabel, value: data.paid },
+    { name: toPayLabel, value: data.toPay },
   ];
   const total = data.paid + data.toPay;
 
@@ -42,7 +40,7 @@ export function FinancialOverviewChart({ data, labels }: FinancialOverviewChartP
               borderColor: "hsl(var(--border))",
               borderRadius: "var(--radius)",
             }}
-            formatter={(value) => `${formatCurrencySimple(value as number)} ${labels.currency}`}
+            formatter={(value) => `${formatCurrencySimple(value as number)} ${currencyLabel}`}
           />
           <Pie
             data={chartData}
@@ -67,7 +65,7 @@ export function FinancialOverviewChart({ data, labels }: FinancialOverviewChartP
         <div className="text-2xl font-bold font-mono text-gray-800 break-all px-4">
           {formatCurrencySimple(total, 0)}
         </div>
-        <div className="text-sm font-mono text-muted-foreground font-bold mt-1">{labels.currency}</div>
+        <div className="text-sm font-mono text-muted-foreground font-bold mt-1">{currencyLabel}</div>
       </div>
     </div>
   )

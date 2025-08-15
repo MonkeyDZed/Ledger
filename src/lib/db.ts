@@ -6,15 +6,6 @@ import { randomUUID } from 'crypto';
 
 let dbInstance: Awaited<ReturnType<typeof open>> | null = null;
 
-// This function will clear all data from the tables.
-async function clearAllData(db: Awaited<ReturnType<typeof open>>) {
-    console.log('--- Wiping all data from tables ---');
-    await db.exec('DELETE FROM pieces');
-    await db.exec('DELETE FROM suppliers');
-    console.log('--- All tables have been cleared ---');
-}
-
-
 async function initializeDb() {
   const db = await open({
     filename: './database.db',
@@ -57,6 +48,7 @@ async function initializeDb() {
             FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE
         );
     `);
+     console.log('--- Database initialized successfully. ---');
   } else {
     console.log('Database found. Checking for migrations...');
     // Migration for payment_method column if it doesn't exist
@@ -66,10 +58,6 @@ async function initializeDb() {
         await db.exec('ALTER TABLE pieces ADD COLUMN payment_method TEXT');
     }
   }
-
-  // --- FORCE CLEAR ALL DATA ON STARTUP ---
-  // This ensures the database is always empty when the app starts.
-  await clearAllData(db);
 
   return db;
 }

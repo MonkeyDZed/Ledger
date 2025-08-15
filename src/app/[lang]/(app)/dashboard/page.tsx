@@ -9,6 +9,13 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
 
+  // Extract labels for the chart to pass as simple strings
+  const chartLabels = {
+    paid: dict.dashboard.paid,
+    toPay: dict.dashboard.toPay,
+    currency: dict.dashboard.currency,
+  };
+
   return <DashboardClientPage 
     suppliers={suppliers} 
     pieces={pieces} 
@@ -16,5 +23,6 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
     formDictionary={dict.suppliersPage.form}
     pieceFormDictionary={dict.supplierDetailPage.form}
     lang={lang}
+    chartLabels={chartLabels}
   />;
 }
