@@ -33,9 +33,11 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     useEffect(() => {
         // Met à jour l'affichage formaté si la valeur du formulaire change de l'extérieur
-        const numValue = field.value ? Number(field.value) : 0;
-        setDisplayValue(formatValue(numValue));
-    }, [field.value]);
+        if (!isFocused) {
+            const numValue = field.value ? Number(field.value) : 0;
+            setDisplayValue(formatValue(numValue));
+        }
+    }, [field.value, isFocused]);
     
 
     const handleFocus = () => {
@@ -45,7 +47,8 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         if (numValue === 0) {
              setDisplayValue('');
         } else {
-            setDisplayValue(String(numValue));
+            // Affiche avec un point pour une édition standard
+            setDisplayValue(String(numValue.toFixed(2)));
         }
     };
 
@@ -60,14 +63,9 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value;
-        // Accepte uniquement les chiffres, le point et la virgule
+        // Accepte uniquement les chiffres, le point et la virgule pour la saisie
         const numberValue = rawValue.replace(/[^0-9.,]/g, '');
-        setDisplayValue(numberValue); // Affiche la saisie brute en temps réel
-        
-        const parsed = parseValue(numberValue);
-        if (!isNaN(parsed)) {
-            onValueChange(parsed); // Met à jour la valeur numérique du formulaire
-        }
+        setDisplayValue(numberValue); // Affiche la saisie brute de l'utilisateur en temps réel
     };
     
     // Condition pour afficher le zéro fictif
@@ -80,7 +78,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         <Input
           {...field}
           ref={ref}
-          type={isFocused ? 'text' : 'text'} // On utilise toujours text pour afficher le format
+          type="text" // On utilise toujours text pour pouvoir contrôler le formatage
           className={cn('text-end font-mono', className, { 'text-muted-foreground': showFictiveZero && !isFocused })}
           value={finalDisplayValue}
           onFocus={handleFocus}
