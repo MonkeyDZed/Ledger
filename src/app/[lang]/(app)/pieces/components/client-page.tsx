@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { deletePiece } from '../../suppliers/[id]/actions';
 import { PieceForm } from '../../components/piece-form';
 import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
+import { cn } from '@/lib/utils';
 
 
 type PieceWithSupplierName = Piece & { supplierName: string; };
