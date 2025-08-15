@@ -3,12 +3,37 @@
 
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { getSupplierFormSchema } from '@/lib/schemas';
-import type { SupplierFormValues } from '@/lib/schemas';
+import { z } from 'zod';
+import { getDictionary } from '@/lib/dictionaries';
+import { i18n } from '@/i18n.config';
+
+// Define the type for the form values based on the client-side schema.
+// This avoids importing the server-side schema into client components.
+type SupplierFormValues = {
+    name: string;
+    wilaya?: string;
+    phone?: string;
+    nif?: string;
+    bank_info?: string;
+    solde_initial: number;
+    notes?: string;
+};
 
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    const supplierFormSchema = await getSupplierFormSchema();
+    // For simplicity, we assume 'fr' for server actions or determine it from context if available
+    const dictionary = await getDictionary(i18n.defaultLocale);
+    const supplierDictionary = dictionary.schemas.supplier;
+    const supplierFormSchema = z.object({
+        name: z.string().min(2, { message: supplierDictionary.nameMin }),
+        wilaya: z.string().optional(),
+        phone: z.string().optional(),
+        nif: z.string().optional(),
+        bank_info: z.string().optional(),
+        solde_initial: z.coerce.number().default(0),
+        notes: z.string().optional(),
+    });
+
     const validation = supplierFormSchema.safeParse(data);
     
     if (!validation.success) {
@@ -32,7 +57,18 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
-    const supplierFormSchema = await getSupplierFormSchema();
+    const dictionary = await getDictionary(i18n.defaultLocale);
+    const supplierDictionary = dictionary.schemas.supplier;
+    const supplierFormSchema = z.object({
+        name: z.string().min(2, { message: supplierDictionary.nameMin }),
+        wilaya: z.string().optional(),
+        phone: z.string().optional(),
+        nif: z.string().optional(),
+        bank_info: z.string().optional(),
+        solde_initial: z.coerce.number().default(0),
+        notes: z.string().optional(),
+    });
+
     const validation = supplierFormSchema.safeParse(data);
 
     if (!validation.success) {
