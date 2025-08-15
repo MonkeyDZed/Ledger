@@ -21,7 +21,7 @@ type PieceWithSupplierName = Piece & { supplierName: string; formattedDate: stri
 
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
-  dictionary: any; // Changed from PiecesPageDictionary
+  dictionary: any; // Using `any` to avoid server-only module imports in client component
   lang: Locale;
 }
 

@@ -21,12 +21,11 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Dictionary } from '@/lib/dictionaries';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  dictionary: Dictionary['supplierDetailPage']['piecesTable']
+  dictionary: any;
 }
 
 export function DataTable<TData, TValue>({

@@ -113,20 +113,17 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
         <Select
-            value={(table.getColumn('type')?.getFilterValue() as string[] | string) ?? 'all'}
+            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
             onValueChange={(value) => {
-                 const currentFilter = table.getColumn('type')?.getFilterValue();
-                 if (value === 'all') {
+                if (value === 'all') {
                     table.getColumn('type')?.setFilterValue(undefined);
-                 } else if (Array.isArray(currentFilter)) {
-                    table.getColumn('type')?.setFilterValue([...currentFilter, value]);
-                 } else {
-                    table.getColumn('type')?.setFilterValue([value]);
-                 }
+                } else {
+                    table.getColumn('type')?.setFilterValue(value);
+                }
             }}
         >
             <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filtrer par type" />
+                <SelectValue placeholder={dictionary.typeAll} />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="all">{dictionary.typeAll || 'Toutes'}</SelectItem>
