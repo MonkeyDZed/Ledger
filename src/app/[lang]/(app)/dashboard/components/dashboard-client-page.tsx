@@ -94,7 +94,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
   const recentSuppliers = [...supplierDataWithCalculations]
     .sort((a, b) => b.mostRecentPieceDate.getTime() - a.mostRecentPieceDate.getTime())
-    .slice(0, 4);
+    .slice(0, 5);
 
   return (
     <>
@@ -172,10 +172,10 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto max-h-[25rem] relative">
                             <Table>
-                                <TableHeader>
-                                    <TableRow className="bg-gray-50">
+                                <TableHeader className="sticky top-0 bg-gray-50 z-10">
+                                    <TableRow>
                                         <TableHead>{dictionary.supplierName}</TableHead>
                                         <TableHead>{dictionary.wilaya}</TableHead>
                                         <TableHead>{dictionary.totalInvoiced}</TableHead>
@@ -305,3 +305,5 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
