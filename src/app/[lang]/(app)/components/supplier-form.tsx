@@ -13,23 +13,30 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
-import { getSupplierFormSchema } from '@/lib/schemas';
+
+// Client-side schema without server-side dependencies
+const supplierFormSchema = z.object({
+    name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
+    wilaya: z.string().optional(),
+    phone: z.string().optional(),
+    nif: z.string().optional(),
+    bank_info: z.string().optional(),
+    solde_initial: z.coerce.number().default(0),
+    notes: z.string().optional(),
+});
+type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
 interface SupplierFormProps {
   onClose: () => void;
   dictionary: any;
-  schemaDictionary: any;
   supplierToEdit?: Supplier;
 }
 
-export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, schemaDictionary, supplierToEdit }, ref) => {
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   
   const isEditMode = !!supplierToEdit;
-
-  const supplierFormSchema = getSupplierFormSchema(schemaDictionary);
-  type SupplierFormValues = z.infer<typeof supplierFormSchema>;
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),

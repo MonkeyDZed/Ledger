@@ -21,28 +21,42 @@ import { useTransition, useEffect, useState } from 'react';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
-import { getPieceFormSchema } from '@/lib/schemas';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+// Client-side schema without server-side dependencies
+const baseSchema = z.object({
+    date: z.date({ required_error: "La date est requise." }),
+    type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
+    total_piece: z.coerce.number().min(0, { message: "Le total doit être positif." }),
+    montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être positif." }),
+    description: z.string().optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
+});
+const pieceFormSchema = baseSchema.refine((data) => {
+    if (data.type === 'VERSEMENT') return true;
+    return data.montant_paye <= data.total_piece;
+}, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
+});
+type PieceFormValues = z.infer<typeof pieceFormSchema>;
+
 
 interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
   pieceToEdit?: Piece;
   dictionary: any;
-  schemaDictionary: any;
   formType?: 'VERSEMENT' | 'PIECE';
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schemaDictionary, formType = 'PIECE' }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType = 'PIECE' }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
   
   const isEditMode = !!pieceToEdit;
-
-  const { formSchema: pieceFormSchema } = getPieceFormSchema(schemaDictionary);
-  type PieceFormValues = z.infer<typeof pieceFormSchema>;
 
   const defaultType = formType === 'VERSEMENT' ? 'VERSEMENT' : (isEditMode ? pieceToEdit.type : 'FACTURE');
 
@@ -51,6 +65,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
     defaultValues: isEditMode && pieceToEdit ? {
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
+        description: pieceToEdit.description ?? '',
     } : {
         date: new Date(),
         type: defaultType,
@@ -67,6 +82,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
       form.reset({
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
+        description: pieceToEdit.description ?? '',
       });
       setCurrentType(pieceToEdit.type);
     } else {

@@ -27,7 +27,6 @@ interface ClientPageProps {
   pieces: PieceWithSupplierName[];
   dictionary: any;
   pieceFormDictionary: any;
-  schemaDictionary: any;
   lang: 'fr' | 'ar';
 }
 
@@ -55,7 +54,7 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDictionary, lang }: ClientPageProps) {
+export function ClientPage({ pieces, dictionary, pieceFormDictionary, lang }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
@@ -240,7 +239,6 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
             pieceToEdit={dialogState.data}
             onClose={closeDialogs} 
             dictionary={pieceFormDictionary.form}
-            schemaDictionary={schemaDictionary}
             formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
           />
         </DialogContent>

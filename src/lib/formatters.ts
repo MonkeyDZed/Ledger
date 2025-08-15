@@ -1,5 +1,4 @@
 
-import type { Dictionary } from "./dictionaries";
 
 export function formatCurrency(amount: number) {
   return new Intl.NumberFormat('fr-DZ', {

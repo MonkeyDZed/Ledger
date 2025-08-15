@@ -164,6 +164,7 @@ export async function addPiece(data: NewPieceData): Promise<Piece> {
         ...data,
         total_piece,
         reste,
+        description: data.description ?? '',
         created_at: now,
         updated_at: now,
     };
@@ -194,7 +195,7 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
         throw new Error("Piece not found");
     }
 
-    const mergedData = { ...currentPiece, ...data };
+    const mergedData = { ...currentPiece, ...data, date: data.date ? data.date.toISOString() : currentPiece.date };
     
     const total_piece = mergedData.type === 'VERSEMENT' ? 0 : (data.total_piece ?? currentPiece.total_piece);
     const montant_paye = data.montant_paye ?? currentPiece.montant_paye;

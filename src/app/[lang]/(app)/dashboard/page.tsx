@@ -16,6 +16,5 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
     formDictionary={dict.suppliersPage.form}
     pieceFormDictionary={dict.supplierDetailPage.form}
     lang={lang}
-    schemaDictionary={dict.schemas}
   />;
 }

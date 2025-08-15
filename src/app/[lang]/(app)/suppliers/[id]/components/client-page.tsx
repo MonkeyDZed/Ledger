@@ -59,10 +59,9 @@ interface ClientPageProps {
   pieces: Piece[];
   dictionary: any;
   supplierFormDictionary: any;
-  schemaDictionary: any;
 }
 
-export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary, schemaDictionary }: ClientPageProps) {
+export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary }: ClientPageProps) {
   const { toast } = useToast();
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -275,7 +274,6 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             pieceToEdit={dialogState.data}
             onClose={closeDialogs} 
             dictionary={dictionary.form}
-            schemaDictionary={schemaDictionary}
             formType={dialogState.type === 'new-versement' || (dialogState.data?.type === 'VERSEMENT') ? 'VERSEMENT' : 'PIECE'}
           />
         </DialogContent>
@@ -293,7 +291,6 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             ref={supplierFormRef} 
             onClose={() => setIsEditSupplierOpen(false)} 
             dictionary={supplierFormDictionary}
-            schemaDictionary={schemaDictionary}
             supplierToEdit={supplier}
           />
         </DialogContent>

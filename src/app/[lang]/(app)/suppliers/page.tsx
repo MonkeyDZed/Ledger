@@ -18,5 +18,5 @@ export default async function SuppliersPage({ params: { lang } }: { params: { la
     return { ...supplier, totalDebt, totalInvoiced, totalPaid };
   });
 
-  return <ClientPage suppliers={suppliersWithDebt} dictionary={dictionary.suppliersPage} schemaDictionary={dictionary.schemas} />;
+  return <ClientPage suppliers={suppliersWithDebt} dictionary={dictionary.suppliersPage} />;
 }

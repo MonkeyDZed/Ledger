@@ -42,11 +42,10 @@ interface DashboardClientPageProps {
   dictionary: any;
   formDictionary: any;
   pieceFormDictionary: any;
-  schemaDictionary: any;
   lang: 'fr' | 'ar';
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, schemaDictionary, lang }: DashboardClientPageProps) {
+export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
@@ -277,7 +276,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
               {formDictionary.addDescription}
             </CardDescription>
           </DialogHeader>
-          <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} dictionary={formDictionary} schemaDictionary={schemaDictionary} />
+          <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} dictionary={formDictionary} />
         </DialogContent>
       </Dialog>
      <NewPieceDialog
@@ -287,7 +286,6 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         pieces={pieces}
         dictionary={dictionary}
         pieceFormDictionary={pieceFormDictionary}
-        schemaDictionary={schemaDictionary}
       />
       <NewVersementDialog
         isOpen={isNewVersementOpen}
@@ -296,7 +294,6 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         pieces={pieces}
         dictionary={dictionary}
         pieceFormDictionary={pieceFormDictionary}
-        schemaDictionary={schemaDictionary}
        />
     </>
   );

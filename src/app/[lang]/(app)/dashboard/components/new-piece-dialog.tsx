@@ -17,10 +17,9 @@ interface NewPieceDialogProps {
   pieces: Piece[];
   dictionary: any;
   pieceFormDictionary: any;
-  schemaDictionary: any;
 }
 
-export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, schemaDictionary }: NewPieceDialogProps) {
+export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary }: NewPieceDialogProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
@@ -96,7 +95,6 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
               supplierId={selectedSupplierId} 
               onClose={handleClose} 
               dictionary={pieceFormDictionary}
-              schemaDictionary={schemaDictionary}
             />
           </div>
         )}

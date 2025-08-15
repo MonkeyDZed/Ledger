@@ -1,3 +1,4 @@
+
 export type Supplier = {
   id: string;
   name: string;
@@ -19,7 +20,7 @@ export type Piece = {
   total_piece: number;
   montant_paye: number;
   reste: number;
-  description: string;
+  description?: string;
   payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
   created_at: string;
   updated_at: string;

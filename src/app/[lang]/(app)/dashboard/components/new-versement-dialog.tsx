@@ -17,10 +17,9 @@ interface NewVersementDialogProps {
   pieces: Piece[];
   dictionary: any;
   pieceFormDictionary: any;
-  schemaDictionary: any;
 }
 
-export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, schemaDictionary }: NewVersementDialogProps) {
+export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary }: NewVersementDialogProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
@@ -96,7 +95,6 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
               supplierId={selectedSupplierId} 
               onClose={handleClose} 
               dictionary={pieceFormDictionary}
-              schemaDictionary={schemaDictionary}
               formType="VERSEMENT"
             />
           </div>

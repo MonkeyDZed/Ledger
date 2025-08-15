@@ -20,7 +20,6 @@ export default async function PiecesPage({ params: { lang } }: { params: { lang:
     pieces={piecesWithSupplier} 
     dictionary={dictionary.piecesPage} 
     pieceFormDictionary={dictionary.supplierDetailPage}
-    schemaDictionary={dictionary.schemas}
     lang={lang} 
   />;
 }

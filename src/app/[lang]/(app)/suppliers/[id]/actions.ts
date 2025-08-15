@@ -23,7 +23,6 @@ export async function addPiece(data: z.infer<ReturnType<typeof getPieceFormSchem
         await addPieceToDb({ 
             ...pieceData,
             supplier_id: supplier_id,
-            description: pieceData.description || '',
         });
         
         revalidatePath('/');
