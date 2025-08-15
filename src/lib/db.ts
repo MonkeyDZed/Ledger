@@ -1,11 +1,19 @@
 
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
-import { suppliers, pieces } from './data';
 import type { Supplier, Piece } from './types';
 import { randomUUID } from 'crypto';
 
 let dbInstance: Awaited<ReturnType<typeof open>> | null = null;
+
+// This function will clear all data from the tables.
+async function clearAllData(db: Awaited<ReturnType<typeof open>>) {
+    console.log('--- Wiping all data from tables ---');
+    await db.exec('DELETE FROM pieces');
+    await db.exec('DELETE FROM suppliers');
+    console.log('--- All tables have been cleared ---');
+}
+
 
 async function initializeDb() {
   const db = await open({
@@ -50,10 +58,16 @@ async function initializeDb() {
         );
     `);
 
+    // --- FORCE CLEAR ALL DATA ON STARTUP ---
+    // This ensures the database is always empty when the app starts.
+    await clearAllData(db);
+
   } else {
+    console.log('Database found. Checking for migrations...');
     // Migration for payment_method column if it doesn't exist
     const piecesCols = await db.all("PRAGMA table_info(pieces);");
     if (!piecesCols.some(col => col.name === 'payment_method')) {
+        console.log('Adding payment_method column to pieces table.');
         await db.exec('ALTER TABLE pieces ADD COLUMN payment_method TEXT');
     }
   }
@@ -138,7 +152,7 @@ export async function getPiecesBySupplierId(supplierId: string): Promise<Piece[]
 }
 
 type NewPieceData = Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>;
-export async function addPiece(data: NewPieceData): Promise<Piece> {
+export async function addPieceToDb(data: NewPieceData): Promise<Piece> {
     const db = await getDb();
     const now = new Date().toISOString();
     
@@ -148,6 +162,7 @@ export async function addPiece(data: NewPieceData): Promise<Piece> {
     const newPiece: Piece = {
         id: randomUUID(),
         ...data,
+        date: typeof data.date === 'string' ? data.date : data.date.toISOString(),
         total_piece,
         reste,
         description: data.description ?? '',
@@ -158,7 +173,7 @@ export async function addPiece(data: NewPieceData): Promise<Piece> {
         'INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         newPiece.id,
         newPiece.supplier_id,
-        newPiece.date, // Already a string from the form
+        newPiece.date,
         newPiece.type,
         newPiece.total_piece,
         newPiece.montant_paye,
@@ -187,12 +202,19 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
     const montant_paye = data.montant_paye ?? currentPiece.montant_paye;
     const reste = total_piece - montant_paye;
 
-    const updatePayload = { ...data, reste };
+    const updatePayload: Record<string, any> = { ...data };
+    if (data.total_piece !== undefined || data.montant_paye !== undefined) {
+        updatePayload.reste = reste;
+    }
+     if (updatePayload.date && updatePayload.date instanceof Date) {
+        updatePayload.date = updatePayload.date.toISOString();
+    }
+
 
     const fieldEntries = Object.entries(updatePayload);
 
     const setClause = fieldEntries.map(([key]) => `${key} = ?`).join(', ');
-    const values = fieldEntries.map(([, value]) => value instanceof Date ? value.toISOString() : value);
+    const values = fieldEntries.map(([, value]) => value);
 
     if (setClause) {
         await db.run(
@@ -208,16 +230,3 @@ export async function deletePieceFromDb(id: string): Promise<void> {
     const db = await getDb();
     await db.run('DELETE FROM pieces WHERE id = ?', id);
 }
-
-// Function to completely wipe the data for a full reset.
-async function clearAllData() {
-    console.log('Clearing all data from the database...');
-    const db = await getDb();
-    await db.exec('DELETE FROM pieces');
-    await db.exec('DELETE FROM suppliers');
-    console.log('All data cleared.');
-}
-
-// If you want to clear data on startup, you can call this function.
-// For example, in getDb, but be careful as this will wipe data on every server restart.
-// clearAllData();

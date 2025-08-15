@@ -2,7 +2,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addPiece as addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
+import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale, i18n } from '@/i18n.config';
@@ -29,7 +29,6 @@ const getPieceFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     });
 };
 
-type PieceFormValues = z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>>;
 
 const getAddPieceSchema = async (lang: Locale = i18n.defaultLocale) => {
     const pieceSchema = await getPieceFormSchema(lang);
@@ -38,9 +37,9 @@ const getAddPieceSchema = async (lang: Locale = i18n.defaultLocale) => {
     });
 };
 
-type AddPieceValues = z.infer<Awaited<ReturnType<typeof getAddPieceSchema>>>;
+type AddPieceFormValues = z.infer<Awaited<ReturnType<typeof getAddPieceSchema>>>;
 
-export async function addPiece(data: AddPieceValues) : Promise<{success: boolean, message?: string}> {
+export async function addPiece(data: AddPieceFormValues) : Promise<{success: boolean, message?: string}> {
     const addPieceSchema = await getAddPieceSchema(); // Uses default locale
     const validation = addPieceSchema.safeParse(data);
 
@@ -49,11 +48,7 @@ export async function addPiece(data: AddPieceValues) : Promise<{success: boolean
     }
     
     try {
-        const { supplier_id, ...pieceData } = validation.data;
-        await addPieceToDb({ 
-            ...pieceData,
-            supplier_id: supplier_id,
-        });
+        await addPieceToDb(validation.data);
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');
@@ -68,6 +63,8 @@ export async function addPiece(data: AddPieceValues) : Promise<{success: boolean
         return { success: false, message: error.message || "Une erreur est survenue lors de l'ajout de la pièce." };
     }
 }
+
+type PieceFormValues = z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>>;
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
     const formSchema = await getPieceFormSchema(); // Uses default locale
