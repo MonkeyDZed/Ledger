@@ -183,7 +183,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         },
       },
     ];
-  }, [lang, dictionary.piecesTable]);
+  }, [lang, dictionary]);
 
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
@@ -317,5 +317,3 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
     </>
   );
 }
-
-    

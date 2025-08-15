@@ -194,20 +194,21 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
         throw new Error("Piece not found");
     }
 
-    const updatedData = { ...currentPiece, ...data };
+    const mergedData = { ...currentPiece, ...data };
     
-    const total_piece = updatedData.type === 'VERSEMENT' ? 0 : (data.total_piece ?? currentPiece.total_piece);
+    const total_piece = mergedData.type === 'VERSEMENT' ? 0 : (data.total_piece ?? currentPiece.total_piece);
     const montant_paye = data.montant_paye ?? currentPiece.montant_paye;
     const reste = total_piece - montant_paye;
     
     const fieldsToUpdate = { ...data, total_piece, reste };
 
-    const fields = Object.keys(fieldsToUpdate).map(field => `${field} = ?`).join(', ');
-    
-    const values = Object.values(fieldsToUpdate).map(val => val instanceof Date ? val.toISOString() : val);
+    const fieldEntries = Object.entries(fieldsToUpdate);
+    const setClause = fieldEntries.map(([key]) => `${key} = ?`).join(', ');
+    const values = fieldEntries.map(([, value]) => value instanceof Date ? value.toISOString() : value);
+
 
     await db.run(
-        `UPDATE pieces SET ${fields}, updated_at = ? WHERE id = ?`,
+        `UPDATE pieces SET ${setClause}, updated_at = ? WHERE id = ?`,
         ...values,
         now,
         id
