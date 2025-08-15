@@ -4,8 +4,8 @@
 import { z } from 'zod';
 import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { i18n, Locale } from '@/i18n.config';
 import { getDictionary } from '@/lib/dictionaries';
-import { i18n } from '@/i18n.config';
 
 type PieceFormValues = {
     date: Date;
@@ -16,11 +16,11 @@ type PieceFormValues = {
     payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
 };
 
-export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
-    const dictionary = await getDictionary(i18n.defaultLocale);
+const getPieceFormSchema = async (lang: Locale) => {
+    const dictionary = await getDictionary(lang);
     const pieceDictionary = dictionary.schemas.piece;
-    
-    const pieceSchema = z.object({
+
+    return z.object({
         date: z.date({ required_error: pieceDictionary.dateRequired }),
         type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: pieceDictionary.typeRequired }),
         total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }),
@@ -34,12 +34,16 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
         message: pieceDictionary.paidExceedsTotal,
         path: ["montant_paye"],
     });
+};
 
-    const addPieceSchema = pieceSchema.extend({
+export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
+    const lang = i18n.defaultLocale; 
+    const PieceSchema = await getPieceFormSchema(lang);
+    const AddPieceSchema = PieceSchema.extend({
         supplier_id: z.string(),
     });
     
-    const validation = addPieceSchema.safeParse(data);
+    const validation = AddPieceSchema.safeParse(data);
 
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
@@ -63,25 +67,10 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    const dictionary = await getDictionary(i18n.defaultLocale);
-    const pieceDictionary = dictionary.schemas.piece;
-
-    const formSchema = z.object({
-        date: z.date({ required_error: pieceDictionary.dateRequired }),
-        type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: pieceDictionary.typeRequired }),
-        total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }),
-        montant_paye: z.coerce.number().min(0, { message: pieceDictionary.paidPositive }),
-        description: z.string().optional(),
-        payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
-    }).refine((data) => {
-        if (data.type === 'VERSEMENT') return true;
-        return data.montant_paye <= data.total_piece;
-    }, {
-        message: pieceDictionary.paidExceedsTotal,
-        path: ["montant_paye"],
-    });
-
-    const validation = formSchema.safeParse(data);
+    const lang = i18n.defaultLocale;
+    const UpdatePieceSchema = await getPieceFormSchema(lang);
+    
+    const validation = UpdatePieceSchema.safeParse(data);
 
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };

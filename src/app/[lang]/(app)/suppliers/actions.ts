@@ -4,11 +4,9 @@
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { i18n, Locale } from '@/i18n.config';
 import { getDictionary } from '@/lib/dictionaries';
-import { i18n } from '@/i18n.config';
 
-// Define the type for the form values based on the client-side schema.
-// This avoids importing the server-side schema into client components.
 type SupplierFormValues = {
     name: string;
     wilaya?: string;
@@ -19,12 +17,11 @@ type SupplierFormValues = {
     notes?: string;
 };
 
-
-export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    // For simplicity, we assume 'fr' for server actions or determine it from context if available
-    const dictionary = await getDictionary(i18n.defaultLocale);
+const getSupplierFormSchema = async (lang: Locale) => {
+    const dictionary = await getDictionary(lang);
     const supplierDictionary = dictionary.schemas.supplier;
-    const supplierFormSchema = z.object({
+    
+    return z.object({
         name: z.string().min(2, { message: supplierDictionary.nameMin }),
         wilaya: z.string().optional(),
         phone: z.string().optional(),
@@ -33,8 +30,14 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
         solde_initial: z.coerce.number().default(0),
         notes: z.string().optional(),
     });
+};
 
-    const validation = supplierFormSchema.safeParse(data);
+
+export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
+    const lang = i18n.defaultLocale;
+    const AddSupplierSchema = await getSupplierFormSchema(lang);
+
+    const validation = AddSupplierSchema.safeParse(data);
     
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
@@ -57,19 +60,10 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
-    const dictionary = await getDictionary(i18n.defaultLocale);
-    const supplierDictionary = dictionary.schemas.supplier;
-    const supplierFormSchema = z.object({
-        name: z.string().min(2, { message: supplierDictionary.nameMin }),
-        wilaya: z.string().optional(),
-        phone: z.string().optional(),
-        nif: z.string().optional(),
-        bank_info: z.string().optional(),
-        solde_initial: z.coerce.number().default(0),
-        notes: z.string().optional(),
-    });
+    const lang = i18n.defaultLocale;
+    const UpdateSupplierSchema = await getSupplierFormSchema(lang);
 
-    const validation = supplierFormSchema.safeParse(data);
+    const validation = UpdateSupplierSchema.safeParse(data);
 
     if (!validation.success) {
         return { success: false, message: validation.error.errors.map(e => e.message).join(', ') };
