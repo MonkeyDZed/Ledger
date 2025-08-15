@@ -50,7 +50,6 @@ async function initializeDb() {
         );
     `);
 
-    // Seeding logic removed to start with a clean database.
   } else {
     // Migration for payment_method column if it doesn't exist
     const piecesCols = await db.all("PRAGMA table_info(pieces);");
@@ -209,3 +208,16 @@ export async function deletePieceFromDb(id: string): Promise<void> {
     const db = await getDb();
     await db.run('DELETE FROM pieces WHERE id = ?', id);
 }
+
+// Function to completely wipe the data for a full reset.
+async function clearAllData() {
+    console.log('Clearing all data from the database...');
+    const db = await getDb();
+    await db.exec('DELETE FROM pieces');
+    await db.exec('DELETE FROM suppliers');
+    console.log('All data cleared.');
+}
+
+// If you want to clear data on startup, you can call this function.
+// For example, in getDb, but be careful as this will wipe data on every server restart.
+// clearAllData();

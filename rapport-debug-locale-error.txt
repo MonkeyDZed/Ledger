@@ -9,8 +9,6 @@ Dans le contexte de **Next.js (avec l'App Router)**, cette erreur signifie qu'un
 
 Le "poison" est la dépendance serveur. Le simple fait qu'elle soit "importable" par un module client, même si elle n'est pas exécutée, suffit à Next.js pour lever cette erreur et protéger l'intégrité du code client qui sera envoyé au navigateur.
 
----
-
 ## 2. Contexte Architectural Clé
 
 L'architecture de l'application est un facteur déterminant dans ce problème :
@@ -18,8 +16,6 @@ L'architecture de l'application est un facteur déterminant dans ce problème :
 - **Next.js App Router :** Par défaut, tous les composants sont des **React Server Components (RSC)**. Seuls ceux marqués par la directive `'use client'` sont des composants clients.
 - **Internationalisation (i18n) :** La gestion des langues (fr/ar) est assurée par un `middleware.ts` et des fichiers de dictionnaires (`src/dictionaries/*.json`). La fonction `getDictionary` (`src/lib/dictionaries.ts`) est explicitement marquée comme `'server-only'` car elle accède au système de fichiers, une opération purement serveur.
 - **Validation avec Zod :** Les schémas de validation des formulaires utilisent Zod. L'objectif initial était d'utiliser les dictionnaires pour fournir des messages d'erreur traduits, créant ainsi un lien entre la validation et la couche d'internationalisation.
-
----
 
 ## 3. Analyse des Tentatives de Correction et Hypothèses Évolutives
 
@@ -44,8 +40,6 @@ L'erreur a persisté à travers plusieurs cycles de débogage. Voici la chronolo
 - **Hypothèse :** Le fichier `src/lib/schemas.ts` était un module "mixte" : il était importé à la fois par les **Server Actions** (qui ont besoin des schémas avec messages d'erreur traduits) et par les **composants de formulaire clients** (qui n'ont besoin que de la structure du schéma pour `react-hook-form`). Cette importation partagée créait la connexion interdite.
 - **Action :** Scission de la logique. Les schémas de validation complexes (avec dictionnaires) ont été gardés côté serveur, et des schémas de base, sans dépendances, ont été créés directement dans les composants formulaires clients.
 - **Résultat :** Échec. C'est le point le plus déroutant. Théoriquement, cette séparation aurait dû rompre la chaîne de dépendance. Le fait que l'erreur persiste suggère que le système de build de Next.js détecte encore une possibilité de liaison, même si elle n'est pas explicitement codée.
-
----
 
 ## 4. Conclusion et Piste Principale Restante
 
