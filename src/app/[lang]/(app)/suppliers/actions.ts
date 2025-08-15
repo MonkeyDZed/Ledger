@@ -4,15 +4,22 @@
 import { z } from 'zod';
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { getSupplierBaseSchema } from '@/lib/schemas';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale, i18n } from '@/i18n.config';
 
 // This function returns a Zod schema configured with dictionary messages.
-// It is a 'server-only' function because it depends on `getDictionary`.
+// It is defined directly within the server action file to ensure no client-side code can import it.
 const getSupplierFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     const dictionary = await getDictionary(lang);
-    return getSupplierBaseSchema(dictionary.schemas);
+    return z.object({
+        name: z.string().min(2, { message: dictionary.schemas.supplier.nameMin }),
+        wilaya: z.string().optional(),
+        phone: z.string().optional(),
+        nif: z.string().optional(),
+        bank_info: z.string().optional(),
+        solde_initial: z.coerce.number().default(0),
+        notes: z.string().optional(),
+    });
 }
 
 export async function addSupplier(data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>) : Promise<{success: boolean, message?: string}> {
@@ -80,5 +87,3 @@ export async function deleteSupplier(id: string): Promise<{success: boolean, mes
         return { success: false, message: "Une erreur est survenue lors de la suppression du fournisseur." };
     }
 }
-
-    

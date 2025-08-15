@@ -65,13 +65,13 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
     const result = await deleteSupplier(dialogState.data.id);
     if(result.success) {
         toast({
-            title: dictionary.toast.deleteSuccess.title,
-            description: `${dictionary.toast.deleteSuccess.description} ${dialogState.data.name}`,
+            title: dictionary.form.toast.deleteSuccess.title,
+            description: `${dictionary.form.toast.deleteSuccess.description} ${dialogState.data.name}`,
         });
     } else {
         toast({
-            title: dictionary.toast.error.title,
-            description: result.message || dictionary.toast.error.description,
+            title: dictionary.form.toast.error.title,
+            description: result.message || dictionary.form.toast.error.description,
             variant: "destructive",
         });
     }
