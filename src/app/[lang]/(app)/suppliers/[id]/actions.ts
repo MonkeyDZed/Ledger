@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { i18n } from '@/i18n.config';
-import { getDictionary } from '@/lib/dictionaries';
 
 type PieceFormValues = {
     date: Date;
@@ -17,6 +16,7 @@ type PieceFormValues = {
 };
 
 export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
+    const { getDictionary } = await import('@/lib/dictionaries');
     const lang = i18n.defaultLocale;
     const dictionary = await getDictionary(lang);
     const pieceDictionary = dictionary.schemas.piece;
@@ -61,6 +61,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
+    const { getDictionary } = await import('@/lib/dictionaries');
     const lang = i18n.defaultLocale;
     const dictionary = await getDictionary(lang);
     const pieceDictionary = dictionary.schemas.piece;

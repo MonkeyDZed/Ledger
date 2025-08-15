@@ -5,7 +5,6 @@ import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb,
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { i18n } from '@/i18n.config';
-import { getDictionary } from '@/lib/dictionaries';
 
 type SupplierFormValues = {
     name: string;
@@ -18,6 +17,7 @@ type SupplierFormValues = {
 };
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
+    const { getDictionary } = await import('@/lib/dictionaries');
     const lang = i18n.defaultLocale;
     const dictionary = await getDictionary(lang);
     const supplierDictionary = dictionary.schemas.supplier;
@@ -55,6 +55,7 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
+    const { getDictionary } = await import('@/lib/dictionaries');
     const lang = i18n.defaultLocale;
     const dictionary = await getDictionary(lang);
     const supplierDictionary = dictionary.schemas.supplier;
