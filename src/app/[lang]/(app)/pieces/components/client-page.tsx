@@ -218,19 +218,17 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
       <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>{pieceFormDictionary.form.deleteDialog.title}</AlertDialogTitle>
+                <AlertDialogTitle>{pieceFormDictionary.deleteDialog.title}</AlertDialogTitle>
                 <AlertDialogDescription>
-                    {pieceFormDictionary.form.deleteDialog.description}
+                    {pieceFormDictionary.deleteDialog.description}
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.form.deleteDialog.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.form.deleteDialog.confirm}</AlertDialogAction>
+                <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.deleteDialog.cancel}</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.deleteDialog.confirm}</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
   );
 }
-
-    

@@ -23,8 +23,6 @@ import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { getPieceFormSchema } from '@/lib/schemas';
 
-type Locale = 'fr' | 'ar';
-
 interface PieceFormProps {
   supplierId: string;
   onClose: () => void;
@@ -37,7 +35,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, schema
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
-  const lang = params.lang as Locale;
+  const lang = params.lang as 'fr' | 'ar';
   
   const isEditMode = !!pieceToEdit;
 
