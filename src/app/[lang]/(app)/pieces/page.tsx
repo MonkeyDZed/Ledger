@@ -3,7 +3,6 @@ import { getPieces, getSuppliers } from '@/lib/db';
 import { ClientPage } from './components/client-page';
 import { Locale } from '@/i18n.config';
 import { getDictionary } from '@/lib/dictionaries';
-import { formatDate } from '@/lib/formatters';
 
 export default async function PiecesPage({ params: { lang } }: { params: { lang: Locale }}) {
   const pieces = await getPieces();
