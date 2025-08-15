@@ -16,6 +16,7 @@ type PieceFormValues = {
     payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
 };
 
+// This function is now only used inside the server actions in this file.
 const getPieceFormSchema = async (lang: Locale) => {
     const dictionary = await getDictionary(lang);
     const pieceDictionary = dictionary.schemas.piece;
@@ -38,8 +39,8 @@ const getPieceFormSchema = async (lang: Locale) => {
 
 export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
     const lang = i18n.defaultLocale; 
-    const PieceSchema = await getPieceFormSchema(lang);
-    const AddPieceSchema = PieceSchema.extend({
+    const PieceFormSchema = await getPieceFormSchema(lang);
+    const AddPieceSchema = PieceFormSchema.extend({
         supplier_id: z.string(),
     });
     

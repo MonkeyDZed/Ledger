@@ -17,6 +17,7 @@ type SupplierFormValues = {
     notes?: string;
 };
 
+// This function is now only used inside the server actions in this file.
 const getSupplierFormSchema = async (lang: Locale) => {
     const dictionary = await getDictionary(lang);
     const supplierDictionary = dictionary.schemas.supplier;
