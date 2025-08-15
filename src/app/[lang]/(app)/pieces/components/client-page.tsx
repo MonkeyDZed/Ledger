@@ -157,7 +157,7 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, lang }: Cl
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
             if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
+            return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -165,7 +165,7 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, lang }: Cl
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
+            return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -174,7 +174,7 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, lang }: Cl
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
              if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
+            return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -211,14 +211,14 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, lang }: Cl
       />
 
         <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <StatCard title={dictionary.totalBilled} value={`${formatCurrencyWithLocale(totals.totalBilled, lang, dictionary)}`} />
-            <StatCard title={dictionary.totalPaid} value={`${formatCurrencyWithLocale(totals.totalPaid, lang, dictionary)}`} />
+            <StatCard title={dictionary.totalBilled} value={`${formatCurrencyWithLocale(totals.totalBilled, lang)}`} />
+            <StatCard title={dictionary.totalPaid} value={`${formatCurrencyWithLocale(totals.totalPaid, lang)}`} />
             <Card className="bg-amber-50">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(totals.totalRemaining, lang, dictionary)}</p>
+                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(totals.totalRemaining, lang)}</p>
                 </CardContent>
             </Card>
         </div>

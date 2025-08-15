@@ -138,7 +138,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('total_piece'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
+          return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang)}</div>;
         },
       },
       {
@@ -146,7 +146,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         header: () => <div className="text-end">{dict.paid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('montant_paye'));
-          return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
+          return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang)}</div>;
         },
       },
       {
@@ -155,7 +155,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('reste'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
+          return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang)}</div>;
         },
       },
       {
@@ -189,7 +189,6 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
   const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
   const balanceFromPieces = totalFromPieces - paidFromPieces;
   const totalDebt = supplier.solde_initial + balanceFromPieces;
-  const currency = dictionary.currency;
 
   return (
     <>
@@ -214,9 +213,9 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
       </PageHeader>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencyWithLocale(supplier.solde_initial, lang, dictionary)}`} icon={<BadgeCentIcon />} />
-        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencyWithLocale(totalFromPieces, lang, dictionary)}`} icon={<FileTextIcon />} />
-        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencyWithLocale(paidFromPieces, lang, dictionary)}`} icon={<BanknoteIcon />} />
+        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencyWithLocale(supplier.solde_initial, lang)}`} icon={<BadgeCentIcon />} />
+        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencyWithLocale(totalFromPieces, lang)}`} icon={<FileTextIcon />} />
+        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencyWithLocale(paidFromPieces, lang)}`} icon={<BanknoteIcon />} />
         <Card className="bg-blue-50">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-primary flex justify-between items-center">
@@ -224,7 +223,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencyWithLocale(totalDebt, lang, dictionary)}</p>
+                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencyWithLocale(totalDebt, lang)}</p>
                 <CardDescription>{dictionary.stats.debtDescription}</CardDescription>
             </CardContent>
         </Card>

@@ -86,7 +86,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
                             <CardDescription>Créance actuelle avant cette pièce</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
-                           {formatCurrencyWithLocale(selectedSupplierDebt, lang, dictionary)}
+                           {formatCurrencyWithLocale(selectedSupplierDebt, lang)}
                         </p>
                     </div>
                 </CardContent>

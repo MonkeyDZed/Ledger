@@ -57,11 +57,6 @@ async function initializeDb() {
             FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE
         );
     `);
-
-    // --- FORCE CLEAR ALL DATA ON STARTUP ---
-    // This ensures the database is always empty when the app starts.
-    await clearAllData(db);
-
   } else {
     console.log('Database found. Checking for migrations...');
     // Migration for payment_method column if it doesn't exist
@@ -71,6 +66,10 @@ async function initializeDb() {
         await db.exec('ALTER TABLE pieces ADD COLUMN payment_method TEXT');
     }
   }
+
+  // --- FORCE CLEAR ALL DATA ON STARTUP ---
+  // This ensures the database is always empty when the app starts.
+  await clearAllData(db);
 
   return db;
 }
@@ -162,7 +161,7 @@ export async function addPieceToDb(data: NewPieceData): Promise<Piece> {
     const newPiece: Piece = {
         id: randomUUID(),
         ...data,
-        date: typeof data.date === 'string' ? data.date : data.date.toISOString(),
+        date: typeof data.date === 'string' ? data.date : new Date(data.date).toISOString(),
         total_piece,
         reste,
         description: data.description ?? '',

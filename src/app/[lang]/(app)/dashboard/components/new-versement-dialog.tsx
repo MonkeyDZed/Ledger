@@ -86,7 +86,7 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
                             <CardDescription>Créance actuelle avant ce versement</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
-                           {formatCurrencyWithLocale(selectedSupplierDebt, lang, dictionary)}
+                           {formatCurrencyWithLocale(selectedSupplierDebt, lang)}
                         </p>
                     </div>
                 </CardContent>

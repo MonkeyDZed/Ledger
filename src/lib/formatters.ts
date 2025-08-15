@@ -17,7 +17,8 @@ export function formatDate(dateString: string, lang: 'fr' | 'ar') {
 }
 
 // This function is safe for client components as it does not import server-only modules
-export function formatCurrencyWithLocale(amount: number, lang: 'fr' | 'ar', dictionary: { currency: string }) {
+export function formatCurrencyWithLocale(amount: number, lang: 'fr' | 'ar') {
+    const currencySymbol = lang === 'ar' ? 'دج' : 'DZD';
     const formatter = new Intl.NumberFormat(lang === 'ar' ? 'ar-DZ' : 'fr-FR', {
         style: 'decimal',
         minimumFractionDigits: 2,
@@ -27,7 +28,5 @@ export function formatCurrencyWithLocale(amount: number, lang: 'fr' | 'ar', dict
     if (isNaN(amount) || amount === null) {
       amount = 0;
     }
-    return `${formatter.format(amount)} ${dictionary.currency}`;
+    return `${formatter.format(amount)} ${currencySymbol}`;
 }
-
-    
