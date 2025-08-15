@@ -1,10 +1,9 @@
 
 import { getPieces, getSuppliers } from '@/lib/db';
 import { ClientPage } from './components/client-page';
-import { Locale } from '@/i18n.config';
 import { getDictionary } from '@/lib/dictionaries';
 
-export default async function PiecesPage({ params: { lang } }: { params: { lang: Locale }}) {
+export default async function PiecesPage({ params: { lang } }: { params: { lang: 'fr' | 'ar' }}) {
   const pieces = await getPieces();
   const suppliers = await getSuppliers();
   const dictionary = await getDictionary(lang);
@@ -20,7 +19,7 @@ export default async function PiecesPage({ params: { lang } }: { params: { lang:
   return <ClientPage 
     pieces={piecesWithSupplier} 
     dictionary={dictionary.piecesPage} 
-    pieceFormDictionary={dictionary.supplierDetailPage.form}
+    pieceFormDictionary={dictionary.supplierDetailPage}
     schemaDictionary={dictionary.schemas}
     lang={lang} 
   />;

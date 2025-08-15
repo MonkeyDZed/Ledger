@@ -16,8 +16,6 @@ import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FileP
 import { NewPieceDialog } from './new-piece-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
-type Locale = 'fr' | 'ar';
-
 const QuickActionButton = ({ className, icon, label, onClick }: { className?: string, icon: React.ReactNode, label: string, onClick?: () => void }) => (
     <button onClick={onClick} className="flex flex-col items-center justify-center p-4 rounded-lg border border-gray-200 hover:border-primary transition-all text-center w-full active:scale-[0.98]">
         <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${className}`}>
@@ -44,7 +42,7 @@ interface DashboardClientPageProps {
   formDictionary: any;
   pieceFormDictionary: any;
   schemaDictionary: any;
-  lang: Locale;
+  lang: 'fr' | 'ar';
 }
 
 export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, schemaDictionary, lang }: DashboardClientPageProps) {
@@ -299,3 +297,6 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
     
 
+
+
+    
