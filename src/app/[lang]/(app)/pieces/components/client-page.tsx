@@ -4,25 +4,30 @@
 import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece } from '@/lib/types';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ColumnDef, Row, FilterFn } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { DateRange } from 'react-day-picker';
-import { isWithinInterval, startOfDay, endOfDay } from 'date-fns';
-import { formatCurrencyWithLocale } from '@/lib/formatters';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { deletePiece } from '../../suppliers/[id]/actions';
+import { PieceForm } from '../../components/piece-form';
+import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
 
-type Locale = 'fr' | 'ar';
-type PieceWithSupplierName = Piece & { supplierName: string; formattedDate: string; };
+
+type PieceWithSupplierName = Piece & { supplierName: string; };
 
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
-  dictionary: any; // Using `any` to avoid server-only module imports in client component
-  lang: Locale;
+  dictionary: any;
+  pieceFormDictionary: any;
+  schemaDictionary: any;
+  lang: 'fr' | 'ar';
 }
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
@@ -36,21 +41,36 @@ const StatCard = ({ title, value }: { title: string, value: string }) => (
     </Card>
 );
 
-const dateBetweenFilterFn: FilterFn<any> = (
-  row: Row<any>,
-  columnId: string,
-  value: DateRange,
-  addMeta: (meta: any) => void
-) => {
-  const date = new Date(row.getValue(columnId));
-  const { from, to } = value;
-  if (!from && !to) return true;
-  if (from && to) return isWithinInterval(date, { start: startOfDay(from), end: endOfDay(to) });
-  return true;
-};
+export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDictionary, lang }: ClientPageProps) {
+    const { toast } = useToast();
+    const [dialogState, setDialogState] = useState<{
+        type: 'edit' | 'delete' | null;
+        data?: PieceWithSupplierName;
+    }>({ type: null });
 
+    const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
+        setDialogState({ type, data });
+    };
+    const closeDialogs = () => setDialogState({ type: null });
 
-export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
+    const handleDelete = async () => {
+        if (dialogState.type !== 'delete' || !dialogState.data) return;
+
+        const result = await deletePiece(dialogState.data.id, dialogState.data.supplier_id);
+        if (result.success) {
+            toast({
+                title: pieceFormDictionary.toast.deleteSuccess.title,
+                description: pieceFormDictionary.toast.deleteSuccess.description,
+            });
+        } else {
+            toast({
+                title: pieceFormDictionary.toast.error.title,
+                description: result.message || pieceFormDictionary.toast.error.description,
+                variant: "destructive",
+            });
+        }
+        closeDialogs();
+    };
 
     const totals = useMemo(() => {
         const totalBilled = pieces.reduce((sum, p) => sum + p.total_piece, 0);
@@ -84,8 +104,14 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => row.original.formattedDate,
-          filterFn: dateBetweenFilterFn,
+          cell: ({ row }) => formatDate(row.original.date, lang),
+          filterFn: (row: Row<PieceWithSupplierName>, columnId: string, value: any) => {
+             const date = new Date(row.getValue(columnId));
+             const { from, to } = value;
+             if (!from) return true;
+             if (!to) return date >= from;
+             return date >= from && date <= to;
+          },
         },
         {
           accessorKey: 'type',
@@ -124,7 +150,8 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
         },
         {
           id: 'actions',
-          cell: () => {
+          cell: ({ row }) => {
+            const piece = row.original;
             return (
               <div className="text-end">
                 <DropdownMenu>
@@ -136,8 +163,8 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>{dict.actions}</DropdownMenuLabel>
-                    <DropdownMenuItem>{dict.edit}</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive focus:bg-destructive/10">{dict.delete}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openDialog('edit', piece)}>{dict.edit}</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openDialog('delete', piece)} className="text-destructive focus:bg-destructive/10">{dict.delete}</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -145,7 +172,7 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
           },
         },
       ];
-    }, [lang, dictionary.table]);
+    }, [lang, dictionary]);
 
   return (
     <>
@@ -168,6 +195,40 @@ export function ClientPage({ pieces, dictionary, lang }: ClientPageProps) {
         </div>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
+
+      {/* Edit/Delete Dialogs */}
+      <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>{pieceFormDictionary.editTitle}</DialogTitle>
+            <DialogDescription>
+              {pieceFormDictionary.editDescription}
+            </DialogDescription>
+          </DialogHeader>
+          <PieceForm 
+            supplierId={dialogState.data?.supplier_id || ''} 
+            pieceToEdit={dialogState.data}
+            onClose={closeDialogs} 
+            dictionary={pieceFormDictionary}
+            schemaDictionary={schemaDictionary}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{pieceFormDictionary.deleteDialog.title}</AlertDialogTitle>
+                <AlertDialogDescription>
+                    {pieceFormDictionary.deleteDialog.description}
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.deleteDialog.cancel}</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.deleteDialog.confirm}</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -15,9 +15,14 @@ export default async function PiecesPage({ params: { lang } }: { params: { lang:
     return { 
         ...piece, 
         supplierName: supplier?.name || 'N/A',
-        formattedDate: formatDate(piece.date, lang)
     };
   });
 
-  return <ClientPage pieces={piecesWithSupplier} dictionary={dictionary.piecesPage} lang={lang} />;
+  return <ClientPage 
+    pieces={piecesWithSupplier} 
+    dictionary={dictionary.piecesPage} 
+    pieceFormDictionary={dictionary.supplierDetailPage.form}
+    schemaDictionary={dictionary.schemas}
+    lang={lang} 
+  />;
 }
