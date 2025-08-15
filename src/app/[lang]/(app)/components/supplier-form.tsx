@@ -221,5 +221,3 @@ SupplierForm.displayName = 'SupplierForm';
 export type SupplierFormRef = {
     autoFill: () => void;
 };
-
-    

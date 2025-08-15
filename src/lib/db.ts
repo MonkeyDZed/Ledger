@@ -50,19 +50,7 @@ async function initializeDb() {
         );
     `);
 
-    console.log('Seeding database...');
-    const supplierStmt = await db.prepare('INSERT INTO suppliers (id, name, wilaya, phone, nif, bank_info, solde_initial, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    for (const supplier of suppliers) {
-        await supplierStmt.run(supplier.id, supplier.name, supplier.wilaya, supplier.phone, supplier.nif, supplier.bank_info, supplier.solde_initial, supplier.notes, supplier.created_at, supplier.updated_at);
-    }
-    await supplierStmt.finalize();
-
-    const pieceStmt = await db.prepare('INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    for (const piece of pieces) {
-        await pieceStmt.run(piece.id, piece.supplier_id, piece.date, piece.type, piece.total_piece, piece.montant_paye, piece.reste, piece.description, piece.payment_method, piece.created_at, piece.updated_at);
-    }
-    await pieceStmt.finalize();
-    console.log('Database seeded successfully.');
+    // Seeding logic removed to start with a clean database.
   } else {
     // Migration for payment_method column if it doesn't exist
     const piecesCols = await db.all("PRAGMA table_info(pieces);");

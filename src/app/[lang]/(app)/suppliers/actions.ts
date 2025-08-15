@@ -11,8 +11,9 @@ import { Locale, i18n } from '@/i18n.config';
 // It is defined directly within the server action file to ensure no client-side code can import it.
 const getSupplierFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     const dictionary = await getDictionary(lang);
+    const supplierDictionary = dictionary.schemas.supplier;
     return z.object({
-        name: z.string().min(2, { message: dictionary.schemas.supplier.nameMin }),
+        name: z.string().min(2, { message: supplierDictionary.nameMin }),
         wilaya: z.string().optional(),
         phone: z.string().optional(),
         nif: z.string().optional(),
@@ -22,7 +23,9 @@ const getSupplierFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     });
 }
 
-export async function addSupplier(data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>) : Promise<{success: boolean, message?: string}> {
+type SupplierFormValues = z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>;
+
+export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
     const supplierFormSchema = await getSupplierFormSchema(); // Uses default locale
     const validation = supplierFormSchema.safeParse(data);
     
@@ -46,7 +49,7 @@ export async function addSupplier(data: z.infer<Awaited<ReturnType<typeof getSup
     }
 }
 
-export async function updateSupplier(id: string, data: z.infer<Awaited<ReturnType<typeof getSupplierFormSchema>>>): Promise<{success: boolean, message?: string}> {
+export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
     const supplierFormSchema = await getSupplierFormSchema(); // Uses default locale
     const validation = supplierFormSchema.safeParse(data);
 

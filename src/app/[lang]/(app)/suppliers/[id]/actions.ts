@@ -29,15 +29,18 @@ const getPieceFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     });
 };
 
+type PieceFormValues = z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>>;
+
 const getAddPieceSchema = async (lang: Locale = i18n.defaultLocale) => {
     const pieceSchema = await getPieceFormSchema(lang);
     return pieceSchema.extend({
         supplier_id: z.string(),
     });
-}
+};
 
+type AddPieceValues = z.infer<Awaited<ReturnType<typeof getAddPieceSchema>>>;
 
-export async function addPiece(data: z.infer<Awaited<ReturnType<typeof getAddPieceSchema>>>) : Promise<{success: boolean, message?: string}> {
+export async function addPiece(data: AddPieceValues) : Promise<{success: boolean, message?: string}> {
     const addPieceSchema = await getAddPieceSchema(); // Uses default locale
     const validation = addPieceSchema.safeParse(data);
 
@@ -66,7 +69,7 @@ export async function addPiece(data: z.infer<Awaited<ReturnType<typeof getAddPie
     }
 }
 
-export async function updatePiece(id: string, supplier_id: string, data: z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>>): Promise<{success: boolean, message?: string}> {
+export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
     const formSchema = await getPieceFormSchema(); // Uses default locale
     const validation = formSchema.safeParse(data);
 
