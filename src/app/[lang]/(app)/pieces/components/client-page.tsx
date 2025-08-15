@@ -59,13 +59,13 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
         const result = await deletePiece(dialogState.data.id, dialogState.data.supplier_id);
         if (result.success) {
             toast({
-                title: pieceFormDictionary.toast.deleteSuccess.title,
-                description: pieceFormDictionary.toast.deleteSuccess.description,
+                title: pieceFormDictionary.form.toast.deleteSuccess.title,
+                description: pieceFormDictionary.form.toast.deleteSuccess.description,
             });
         } else {
             toast({
-                title: pieceFormDictionary.toast.error.title,
-                description: result.message || pieceFormDictionary.toast.error.description,
+                title: pieceFormDictionary.form.toast.error.title,
+                description: result.message || pieceFormDictionary.form.toast.error.description,
                 variant: "destructive",
             });
         }
@@ -200,16 +200,16 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
       <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>{pieceFormDictionary.editTitle}</DialogTitle>
+            <DialogTitle>{pieceFormDictionary.form.editTitle}</DialogTitle>
             <DialogDescription>
-              {pieceFormDictionary.editDescription}
+              {pieceFormDictionary.form.editDescription}
             </DialogDescription>
           </DialogHeader>
           <PieceForm 
             supplierId={dialogState.data?.supplier_id || ''} 
             pieceToEdit={dialogState.data}
             onClose={closeDialogs} 
-            dictionary={pieceFormDictionary}
+            dictionary={pieceFormDictionary.form}
             schemaDictionary={schemaDictionary}
           />
         </DialogContent>
@@ -218,17 +218,19 @@ export function ClientPage({ pieces, dictionary, pieceFormDictionary, schemaDict
       <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>{pieceFormDictionary.deleteDialog.title}</AlertDialogTitle>
+                <AlertDialogTitle>{pieceFormDictionary.form.deleteDialog.title}</AlertDialogTitle>
                 <AlertDialogDescription>
-                    {pieceFormDictionary.deleteDialog.description}
+                    {pieceFormDictionary.form.deleteDialog.description}
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.deleteDialog.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.deleteDialog.confirm}</AlertDialogAction>
+                <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.form.deleteDialog.cancel}</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.form.deleteDialog.confirm}</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
   );
 }
+
+    

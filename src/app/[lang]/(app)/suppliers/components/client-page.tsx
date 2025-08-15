@@ -22,7 +22,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
-type Locale = 'fr' | 'ar';
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
@@ -46,7 +45,7 @@ export function ClientPage({ suppliers, dictionary, schemaDictionary }: ClientPa
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
   const params = useParams();
-  const lang = params.lang as Locale;
+  const lang = params.lang as 'fr' | 'ar';
 
 
   const handleAutoFill = () => {
