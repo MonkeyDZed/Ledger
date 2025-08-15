@@ -9,16 +9,18 @@ import { getDictionary } from '@/lib/dictionaries';
 import { i18n } from '@/i18n.config';
 
 
-const getPieceFormSchema = async () => {
-    const dictionary = await getDictionary(i18n.defaultLocale);
-    const baseSchema = getPieceBaseSchema(dictionary.schemas);
+// This function returns a Zod schema configured with dictionary messages.
+// It is a 'server-only' function because it depends on `getDictionary`.
+const getPieceFormSchema = async (lang: 'fr' | 'ar' = i18n.defaultLocale) => {
+    const dictionary = await getDictionary(lang);
+    const schema = getPieceBaseSchema(dictionary.schemas);
     
-    const formSchema = baseSchema; // The base schema is the form schema now
-    const addPieceSchema = baseSchema.extend({
+    // This is the schema for adding a new piece, requiring the supplier_id.
+    const addPieceSchema = schema.extend({
         supplier_id: z.string(),
     });
 
-    return { formSchema, addPieceSchema };
+    return { formSchema: schema, addPieceSchema };
 }
 
 
@@ -93,3 +95,5 @@ export async function deletePiece(id: string, supplier_id: string): Promise<{suc
         return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }
+
+    

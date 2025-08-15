@@ -23,12 +23,12 @@ import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Client-side schema without server-side dependencies
+// Client-side schema, completely independent of server-side dictionaries.
 const pieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
-    total_piece: z.coerce.number().min(0, { message: "Le total doit être positif." }),
-    montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être positif." }),
+    total_piece: z.coerce.number().min(0, { message: "Le total doit être un nombre positif." }),
+    montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
     payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
 }).refine((data) => {
@@ -287,3 +287,5 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+
+    

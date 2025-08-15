@@ -1,10 +1,12 @@
 
 import { z } from 'zod';
 
-// This file is now safe to be imported by both client and server components.
-// It only contains Zod and base schemas, without any server-side dependencies like dictionaries.
+// This file defines schema CREATION functions.
+// These functions are designed to be called from server-side code (like Server Actions)
+// and require a dictionary object to provide localized error messages.
+// They should NOT be imported directly into client components.
 
-export const supplierBaseSchema = (dictionary: any) => z.object({
+export const getSupplierBaseSchema = (dictionary: any) => z.object({
     name: z.string().min(2, { message: dictionary.supplier.nameMin }),
     wilaya: z.string().optional(),
     phone: z.string().optional(),
@@ -24,14 +26,13 @@ export const getPieceBaseSchema = (dictionary: any) => {
         payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
     });
 
-    const refinement = (data: z.infer<typeof baseSchema>) => {
+    return baseSchema.refine((data) => {
         if (data.type === 'VERSEMENT') return true;
         return data.montant_paye <= data.total_piece;
-    }
-    const refinement_error = {
+    }, {
         message: dictionary.piece.paidExceedsTotal,
         path: ["montant_paye"],
-    };
-
-    return baseSchema.refine(refinement, refinement_error);
+    });
 };
+
+    

@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
 
-// Client-side schema without server-side dependencies
+// Client-side schema, completely independent of server-side dictionaries.
 const supplierFormSchema = z.object({
     name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
     wilaya: z.string().optional(),
@@ -91,7 +91,7 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
         
         if (result.success) {
             toast({
-              title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.updateSuccess.description,
+              title: isEditMode ? dictionary.toast.updateSuccess.title : dictionary.toast.success.title,
               description: `${isEditMode ? dictionary.toast.updateSuccess.description : dictionary.toast.success.description} ${data.name}.`,
             });
             onClose();
@@ -221,3 +221,5 @@ SupplierForm.displayName = 'SupplierForm';
 export type SupplierFormRef = {
     autoFill: () => void;
 };
+
+    

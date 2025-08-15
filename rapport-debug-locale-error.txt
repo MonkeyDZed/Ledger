@@ -1,0 +1,66 @@
+
+# Rapport d'Analyse Technique : Erreur Persistante "Incorrect locale information provided"
+
+## 1. Résumé Exécutif du Problème
+
+L'application rencontre une erreur d'exécution récurrente et difficile à éradiquer : `Error: Incorrect locale information provided`.
+
+Dans le contexte de **Next.js (avec l'App Router)**, cette erreur signifie qu'un module ou une dépendance marqué comme "côté serveur uniquement" (`server-only`) est importé, directement ou indirectement, dans un module qui fait partie du graphe de dépendances d'un composant client (`'use client'`).
+
+Le "poison" est la dépendance serveur. Le simple fait qu'elle soit "importable" par un module client, même si elle n'est pas exécutée, suffit à Next.js pour lever cette erreur et protéger l'intégrité du code client qui sera envoyé au navigateur.
+
+---
+
+## 2. Contexte Architectural Clé
+
+L'architecture de l'application est un facteur déterminant dans ce problème :
+
+- **Next.js App Router :** Par défaut, tous les composants sont des **React Server Components (RSC)**. Seuls ceux marqués par la directive `'use client'` sont des composants clients.
+- **Internationalisation (i18n) :** La gestion des langues (fr/ar) est assurée par un `middleware.ts` et des fichiers de dictionnaires (`src/dictionaries/*.json`). La fonction `getDictionary` (`src/lib/dictionaries.ts`) est explicitement marquée comme `'server-only'` car elle accède au système de fichiers, une opération purement serveur.
+- **Validation avec Zod :** Les schémas de validation des formulaires utilisent Zod. L'objectif initial était d'utiliser les dictionnaires pour fournir des messages d'erreur traduits, créant ainsi un lien entre la validation et la couche d'internationalisation.
+
+---
+
+## 3. Analyse des Tentatives de Correction et Hypothèses Évolutives
+
+L'erreur a persisté à travers plusieurs cycles de débogage. Voici la chronologie des tentatives et ce que chaque échec nous a appris.
+
+### Tentative 1 : Correction des Imports Directs
+- **Hypothèse :** Un composant client importe directement un module `'server-only'`.
+- **Action :** Vérification de tous les composants clients pour s'assurer qu'aucun n'importait `getDictionary` ou un module similaire.
+- **Résultat :** Échec. L'erreur persistait, indiquant que la dépendance était indirecte et plus profonde.
+
+### Tentative 2 : Isolation des Props (`lang`)
+- **Hypothèse :** Le passage de la prop `lang` dont le type était inféré depuis `i18n.config.ts` (un module partagé) pouvait "contaminer" les composants clients.
+- **Action :** Forcer le type de la prop `lang` à une simple union de chaînes (`'fr' | 'ar'`) dans chaque composant client.
+- **Résultat :** Échec. Bien que ce soit une bonne pratique, cela n'a pas résolu le problème, prouvant que la chaîne de dépendances était ailleurs.
+
+### Tentative 3 : Isolation des Fonctions Utilitaires (`formatters.ts`)
+- **Hypothèse :** Une fonction utilitaire, comme `formatCurrencyWithLocale`, utilisée par de nombreux composants clients, importait un type (`Dictionary`) depuis `dictionaries.ts` (`'server-only'`).
+- **Action :** Suppression de l'import du type `Dictionary` de `formatters.ts` et simplification de la signature de la fonction.
+- **Résultat :** Échec. C'était un "code smell" qui méritait d'être corrigé, mais ce n'était pas la cause première.
+
+### Tentative 4 (la plus récente) : Séparation des Schémas de Validation
+- **Hypothèse :** Le fichier `src/lib/schemas.ts` était un module "mixte" : il était importé à la fois par les **Server Actions** (qui ont besoin des schémas avec messages d'erreur traduits) et par les **composants de formulaire clients** (qui n'ont besoin que de la structure du schéma pour `react-hook-form`). Cette importation partagée créait la connexion interdite.
+- **Action :** Scission de la logique. Les schémas de validation complexes (avec dictionnaires) ont été gardés côté serveur, et des schémas de base, sans dépendances, ont été créés directement dans les composants formulaires clients.
+- **Résultat :** Échec. C'est le point le plus déroutant. Théoriquement, cette séparation aurait dû rompre la chaîne de dépendance. Le fait que l'erreur persiste suggère que le système de build de Next.js détecte encore une possibilité de liaison, même si elle n'est pas explicitement codée.
+
+---
+
+## 4. Conclusion et Piste Principale Restante
+
+Le problème réside dans une **"contamination" du graphe de modules client par une dépendance serveur**. Toutes les tentatives ont visé à "couper" le lien entre ces deux mondes.
+
+Puisque la séparation des schémas n'a pas fonctionné, la seule conclusion logique est que **le simple fait qu'un module partagé (`src/lib/schemas.ts`) soit importé par les deux environnements (client et serveur) est suffisant pour que Next.js le considère comme potentiellement "impur"**.
+
+**Piste d'action la plus probable pour une résolution définitive :**
+
+Il faut appliquer le principe de l'inversion de dépendance de manière radicale :
+
+1.  **Le fichier `src/lib/schemas.ts` ne doit PLUS être importé par aucun composant client.** Il doit devenir un module exclusivement serveur.
+2.  **Les composants formulaires clients (`PieceForm.tsx`, `SupplierForm.tsx`) doivent définir LEUR PROPRE schéma Zod, de A à Z, en interne.** Il ne doit y avoir aucune importation de `supplierBaseSchema` ou `getPieceBaseSchema` depuis `src/lib/schemas.ts`. Le schéma client sera simple, sans message d'erreur complexe.
+3.  **Les Server Actions continueront d'importer `src/lib/schemas.ts`** pour effectuer la validation complète, avec les messages d'erreur localisés.
+
+Cette approche garantit une **séparation physique et absolue**. Il n'y a plus de module partagé ambigu. Chaque environnement (client/serveur) a ses propres définitions de schéma, éliminant ainsi toute possibilité pour le bundler de Next.js de trouver un chemin d'importation problématique.
+
+C'est la piste la plus robuste restante pour résoudre ce bug de manière définitive.
