@@ -51,36 +51,35 @@ async function openDb() {
   return db;
 }
 
-async function initializeData() {
+async function reinitializeData() {
     const db = await openDb();
 
-    const supplierCountResult = await db.get('SELECT COUNT(*) as count FROM suppliers');
-    const supplierCount = supplierCountResult?.count ?? 0;
+    // Clear existing data
+    await db.exec('DELETE FROM pieces');
+    await db.exec('DELETE FROM suppliers');
+    console.log('Database tables cleared.');
 
-    if (supplierCount === 0) {
-        console.log('Seeding suppliers...');
-        const stmt = await db.prepare('INSERT INTO suppliers (id, name, wilaya, phone, nif, bank_info, solde_initial, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        for (const supplier of suppliers) {
-            await stmt.run(supplier.id, supplier.name, supplier.wilaya, supplier.phone, supplier.nif, supplier.bank_info, supplier.solde_initial, supplier.notes, supplier.created_at, supplier.updated_at);
-        }
-        await stmt.finalize();
+    // Seed suppliers
+    console.log('Seeding suppliers...');
+    const supplierStmt = await db.prepare('INSERT INTO suppliers (id, name, wilaya, phone, nif, bank_info, solde_initial, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    for (const supplier of suppliers) {
+        await supplierStmt.run(supplier.id, supplier.name, supplier.wilaya, supplier.phone, supplier.nif, supplier.bank_info, supplier.solde_initial, supplier.notes, supplier.created_at, supplier.updated_at);
     }
+    await supplierStmt.finalize();
 
-    const pieceCountResult = await db.get('SELECT COUNT(*) as count FROM pieces');
-    const pieceCount = pieceCountResult?.count ?? 0;
-
-    if (pieceCount === 0) {
-        console.log('Seeding pieces...');
-        const stmt = await db.prepare('INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        for (const piece of pieces) {
-            await stmt.run(piece.id, piece.supplier_id, piece.date, piece.type, piece.total_piece, piece.montant_paye, piece.reste, piece.description, piece.payment_method, piece.created_at, piece.updated_at);
-        }
-        await stmt.finalize();
+    // Seed pieces
+    console.log('Seeding pieces...');
+    const pieceStmt = await db.prepare('INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    for (const piece of pieces) {
+        await pieceStmt.run(piece.id, piece.supplier_id, piece.date, piece.type, piece.total_piece, piece.montant_paye, piece.reste, piece.description, piece.payment_method, piece.created_at, piece.updated_at);
     }
+    await pieceStmt.finalize();
+    
+    console.log('Database re-seeded successfully.');
 }
 
 // Initialize on startup
-initializeData().catch(console.error);
+reinitializeData().catch(console.error);
 
 
 export async function getSuppliers(): Promise<Supplier[]> {
@@ -201,25 +200,37 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
     const montant_paye = data.montant_paye ?? currentPiece.montant_paye;
     const reste = total_piece - montant_paye;
     
-    const fieldsToUpdate = { ...data, total_piece, reste };
-
-    // Remove 'reste' from fieldsToUpdate if it exists, as it's calculated
-    if ('reste' in fieldsToUpdate) {
-        delete (fieldsToUpdate as any).reste;
+    // Create a new object for the update, excluding calculated fields or identifiers
+    const fieldsToUpdate: Record<string, any> = { ...data };
+    if (fieldsToUpdate.date && fieldsToUpdate.date instanceof Date) {
+        fieldsToUpdate.date = fieldsToUpdate.date.toISOString();
     }
+    
+    const { id: pieceId, supplier_id, created_at, updated_at, reste: oldReste, ...updatePayload } = { ...currentPiece, ...fieldsToUpdate };
 
-    const fieldEntries = Object.entries(fieldsToUpdate);
+    const finalPayload = { ...updatePayload, total_piece, montant_paye };
+
+    const fieldEntries = Object.entries(finalPayload).filter(([key]) => key !== 'id' && key !== 'supplier_id' && key !== 'created_at' && key !== 'updated_at' && key !== 'reste');
+
     const setClause = fieldEntries.map(([key]) => `${key} = ?`).join(', ');
-    const values = fieldEntries.map(([, value]) => value instanceof Date ? value.toISOString() : value);
+    const values = fieldEntries.map(([, value]) => value);
 
-
-    await db.run(
-        `UPDATE pieces SET ${setClause}, reste = ?, updated_at = ? WHERE id = ?`,
-        ...values,
-        reste,
-        now,
-        id
-    );
+    if (setClause) {
+        await db.run(
+            `UPDATE pieces SET ${setClause}, reste = ?, updated_at = ? WHERE id = ?`,
+            ...values,
+            reste,
+            now,
+            id
+        );
+    } else {
+         await db.run(
+            `UPDATE pieces SET reste = ?, updated_at = ? WHERE id = ?`,
+            reste,
+            now,
+            id
+        );
+    }
 }
 
 export async function deletePieceFromDb(id: string): Promise<void> {

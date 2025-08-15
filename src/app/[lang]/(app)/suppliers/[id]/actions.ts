@@ -13,12 +13,14 @@ import { Locale, i18n } from '@/i18n.config';
 // It is a 'server-only' function because it depends on `getDictionary`.
 const getPieceFormSchema = async (lang: Locale = i18n.defaultLocale) => {
     const dictionary = await getDictionary(lang);
-    
-    // Schema for updating an existing piece.
-    const formSchema = getPieceBaseSchema(dictionary.schemas);
-    
-    // Schema for adding a new piece, starts from the raw base, extends it, then refines it.
-    const addPieceSchema = pieceBaseSchema(dictionary.schemas)
+    const schema = getPieceBaseSchema(dictionary.schemas);
+    return schema;
+}
+
+// This function is dedicated to creating the schema for adding a new piece.
+const getAddPieceSchema = async (lang: Locale = i18n.defaultLocale) => {
+    const dictionary = await getDictionary(lang);
+    return pieceBaseSchema(dictionary.schemas)
         .extend({
             supplier_id: z.string(),
         })
@@ -29,13 +31,11 @@ const getPieceFormSchema = async (lang: Locale = i18n.defaultLocale) => {
             message: dictionary.schemas.piece.paidExceedsTotal,
             path: ["montant_paye"],
         });
-
-    return { formSchema, addPieceSchema };
-}
+};
 
 
-export async function addPiece(data: z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>['addPieceSchema']>) : Promise<{success: boolean, message?: string}> {
-    const { addPieceSchema } = await getPieceFormSchema(); // Uses default locale
+export async function addPiece(data: z.infer<Awaited<ReturnType<typeof getAddPieceSchema>>>) : Promise<{success: boolean, message?: string}> {
+    const addPieceSchema = await getAddPieceSchema(); // Uses default locale
     const validation = addPieceSchema.safeParse(data);
 
     if (!validation.success) {
@@ -63,8 +63,8 @@ export async function addPiece(data: z.infer<Awaited<ReturnType<typeof getPieceF
     }
 }
 
-export async function updatePiece(id: string, supplier_id: string, data: z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>['formSchema']>): Promise<{success: boolean, message?: string}> {
-    const { formSchema } = await getPieceFormSchema(); // Uses default locale
+export async function updatePiece(id: string, supplier_id: string, data: z.infer<Awaited<ReturnType<typeof getPieceFormSchema>>>): Promise<{success: boolean, message?: string}> {
+    const formSchema = await getPieceFormSchema(); // Uses default locale
     const validation = formSchema.safeParse(data);
 
     if (!validation.success) {
@@ -105,5 +105,3 @@ export async function deletePiece(id: string, supplier_id: string): Promise<{suc
         return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }
-
-    
