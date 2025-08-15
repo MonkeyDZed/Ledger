@@ -27,13 +27,21 @@ import { CurrencyInput } from './currency-input';
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
-    total_piece: z.coerce.number().min(0, { message: "Le total doit être un nombre positif." }),
+    total_piece: z.coerce.number().min(0.01, { message: "Le total doit être supérieur à 0." }).optional().or(z.literal(0)),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
     payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
 }).refine((data) => {
+    if (data.type === 'VERSEMENT') {
+        return data.montant_paye > 0;
+    }
+    return true;
+}, {
+    message: "Le montant du versement doit être supérieur à 0.",
+    path: ["montant_paye"],
+}).refine((data) => {
     if (data.type === 'VERSEMENT') return true;
-    return data.montant_paye <= data.total_piece;
+    return data.montant_paye <= (data.total_piece ?? 0);
 }, {
     message: "Le montant payé ne peut pas dépasser le total de la pièce.",
     path: ["montant_paye"],
@@ -101,7 +109,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     startTransition(async () => {
       const action = isEditMode
         ? updatePiece(pieceToEdit!.id, supplierId, data)
-        : addPiece({ ...data, supplier_id: supplierId });
+        : addPiece({ ...data, supplier_id: supplierId, total_piece: data.total_piece ?? 0 });
       
       const result = await action;
 

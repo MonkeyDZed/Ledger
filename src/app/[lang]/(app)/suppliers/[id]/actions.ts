@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { i18n, Locale } from '@/i18n.config';
+import { i18n } from '@/i18n.config';
 import { getDictionary } from '@/lib/dictionaries';
 
 type PieceFormValues = {
@@ -16,12 +16,12 @@ type PieceFormValues = {
     payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
 };
 
-// This function is now only used inside the server actions in this file.
-const getPieceFormSchema = async (lang: Locale) => {
+export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
+    const lang = i18n.defaultLocale;
     const dictionary = await getDictionary(lang);
     const pieceDictionary = dictionary.schemas.piece;
-
-    return z.object({
+    
+    const PieceFormSchema = z.object({
         date: z.date({ required_error: pieceDictionary.dateRequired }),
         type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: pieceDictionary.typeRequired }),
         total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }),
@@ -35,11 +35,7 @@ const getPieceFormSchema = async (lang: Locale) => {
         message: pieceDictionary.paidExceedsTotal,
         path: ["montant_paye"],
     });
-};
 
-export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
-    const lang = i18n.defaultLocale; 
-    const PieceFormSchema = await getPieceFormSchema(lang);
     const AddPieceSchema = PieceFormSchema.extend({
         supplier_id: z.string(),
     });
@@ -69,7 +65,23 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
     const lang = i18n.defaultLocale;
-    const UpdatePieceSchema = await getPieceFormSchema(lang);
+    const dictionary = await getDictionary(lang);
+    const pieceDictionary = dictionary.schemas.piece;
+
+    const UpdatePieceSchema = z.object({
+        date: z.date({ required_error: pieceDictionary.dateRequired }),
+        type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: pieceDictionary.typeRequired }),
+        total_piece: z.coerce.number().min(0, { message: pieceDictionary.totalPositive }),
+        montant_paye: z.coerce.number().min(0, { message: pieceDictionary.paidPositive }),
+        description: z.string().optional(),
+        payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
+    }).refine((data) => {
+        if (data.type === 'VERSEMENT') return true;
+        return data.montant_paye <= data.total_piece;
+    }, {
+        message: pieceDictionary.paidExceedsTotal,
+        path: ["montant_paye"],
+    });
     
     const validation = UpdatePieceSchema.safeParse(data);
 

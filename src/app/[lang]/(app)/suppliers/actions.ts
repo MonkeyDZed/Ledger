@@ -4,7 +4,7 @@
 import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb, updateSupplier as updateSupplierInDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { i18n, Locale } from '@/i18n.config';
+import { i18n } from '@/i18n.config';
 import { getDictionary } from '@/lib/dictionaries';
 
 type SupplierFormValues = {
@@ -17,12 +17,12 @@ type SupplierFormValues = {
     notes?: string;
 };
 
-// This function is now only used inside the server actions in this file.
-const getSupplierFormSchema = async (lang: Locale) => {
+export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
+    const lang = i18n.defaultLocale;
     const dictionary = await getDictionary(lang);
     const supplierDictionary = dictionary.schemas.supplier;
     
-    return z.object({
+    const AddSupplierSchema = z.object({
         name: z.string().min(2, { message: supplierDictionary.nameMin }),
         wilaya: z.string().optional(),
         phone: z.string().optional(),
@@ -31,12 +31,6 @@ const getSupplierFormSchema = async (lang: Locale) => {
         solde_initial: z.coerce.number().default(0),
         notes: z.string().optional(),
     });
-};
-
-
-export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    const lang = i18n.defaultLocale;
-    const AddSupplierSchema = await getSupplierFormSchema(lang);
 
     const validation = AddSupplierSchema.safeParse(data);
     
@@ -62,7 +56,18 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
     const lang = i18n.defaultLocale;
-    const UpdateSupplierSchema = await getSupplierFormSchema(lang);
+    const dictionary = await getDictionary(lang);
+    const supplierDictionary = dictionary.schemas.supplier;
+
+    const UpdateSupplierSchema = z.object({
+        name: z.string().min(2, { message: supplierDictionary.nameMin }),
+        wilaya: z.string().optional(),
+        phone: z.string().optional(),
+        nif: z.string().optional(),
+        bank_info: z.string().optional(),
+        solde_initial: z.coerce.number().default(0),
+        notes: z.string().optional(),
+    });
 
     const validation = UpdateSupplierSchema.safeParse(data);
 
