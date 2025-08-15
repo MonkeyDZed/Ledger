@@ -21,23 +21,8 @@ import { MoreHorizontal, ArrowUpDown, Banknote as BanknoteIcon, Hand, FileText a
 import { Badge } from '@/components/ui/badge';
 import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
 import { cn } from '@/lib/utils';
+import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
 
-// Internal formatter to avoid importing from a module with server-side dependencies
-function formatCurrencySimple(amount: number) {
-  return new Intl.NumberFormat('fr-DZ', {
-    style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function formatDateSimple(dateString: string, lang: 'fr' | 'ar') {
-  return new Date(dateString).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
     <Card>
@@ -124,7 +109,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
             <ArrowUpDown className="ms-2 h-4 w-4" />
           </Button>
         ),
-        cell: ({ row }) => formatDateSimple(row.getValue('date'), lang),
+        cell: ({ row }) => formatDate(row.original.date, lang),
       },
       {
         accessorKey: 'type',
@@ -154,7 +139,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('total_piece'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono">{formatCurrencySimple(amount)}</div>;
+          return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
         },
       },
       {
@@ -162,7 +147,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         header: () => <div className="text-end">{dict.paid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('montant_paye'));
-          return <div className="text-end font-mono text-green-600">{formatCurrencySimple(amount)}</div>;
+          return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
         },
       },
       {
@@ -171,7 +156,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('reste'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono text-destructive">{formatCurrencySimple(amount)}</div>;
+          return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang, dictionary)}</div>;
         },
       },
       {
@@ -230,9 +215,9 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
       </PageHeader>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencySimple(supplier.solde_initial)} ${currency}`} icon={<BadgeCentIcon />} />
-        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencySimple(totalFromPieces)} ${currency}`} icon={<FileTextIcon />} />
-        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencySimple(paidFromPieces)} ${currency}`} icon={<BanknoteIcon />} />
+        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencyWithLocale(supplier.solde_initial, lang, dictionary)}`} icon={<BadgeCentIcon />} />
+        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencyWithLocale(totalFromPieces, lang, dictionary)}`} icon={<FileTextIcon />} />
+        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencyWithLocale(paidFromPieces, lang, dictionary)}`} icon={<BanknoteIcon />} />
         <Card className="bg-blue-50">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-primary flex justify-between items-center">
@@ -240,7 +225,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencySimple(totalDebt)} {currency}</p>
+                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencyWithLocale(totalDebt, lang, dictionary)}</p>
                 <CardDescription>{dictionary.stats.debtDescription}</CardDescription>
             </CardContent>
         </Card>
@@ -332,3 +317,5 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
     </>
   );
 }
+
+    

@@ -23,3 +23,5 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
     schemaDictionary={dictionary.schemas}
   />;
 }
+
+    

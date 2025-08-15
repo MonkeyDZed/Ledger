@@ -1,3 +1,4 @@
+
 import type { Dictionary } from "./dictionaries";
 
 export function formatCurrency(amount: number) {
@@ -23,5 +24,11 @@ export function formatCurrencyWithLocale(amount: number, lang: 'fr' | 'ar', dict
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
+    // Handle potential NaN or undefined values gracefully
+    if (isNaN(amount) || amount === null) {
+      amount = 0;
+    }
     return `${formatter.format(amount)} ${dictionary.currency}`;
 }
+
+    

@@ -37,7 +37,9 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   data,
   dictionary
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+      { id: 'date', desc: true },
+  ]);
 
   const table = useReactTable({
     data,
@@ -124,3 +126,5 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
     </Card>
   );
 }
+
+    
