@@ -13,10 +13,10 @@ interface CurrencyInputProps {
 }
 
 const formatValue = (value: number | string | undefined): string => {
-  if (value === undefined || value === null || value === '') return '';
-  const num = typeof value === 'string' ? parseFloat(value.replace(/\s/g, '').replace(',', '.')) : value;
+  if (value === undefined || value === null || value === '' || isNaN(Number(value))) return '';
+  const num = typeof value === 'string' ? parseFloat(value.toString().replace(/[^0-9.]/g, '')) : value;
   if (isNaN(num)) return '';
-  return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('.', ',');
 };
 
 const parseValue = (value: string): number => {
@@ -24,18 +24,15 @@ const parseValue = (value: string): number => {
     return isNaN(parsed) ? 0 : parsed;
 };
 
-
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ field, onValueChange, className }, ref) => {
     const [displayValue, setDisplayValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
-       if (!isFocused) {
-            const numValue = field.value ? Number(field.value) : 0;
-            setDisplayValue(formatValue(numValue));
-       }
-    }, [field.value, isFocused]);
+        const numValue = field.value ? Number(field.value) : 0;
+        setDisplayValue(formatValue(numValue));
+    }, [field.value]);
     
 
     const handleFocus = () => {
@@ -44,7 +41,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         if (numValue === 0) {
              setDisplayValue('');
         } else {
-            setDisplayValue(numValue.toString().replace('.', ','));
+            setDisplayValue(numValue.toLocaleString('fr-FR').replace(/\s/g, ''));
         }
     };
 
@@ -57,16 +54,24 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value;
-        const sanitizedValue = rawValue.replace(/[^0-9,]/g, '').replace(',', '.');
+        const numberValue = rawValue.replace(/[^0-9,]/g, '');
+        const parsed = parseValue(numberValue);
         
-        // Prevent multiple commas/dots
-        if (sanitizedValue.split('.').length > 2) return;
-        
-        setDisplayValue(sanitizedValue.replace('.', ','));
-        onValueChange(parseValue(sanitizedValue));
+        if (!isNaN(parsed)) {
+            onValueChange(parsed);
+            // Format for display
+            const parts = numberValue.split(',');
+            const integerPart = parts[0].replace(/\s/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            const formatted = parts.length > 1 ? `${integerPart},${parts[1]}` : integerPart;
+            setDisplayValue(formatted);
+        } else {
+            setDisplayValue('');
+            onValueChange(0);
+        }
     };
     
-    const showFictiveZero = !isFocused && (field.value === 0 || field.value === '' || field.value === undefined);
+    const showFictiveZero = !isFocused && !field.value;
+    const finalDisplayValue = isFocused ? displayValue : (showFictiveZero ? formatValue(0) : formatValue(field.value));
 
     return (
       <div className="relative">
@@ -75,7 +80,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           ref={ref}
           type="text"
           className={cn('text-end font-mono', className, { 'text-muted-foreground': showFictiveZero })}
-          value={isFocused ? displayValue.replace('.', ',') : (showFictiveZero ? formatValue(0) : displayValue) }
+          value={finalDisplayValue}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
