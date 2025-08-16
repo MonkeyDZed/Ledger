@@ -86,7 +86,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   
   // ✅ Logique d'initialisation corrigée
   useEffect(() => {
-    const initializeForm = async () => {
+    const initializeForm = () => {
         if (isEditMode && pieceToEdit) {
             form.reset({
                 ...pieceToEdit,
@@ -109,10 +109,8 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
             form.reset(defaultValues);
             setCurrentType(defaultValues.type);
         }
-        // ✅ Force la validation après reset pour synchroniser isValid
-        await form.trigger();
     };
-    void initializeForm();
+    initializeForm();
   // ⚠️ `form` est retiré des dépendances pour éviter les boucles infinies.
   }, [pieceToEdit, isEditMode, defaultType]);
 
@@ -309,3 +307,5 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+
+    

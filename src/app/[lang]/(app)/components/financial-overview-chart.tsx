@@ -26,11 +26,21 @@ interface FinancialOverviewChartProps {
 }
 
 export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLabel }: FinancialOverviewChartProps) {
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const chartData = [
     { name: paidLabel, value: data.paid },
     { name: toPayLabel, value: data.toPay },
   ];
   const total = data.paid + data.toPay;
+  
+  if (!isClient) {
+    return <div className="w-full h-[250px] flex items-center justify-center"><p>Chargement du graphique...</p></div>;
+  }
 
   return (
     <div className="w-full h-[250px] relative">
