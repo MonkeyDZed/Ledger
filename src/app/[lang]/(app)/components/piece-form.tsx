@@ -110,6 +110,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
         await form.trigger();
     };
     void initializeForm();
+  // IMPORTANT: Do not add `form` to the dependency array to avoid infinite loops.
   }, [pieceToEdit, isEditMode, defaultType]);
 
 
@@ -305,3 +306,5 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+
+    
