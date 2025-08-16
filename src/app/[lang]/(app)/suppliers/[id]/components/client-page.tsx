@@ -127,10 +127,10 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         cell: ({ row }) => {
             const type = row.getValue('type') as string;
             let variant: 'secondary' | 'outline' | 'default' = 'outline';
-            if (type === 'FACTURE') variant = 'secondary';
-            if (type === 'VERSEMENT') variant = 'default';
+            if (type === 'FACTURE') variant = 'default';
+            if (type === 'VERSEMENT') variant = 'secondary';
 
-            return <Badge variant={variant} className={cn({'bg-emerald-500 text-white': type === 'VERSEMENT'})}>{dict[type.toLowerCase()]}</Badge>
+            return <Badge variant={variant} className={cn({'bg-emerald-500 text-white': type === 'VERSEMENT'}, {'bg-blue-500 text-white': type === 'FACTURE'})}>{dict[type.toLowerCase()]}</Badge>
         }
       },
       {
