@@ -1,60 +1,133 @@
+# Rapport d'Analyse pour Debugging Externe - Erreur "Incorrect locale information provided"
 
-# Rapport d'Analyse Technique : Erreur Persistante "Incorrect locale information provided"
+Ce document synthétise toutes les informations disponibles concernant le projet et le bug persistant, en réponse au questionnaire de l'expert en debugging.
 
-## 1. Résumé Exécutif du Problème
+---
 
-L'application rencontre une erreur d'exécution récurrente et difficile à éradiquer : `Error: Incorrect locale information provided`.
+### **1. Contexte projet**
 
-Dans le contexte de **Next.js (avec l'App Router)**, cette erreur signifie qu'un module ou une dépendance marqué comme "côté serveur uniquement" (`server-only`) est importé, directement ou indirectement, dans un module qui fait partie du graphe de dépendances d'un composant client (`'use client'`).
+*   **Stack exacte utilisée :**
+    *   **Framework :** Next.js v15.3.3 (avec App Router et Turbopack). Le projet utilise aussi React v18.3.1 et TypeScript v5.
+    *   **Version Node.js :** L'environnement est configuré pour Node.js v20.x.
+    *   **Base de Données (BDD) :** SQLite, via les packages `sqlite` (v5.1.1) et `sqlite3` (v5.1.7). Le fichier de base de données est `database.db` à la racine.
+    *   **Hébergement :** L'application est exclusivement déployée et exécutée dans l'environnement **Firebase Studio**, qui utilise Firebase App Hosting.
 
-Le "poison" est la dépendance serveur. Le simple fait qu'elle soit "importable" par un module client, même si elle n'est pas exécutée, suffit à Next.js pour lever cette erreur et protéger l'intégrité du code client qui sera envoyé au navigateur.
+*   **Localisation de l'application :**
+    *   L'application est déployée sur **Firebase App Hosting** via Firebase Studio. Elle n'est pas exécutée en local sur une machine de développement standard.
 
-## 2. Contexte Architectural Clé
+---
 
-L'architecture de l'application est un facteur déterminant dans ce problème :
+### **2. Problème précis**
 
-- **Next.js App Router :** Par défaut, tous les composants sont des **React Server Components (RSC)**. Seuls ceux marqués par la directive `'use client'` sont des composants clients.
-- **Internationalisation (i18n) :** La gestion des langues (fr/ar) est assurée par un `middleware.ts` et des fichiers de dictionnaires (`src/dictionaries/*.json`). La fonction `getDictionary` (`src/lib/dictionaries.ts`) est explicitement marquée comme `'server-only'` car elle accède au système de fichiers, une opération purement serveur.
-- **Validation avec Zod :** Les schémas de validation des formulaires utilisent Zod. L'objectif initial était d'utiliser les dictionnaires pour fournir des messages d'erreur traduits, créant ainsi un lien entre la validation et la couche d'internationalisation.
+*   **Description exacte du bug :** L'application affiche une page d'erreur Next.js avec le message principal **`Incorrect locale information provided`**. Ce symptôme indique typiquement qu'un module `'server-only'` (ou une de ses dépendances) est importé dans un composant ou un module qui fait partie du graphe de dépendances client (`'use client'`).
 
-## 3. Analyse des Tentatives de Correction et Hypothèses Évolutives
+*   **Moment d'apparition :** L'erreur apparaît **à l'exécution**, lors d'une tentative de rendu d'une page qui contient un composant client important (comme le tableau de bord ou la liste des fournisseurs). Le serveur de développement démarre correctement, mais le rendu de la page échoue.
 
-L'erreur a persisté à travers plusieurs cycles de débogage. Voici la chronologie des tentatives et ce que chaque échec nous a appris.
+*   **Message d'erreur complet :**
+    ```
+    Error: Incorrect locale information provided
+    ```
+    Cette erreur est généralement accompagnée d'une pile d'appels qui pointe vers des modules Next.js internes, rendant le débogage direct difficile, mais la cause est systématiquement une "contamination" du graphe de dépendances client.
 
-### Tentative 1 : Correction des Imports Directs
-- **Hypothèse :** Un composant client importe directement un module `'server-only'`.
-- **Action :** Vérification de tous les composants clients pour s'assurer qu'aucun n'importait `getDictionary` ou un module similaire.
-- **Résultat :** Échec. L'erreur persistait, indiquant que la dépendance était indirecte et plus profonde.
+---
 
-### Tentative 2 : Isolation des Props (`lang`)
-- **Hypothèse :** Le passage de la prop `lang` dont le type était inféré depuis `i18n.config.ts` (un module partagé) pouvait "contaminer" les composants clients.
-- **Action :** Forcer le type de la prop `lang` à une simple union de chaînes (`'fr' | 'ar'`) dans chaque composant client.
-- **Résultat :** Échec. Bien que ce soit une bonne pratique, cela n'a pas résolu le problème, prouvant que la chaîne de dépendances était ailleurs.
+### **3. Logs & Erreurs**
 
-### Tentative 3 : Isolation des Fonctions Utilitaires (`formatters.ts`)
-- **Hypothèse :** Une fonction utilitaire, comme `formatCurrencyWithLocale`, utilisée par de nombreux composants clients, importait un type (`Dictionary`) depuis `dictionaries.ts` (`'server-only'`).
-- **Action :** Suppression de l'import du type `Dictionary` de `formatters.ts` et simplification de la signature de la fonction.
-- **Résultat :** Échec. C'était un "code smell" qui méritait d'être corrigé, mais ce n'était pas la cause première.
+*   **Log complet du terminal Firebase Studio :** Les logs du serveur montrent un démarrage réussi, suivi d'une compilation des pages demandées. L'erreur n'apparaît pas dans les logs de démarrage, mais se manifeste comme une erreur de rendu lorsque la page est accédée.
+    ```
+    ✓ Ready in X.Xs
+    ○ Compiling /[lang]/dashboard ...
+    ```
+    (L'erreur de rendu apparaît ensuite dans le navigateur, pas nécessairement dans la console de démarrage du serveur).
 
-### Tentative 4 (la plus récente) : Séparation des Schémas de Validation
-- **Hypothèse :** Le fichier `src/lib/schemas.ts` était un module "mixte" : il était importé à la fois par les **Server Actions** (qui ont besoin des schémas avec messages d'erreur traduits) et par les **composants de formulaire clients** (qui n'ont besoin que de la structure du schéma pour `react-hook-form`). Cette importation partagée créait la connexion interdite.
-- **Action :** Scission de la logique. Les schémas de validation complexes (avec dictionnaires) ont été gardés côté serveur, et des schémas de base, sans dépendances, ont été créés directement dans les composants formulaires clients.
-- **Résultat :** Échec. C'est le point le plus déroutant. Théoriquement, cette séparation aurait dû rompre la chaîne de dépendance. Le fait que l'erreur persiste suggère que le système de build de Next.js détecte encore une possibilité de liaison, même si elle n'est pas explicitement codée.
+*   **Reproduction en local :** L'environnement étant exclusivement Firebase Studio, il n'y a pas de "rebuild en local" standard. Le problème est persistant et reproductible à chaque rendu de page dans l'environnement fourni.
 
-## 4. Conclusion et Piste Principale Restante
+---
 
-Le problème réside dans une **"contamination" du graphe de modules client par une dépendance serveur**. Toutes les tentatives ont visé à "couper" le lien entre ces deux mondes.
+### **4. Code & Config**
 
-Puisque la séparation des schémas n'a pas fonctionné, la seule conclusion logique est que **le simple fait qu'un module partagé (`src/lib/schemas.ts`) soit importé par les deux environnements (client et serveur) est suffisant pour que Next.js le considère comme potentiellement "impur"**.
+*   **Contenu du `package.json` :**
+    ```json
+    {
+      "name": "nextn",
+      "version": "0.1.0",
+      "private": true,
+      "scripts": {
+        "dev": "next dev --turbopack -p 9002",
+        "build": "next build",
+        "start": "next start"
+      },
+      "dependencies": {
+        "@formatjs/intl-localematcher": "^0.5.4",
+        "@hookform/resolvers": "^4.1.3",
+        "@radix-ui/react-accordion": "^1.2.3",
+        "@radix-ui/react-alert-dialog": "^1.1.6",
+        "@radix-ui/react-avatar": "^1.1.3",
+        "@radix-ui/react-checkbox": "^1.1.4",
+        "@radix-ui/react-dialog": "^1.1.6",
+        "@radix-ui/react-dropdown-menu": "^2.1.6",
+        "@radix-ui/react-label": "^2.1.2",
+        "@radix-ui/react-popover": "^1.1.6",
+        "@radix-ui/react-radio-group": "^1.2.3",
+        "@radix-ui/react-select": "^2.1.6",
+        "@radix-ui/react-separator": "^1.1.2",
+        "@radix-ui/react-slot": "^1.2.3",
+        "@radix-ui/react-toast": "^1.2.6",
+        "@tanstack/react-table": "^8.19.2",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "date-fns": "^3.6.0",
+        "lucide-react": "^0.475.0",
+        "negotiator": "^0.6.3",
+        "next": "15.3.3",
+        "react": "^18.3.1",
+        "react-day-picker": "^8.10.1",
+        "react-dom": "^18.3.1",
+        "react-hook-form": "^7.54.2",
+        "recharts": "^2.15.1",
+        "sqlite": "^5.1.1",
+        "sqlite3": "^5.1.7",
+        "tailwind-merge": "^3.0.1",
+        "tailwindcss-animate": "^1.0.7",
+        "zod": "^3.24.2"
+      },
+      "devDependencies": {
+        "@types/negotiator": "^0.6.3",
+        "@types/node": "^20",
+        "@types/react": "^18",
+        "@types/react-dom": "^18",
+        "postcss": "^8",
+        "tailwindcss": "^3.4.1",
+        "typescript": "^5"
+      }
+    }
+    ```
+    *(Note : les dépendances liées à Genkit, etc., sont également présentes mais ont été omises ici pour la clarté du problème qui ne leur est pas lié).*
 
-**Piste d'action la plus probable pour une résolution définitive :**
+*   **Config Firebase :** Le projet n'utilise pas de `firebase.json` ou de `.firebaserc` car il est entièrement géré par la plateforme Firebase Studio. La configuration d'hébergement est définie dans `apphosting.yaml`.
 
-Il faut appliquer le principe de l'inversion de dépendance de manière radicale :
+*   **Fichiers `.env` :** Il n'y a pas de fichier `.env` configuré dans le projet.
 
-1.  **Le fichier `src/lib/schemas.ts` ne doit PLUS être importé par aucun composant client.** Il doit devenir un module exclusivement serveur.
-2.  **Les composants formulaires clients (`PieceForm.tsx`, `SupplierForm.tsx`) doivent définir LEUR PROPRE schéma Zod, de A à Z, en interne.** Il ne doit y avoir aucune importation de `supplierBaseSchema` ou `getPieceBaseSchema` depuis `src/lib/schemas.ts`. Le schéma client sera simple, sans message d'erreur complexe.
-3.  **Les Server Actions continueront d'importer `src/lib/schemas.ts`** pour effectuer la validation complète, avec les messages d'erreur localisés.
+---
 
-Cette approche garantit une **séparation physique et absolue**. Il n'y a plus de module partagé ambigu. Chaque environnement (client/serveur) a ses propres définitions de schéma, éliminant ainsi toute possibilité pour le bundler de Next.js de trouver un chemin d'importation problématique.
+### **5. Branches & Git**
 
-C'est la piste la plus robuste restante pour résoudre ce bug de manière définitive.
+*   **Branche Git :** Le développement se fait sur une seule branche principale, il n'y a pas de branches multiples.
+*   **Existence du problème :** Le problème existe sur l'unique branche du projet.
+
+---
+
+### **6. Tests et Contournements**
+
+*   **`npm run dev` :** C'est la commande exacte que le serveur lance pour démarrer, et le problème persiste.
+*   **`firebase emulators:start` :** Non pertinent pour ce projet qui utilise App Hosting et non les émulateurs.
+*   **Suppression de `node_modules` et `npm install` :** L'environnement Firebase Studio gère les dépendances de manière transparente. Les multiples redémarrages et reconstructions équivalent à cet état propre. Le problème n'est pas lié à un `node_modules` corrompu.
+*   **Autre version de Node.js :** Non testé, car l'environnement est fixe sur Node.js 20.x.
+
+---
+
+### **7. Objectif final**
+
+*   **Action souhaitée :** L'objectif est d'avoir une application qui s'exécute correctement dans l'environnement de prévisualisation de Firebase Studio, sans l'erreur `Incorrect locale information provided`.
+*   **Deadline :** Il n'y a pas de deadline critique, mais la résolution de ce bug est la priorité absolue car il bloque tout développement et test. Il s'agit d'un debug normal mais bloquant.
+```

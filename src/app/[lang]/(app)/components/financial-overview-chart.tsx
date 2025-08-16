@@ -8,7 +8,8 @@ const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-4))"];
 
 // Internal formatter to avoid importing from a module with server-side dependencies
 function formatCurrencySimple(amount: number, fractionDigits = 2) {
-  return new Intl.NumberFormat('fr-DZ', {
+  // Use a basic formatter that doesn't rely on specific server locales
+  return new Intl.NumberFormat('fr-FR', {
     style: 'decimal',
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
