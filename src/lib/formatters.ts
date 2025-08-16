@@ -1,6 +1,4 @@
 
-
-
 export function formatDate(dateString: string, lang: 'fr' | 'ar') {
   return new Date(dateString).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR', {
     year: 'numeric',
