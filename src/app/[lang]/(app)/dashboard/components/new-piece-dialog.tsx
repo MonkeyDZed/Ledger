@@ -9,6 +9,8 @@ import { PieceForm } from '../../components/piece-form';
 import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 import { useParams } from 'next/navigation';
+import type { addPiece, updatePiece } from '../../suppliers/[id]/actions';
+
 
 interface NewPieceDialogProps {
   isOpen: boolean;
@@ -17,9 +19,11 @@ interface NewPieceDialogProps {
   pieces: Piece[];
   dictionary: any;
   pieceFormDictionary: any;
+  addPieceAction: typeof addPiece;
+  updatePieceAction: typeof updatePiece;
 }
 
-export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary }: NewPieceDialogProps) {
+export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictionary, pieceFormDictionary, addPieceAction, updatePieceAction }: NewPieceDialogProps) {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
@@ -44,7 +48,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
   const selectedSupplier = suppliers.find(s => s.id === selectedSupplierId);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[625px]" onInteractOutside={(e) => {
         if (e.target instanceof HTMLElement && e.target.closest('[data-radix-collection-item]')) {
             e.preventDefault();
@@ -95,6 +99,8 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
               supplierId={selectedSupplierId} 
               onClose={handleClose} 
               dictionary={pieceFormDictionary}
+              addPieceAction={addPieceAction}
+              updatePieceAction={updatePieceAction}
             />
           </div>
         )}

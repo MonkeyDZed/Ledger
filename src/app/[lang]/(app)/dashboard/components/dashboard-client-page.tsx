@@ -16,6 +16,8 @@ import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FileP
 import { NewPieceDialog } from './new-piece-dialog';
 import { NewVersementDialog } from './new-versement-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
+import type { addPiece, updatePiece } from '../../suppliers/[id]/actions';
+import type { addSupplier, updateSupplier } from '../../suppliers/actions';
 
 const QuickActionButton = ({ className, icon, label, onClick }: { className?: string, icon: React.ReactNode, label: string, onClick?: () => void }) => (
     <button onClick={onClick} className="flex flex-col items-center justify-center p-4 rounded-lg border border-gray-200 hover:border-primary transition-all text-center w-full active:scale-[0.98]">
@@ -43,9 +45,13 @@ interface DashboardClientPageProps {
   formDictionary: any;
   pieceFormDictionary: any;
   lang: 'fr' | 'ar';
+  addPieceAction: typeof addPiece;
+  updatePieceAction: typeof updatePiece;
+  addSupplierAction: typeof addSupplier;
+  updateSupplierAction: typeof updateSupplier;
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang }: DashboardClientPageProps) {
+export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
@@ -278,7 +284,13 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
               {formDictionary.addDescription}
             </CardDescription>
           </DialogHeader>
-          <SupplierForm ref={supplierFormRef} onClose={() => setIsNewSupplierOpen(false)} dictionary={formDictionary} />
+          <SupplierForm 
+            ref={supplierFormRef} 
+            onClose={() => setIsNewSupplierOpen(false)} 
+            dictionary={formDictionary} 
+            addSupplierAction={addSupplierAction}
+            updateSupplierAction={updateSupplierAction}
+           />
         </DialogContent>
       </Dialog>
      <NewPieceDialog
@@ -288,6 +300,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         pieces={pieces}
         dictionary={dictionary}
         pieceFormDictionary={pieceFormDictionary}
+        addPieceAction={addPieceAction}
+        updatePieceAction={updatePieceAction}
       />
       <NewVersementDialog
         isOpen={isNewVersementOpen}
@@ -296,11 +310,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         pieces={pieces}
         dictionary={dictionary}
         pieceFormDictionary={pieceFormDictionary}
+        addPieceAction={addPieceAction}
+        updatePieceAction={updatePieceAction}
        />
     </>
   );
 }
-
-    
-
-    

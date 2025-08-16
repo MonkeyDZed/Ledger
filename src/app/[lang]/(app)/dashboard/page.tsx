@@ -3,6 +3,8 @@ import { getSuppliers, getPieces } from '@/lib/db';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import { DashboardClientPage } from './components/dashboard-client-page';
+import { addPiece, updatePiece } from '../suppliers/[id]/actions';
+import { addSupplier, updateSupplier } from '../suppliers/actions';
 
 export default async function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
   const dict = await getDictionary(lang);
@@ -44,7 +46,9 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
     formDictionary={dict.suppliersPage.form}
     pieceFormDictionary={dict.supplierDetailPage.form}
     lang={lang}
+    addPieceAction={addPiece}
+    updatePieceAction={updatePiece}
+    addSupplierAction={addSupplier}
+    updateSupplierAction={updateSupplier}
   />;
 }
-
-    
