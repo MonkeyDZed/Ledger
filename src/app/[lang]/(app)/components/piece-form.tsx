@@ -22,22 +22,22 @@ import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from './currency-input';
 
-// ✅ Schéma Zod Corrigé et Robuste
+// Schéma Zod robuste qui gère les cas `null` et `undefined` pour payment_method.
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
-    total_piece: z.coerce.number().min(0, { message: "Le total ne peut pas être négatif." }).optional(),
+    total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
 
-    // ✅ Nouveau schéma robuste pour payment_method
+    // Schéma robuste pour payment_method qui transforme null ou une chaîne vide en undefined.
     payment_method: z.union([
         z.enum(['espece', 'cheque', 'virement', 'traite']),
         z.literal('').transform(() => undefined),
         z.null().transform(() => undefined),
     ]).optional(),
 }).refine((data) => {
-    // Pour un versement, le montant payé doit être supérieur à 0
+    // Pour un versement, le montant payé doit être supérieur à 0.
     if (data.type === 'VERSEMENT') {
         return data.montant_paye > 0;
     }
@@ -79,44 +79,43 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
-    mode: 'onChange', // Validate on change to enable button
+    mode: 'onChange', // La validation se déclenche au changement.
   });
 
   const [currentType, setCurrentType] = useState(form.getValues('type'));
   
-  // ✅ Logique d'initialisation corrigée
+  // Logique d'initialisation et de réinitialisation du formulaire, exécutée uniquement côté client.
   useEffect(() => {
-    const initializeForm = () => {
-        if (isEditMode && pieceToEdit) {
-            form.reset({
-                ...pieceToEdit,
-                date: new Date(pieceToEdit.date),
-                total_piece: pieceToEdit.total_piece ?? 0,
-                montant_paye: pieceToEdit.montant_paye ?? 0,
-                description: pieceToEdit.description ?? '',
-                payment_method: pieceToEdit.payment_method ?? undefined, // ✅ Normalisé
-            });
-            setCurrentType(pieceToEdit.type);
-        } else {
-            const defaultValues = {
-                date: new Date(),
-                type: defaultType,
-                total_piece: 0,
-                montant_paye: 0,
-                description: '',
-                payment_method: undefined, // ✅ Cohérent
-            };
-            form.reset(defaultValues);
-            setCurrentType(defaultValues.type);
-        }
-    };
-    initializeForm();
-  // ⚠️ `form` est retiré des dépendances pour éviter les boucles infinies.
-  }, [pieceToEdit, isEditMode, defaultType]);
+    if (isEditMode && pieceToEdit) {
+        // Mode édition : on charge les données de la pièce existante.
+        form.reset({
+            ...pieceToEdit,
+            date: new Date(pieceToEdit.date),
+            total_piece: pieceToEdit.total_piece ?? 0,
+            montant_paye: pieceToEdit.montant_paye ?? 0,
+            description: pieceToEdit.description ?? '',
+            payment_method: pieceToEdit.payment_method ?? undefined, // Normalise null en undefined
+        });
+        setCurrentType(pieceToEdit.type);
+    } else {
+        // Mode création : on initialise avec des valeurs par défaut.
+        const defaultValues = {
+            date: new Date(), // `new Date()` est appelé uniquement côté client, évitant l'erreur d'hydratation.
+            type: defaultType,
+            total_piece: 0,
+            montant_paye: 0,
+            description: '',
+            payment_method: undefined,
+        };
+        form.reset(defaultValues);
+        setCurrentType(defaultValues.type);
+    }
+  }, [pieceToEdit, isEditMode, defaultType, form]);
 
 
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
+      // Injection systématique du supplier_id avant l'envoi à l'action serveur.
       const action = isEditMode
         ? updatePieceAction(pieceToEdit!.id, supplierId, data)
         : addPieceAction({ ...data, supplier_id: supplierId });
