@@ -8,7 +8,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, Banknote, Landmark, Hand, FileText } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { fr, ar } from 'date-fns/locale';
 
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -31,7 +30,7 @@ const clientPieceFormSchema = z.object({
     total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
-    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).nullable().optional(),
 }).refine((data) => {
     // For a versement, the paid amount must be greater than 0
     if (data.type === 'VERSEMENT') {
@@ -74,44 +73,38 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
     mode: 'onChange', // Validate on change to enable button
-    defaultValues: isEditMode && pieceToEdit ? {
-        ...pieceToEdit,
-        date: new Date(pieceToEdit.date),
-        total_piece: pieceToEdit.total_piece ?? 0,
-        montant_paye: pieceToEdit.montant_paye ?? 0,
-        description: pieceToEdit.description ?? '',
-    } : {
-        date: new Date(),
-        type: defaultType,
-        total_piece: 0,
-        montant_paye: 0,
-        description: ''
-    },
   });
 
   const [currentType, setCurrentType] = useState(form.getValues('type'));
   
   useEffect(() => {
-    if (isEditMode && pieceToEdit) {
-      form.reset({
-          ...pieceToEdit,
-          date: new Date(pieceToEdit.date),
-          total_piece: pieceToEdit.total_piece ?? 0,
-          montant_paye: pieceToEdit.montant_paye ?? 0,
-          description: pieceToEdit.description ?? '',
-      });
-      setCurrentType(pieceToEdit.type);
-    } else {
-        const defaultValues = {
-            date: new Date(),
-            type: defaultType,
-            total_piece: 0,
-            montant_paye: 0,
-            description: '',
-        };
-        form.reset(defaultValues);
-        setCurrentType(defaultValues.type);
-    }
+    const initializeForm = async () => {
+        if (isEditMode && pieceToEdit) {
+            form.reset({
+                ...pieceToEdit,
+                date: new Date(pieceToEdit.date),
+                total_piece: pieceToEdit.total_piece ?? 0,
+                montant_paye: pieceToEdit.montant_paye ?? 0,
+                description: pieceToEdit.description ?? '',
+                payment_method: pieceToEdit.payment_method, // Pass null directly
+            });
+            setCurrentType(pieceToEdit.type);
+        } else {
+            const defaultValues = {
+                date: new Date(),
+                type: defaultType,
+                total_piece: 0,
+                montant_paye: 0,
+                description: '',
+                payment_method: undefined,
+            };
+            form.reset(defaultValues);
+            setCurrentType(defaultValues.type);
+        }
+        // Force validation right after reset to update isValid state
+        await form.trigger();
+    };
+    void initializeForm();
   }, [pieceToEdit, isEditMode, form, defaultType]);
 
 
@@ -174,7 +167,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                             )}
                             >
                             {field.value ? (
-                                format(field.value, "PPP", { locale: lang === 'ar' ? ar : fr})
+                                format(field.value, "PPP")
                             ) : (
                                 <span>{dictionary.datePlaceholder}</span>
                             )}
@@ -269,7 +262,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 render={({ field }) => (
                     <FormItem>
                     <FormLabel>{dictionary.paymentMethodLabel}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                         <FormControl>
                         <SelectTrigger>
                             <SelectValue placeholder={dictionary.paymentMethodPlaceholder} />
