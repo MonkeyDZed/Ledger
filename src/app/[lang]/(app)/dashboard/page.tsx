@@ -11,8 +11,6 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
 
-  // IMPORTANT: Do not pass the whole dictionary object to client components.
-  // Extract only the necessary strings to avoid server-only module leakage.
   const dashboardDict = {
     suppliers: dict.dashboard.suppliers,
     pieces: dict.dashboard.pieces,
@@ -52,3 +50,5 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
     updateSupplierAction={updateSupplier}
   />;
 }
+
+    

@@ -85,3 +85,5 @@ export async function deletePiece(id: string, supplier_id: string): Promise<{suc
         return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }
+
+    

@@ -114,7 +114,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     startTransition(async () => {
       const action = isEditMode
         ? updatePieceAction(pieceToEdit!.id, supplierId, data)
-        : addPieceAction({ ...data, supplier_id: supplierId, total_piece: data.total_piece ?? 0 });
+        : addPieceAction({ ...data, supplier_id: supplierId });
       
       const result = await action;
 
@@ -306,3 +306,5 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+
+    
