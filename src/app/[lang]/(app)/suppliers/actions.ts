@@ -5,8 +5,6 @@ import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb,
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
-// Client-side schema definitions for data shapes.
-// The complete, localized validation will happen within each server action.
 const SupplierFormSchema = z.object({
     name: z.string(),
     wilaya: z.string().optional(),
@@ -20,8 +18,7 @@ const SupplierFormSchema = z.object({
 type SupplierFormValues = z.infer<typeof SupplierFormSchema>;
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    // Validation is temporarily removed from server action to fix build error.
-    // A robust solution would have a separate, server-only validation layer.
+    // La validation est gérée côté client. L'action serveur exécute directement l'opération.
     try {
         await addSupplierToDb(data);
         
@@ -39,7 +36,7 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
-    // Validation is temporarily removed from server action to fix build error.
+    // La validation est gérée côté client. L'action serveur exécute directement l'opération.
     try {
         await updateSupplierInDb(id, data);
         

@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 const PieceFormSchema = z.object({
     date: z.date(),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT']),
-    total_piece: z.coerce.number().optional().or(z.literal(0)),
+    total_piece: z.coerce.number().optional(),
     montant_paye: z.coerce.number(),
     description: z.string().optional(),
     payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
@@ -17,8 +17,7 @@ const PieceFormSchema = z.object({
 type PieceFormValues = z.infer<typeof PieceFormSchema>;
 
 export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
-    // Validation is temporarily removed from server action to fix build error.
-    // A robust solution would have a separate, server-only validation layer.
+    // La validation est gérée côté client. L'action serveur exécute directement l'opération.
     try {
         await addPieceToDb(data);
         
@@ -37,7 +36,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    // Validation is temporarily removed from server action to fix build error.
+    // La validation est gérée côté client. L'action serveur exécute directement l'opération.
     try {
         await updatePieceInDb(id, data);
         

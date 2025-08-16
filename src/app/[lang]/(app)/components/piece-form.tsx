@@ -27,7 +27,7 @@ import { CurrencyInput } from './currency-input';
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
-    total_piece: z.coerce.number().min(0.01, { message: "Le total doit être supérieur à 0." }).optional().or(z.literal(0)),
+    total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
     payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
@@ -69,11 +69,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
-    defaultValues: isEditMode && pieceToEdit ? {
-        ...pieceToEdit,
-        date: new Date(pieceToEdit.date),
-        description: pieceToEdit.description ?? '',
-    } : {
+    defaultValues: {
         date: new Date(),
         type: defaultType,
         total_piece: 0,
@@ -89,6 +85,8 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
       form.reset({
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
+        total_piece: pieceToEdit.total_piece ?? 0,
+        montant_paye: pieceToEdit.montant_paye ?? 0,
         description: pieceToEdit.description ?? '',
       });
       setCurrentType(pieceToEdit.type);
