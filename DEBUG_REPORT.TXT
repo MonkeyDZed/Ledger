@@ -1,0 +1,355 @@
+# DEBUG_REPORT.TXT
+# Rapport de Diagnostic - Bouton "Sauvegarder" désactivé (Pièces / Versements)
+
+==================================================
+1. SCHEMA ZOD EXACT
+--------------------------------------------------
+👉 Fournis le schéma complet (clientPieceFormSchema) tel qu’il est écrit dans le fichier source.
+
+Code ici :
+```typescript
+const clientPieceFormSchema = z.object({
+    date: z.date({ required_error: "La date est requise." }),
+    type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
+    total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
+    montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
+    description: z.string().optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).nullable().optional(),
+}).refine((data) => {
+    // For a versement, the paid amount must be greater than 0
+    if (data.type === 'VERSEMENT') {
+        return data.montant_paye > 0;
+    }
+    return true;
+}, {
+    message: "Le montant du versement doit être supérieur à 0.",
+    path: ["montant_paye"],
+}).refine((data) => {
+    // For invoices/BL, the paid amount cannot exceed the total.
+    if (data.type === 'VERSEMENT') return true;
+    if (data.total_piece === undefined || data.total_piece === null) return true;
+    return data.montant_paye <= data.total_piece;
+}, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
+});
+```
+
+==================================================
+2. CONFIGURATION DU useForm
+--------------------------------------------------
+👉 Copie la partie d’initialisation de useForm, y compris :
+- resolver
+- mode
+- defaultValues
+
+Code ici :
+```typescript
+const form = useForm<PieceFormValues>({
+    resolver: zodResolver(clientPieceFormSchema),
+    mode: 'onChange', // Validate on change to enable button
+});
+```
+*Note : Les `defaultValues` ne sont pas passées directement à l'initialisation mais sont définies via `form.reset()` dans un `useEffect`.*
+
+
+==================================================
+3. RESET ET USEEFFECT
+--------------------------------------------------
+👉 Montre le code du useEffect (ou autres endroits) où form.reset est appelé.
+
+Code ici :
+```typescript
+useEffect(() => {
+    const initializeForm = async () => {
+        if (isEditMode && pieceToEdit) {
+            form.reset({
+                ...pieceToEdit,
+                date: new Date(pieceToEdit.date),
+                total_piece: pieceToEdit.total_piece ?? 0,
+                montant_paye: pieceToEdit.montant_paye ?? 0,
+                description: pieceToEdit.description ?? '',
+                payment_method: pieceToEdit.payment_method,
+            });
+            setCurrentType(pieceToEdit.type);
+        } else {
+            const defaultValues = {
+                date: new Date(),
+                type: defaultType,
+                total_piece: 0,
+                montant_paye: 0,
+                description: '',
+                payment_method: undefined,
+            };
+            form.reset(defaultValues);
+            setCurrentType(defaultValues.type);
+        }
+        // Force validation right after reset to update isValid state
+        await form.trigger();
+    };
+    void initializeForm();
+  // IMPORTANT: Do not add `form` to the dependency array to avoid infinite loops.
+  }, [pieceToEdit, isEditMode, defaultType]);
+```
+
+==================================================
+4. COMPOSANTS DES CHAMPS NUMÉRIQUES
+--------------------------------------------------
+👉 Fournis les implémentations complètes de :
+- CurrencyInput (ou équivalent)
+- Les FormField pour total_piece et montant_paye
+
+Code ici :
+**`currency-input.tsx`:**
+```tsx
+'use client';
+
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { useState, forwardRef, useEffect } from 'react';
+import { ControllerRenderProps, FieldValues } from 'react-hook-form';
+
+interface CurrencyInputProps {
+  field: ControllerRenderProps<FieldValues, any>;
+  onValueChange: (value: number) => void;
+  className?: string;
+}
+
+const formatValue = (value: number | string | undefined): string => {
+  if (value === undefined || value === null || value === '' || isNaN(Number(value))) return '';
+  const num = typeof value === 'string' ? parseFloat(value.toString().replace(/[^0-9.]/g, '')) : value;
+  if (isNaN(num)) return '';
+  // Utilise un espace comme séparateur de milliers et une virgule pour les décimales
+  return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const parseValue = (value: string): number => {
+    // Gère à la fois les formats avec virgule et avec point pour la robustesse
+    const parsed = parseFloat(value.replace(/\s/g, '').replace(',', '.'));
+    return isNaN(parsed) ? 0 : parsed;
+};
+
+export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
+  ({ field, onValueChange, className }, ref) => {
+    const [displayValue, setDisplayValue] = useState('');
+    const [isFocused, setIsFocused] = useState(false);
+
+    useEffect(() => {
+        // Met à jour l'affichage formaté si la valeur du formulaire change de l'extérieur
+        if (!isFocused) {
+            const numValue = field.value ? Number(field.value) : 0;
+            setDisplayValue(formatValue(numValue));
+        }
+    }, [field.value, isFocused]);
+    
+
+    const handleFocus = () => {
+        setIsFocused(true);
+        // Affiche la valeur brute (ex: 120000.50) sans formatage pour la modification
+        const numValue = field.value ? Number(field.value) : 0;
+        if (numValue === 0) {
+             setDisplayValue('');
+        } else {
+            // Affiche avec un point pour une édition standard
+            setDisplayValue(String(numValue.toFixed(2)));
+        }
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+        // Parse la valeur brute et la met à jour dans le formulaire
+        const numValue = parseValue(displayValue);
+        onValueChange(numValue);
+        // Met à jour l'affichage avec la valeur formatée
+        setDisplayValue(formatValue(numValue));
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = e.target.value;
+        // Accepte uniquement les chiffres, le point et la virgule pour la saisie
+        const numberValue = rawValue.replace(/[^0-9.,]/g, '');
+        setDisplayValue(numberValue); // Affiche la saisie brute de l'utilisateur en temps réel
+    };
+    
+    // Condition pour afficher le zéro fictif
+    const showFictiveZero = !isFocused && !field.value;
+    // Détermine la valeur à afficher : saisie brute si focus, sinon valeur formatée
+    const finalDisplayValue = isFocused ? displayValue : (showFictiveZero ? formatValue(0) : formatValue(field.value));
+
+    return (
+      <div className="relative">
+        <Input
+          {...field}
+          ref={ref}
+          type="text" // On utilise toujours text pour pouvoir contrôler le formatage
+          className={cn('text-end font-mono', className, { 'text-muted-foreground': showFictiveZero && !isFocused })}
+          value={finalDisplayValue}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
+        />
+      </div>
+    );
+  }
+);
+
+CurrencyInput.displayName = 'CurrencyInput';
+```
+
+**Utilisation dans `piece-form.tsx` :**
+```jsx
+<FormField
+  control={form.control}
+  name="total_piece"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>{dictionary.totalLabel}</FormLabel>
+      <FormControl>
+          <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value, { shouldValidate: true })} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="montant_paye"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
+      <FormControl>
+          <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value, { shouldValidate: true })} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+```
+
+==================================================
+5. JSX DU BOUTON SAUVEGARDER
+--------------------------------------------------
+👉 Fournis le code exact du bouton (avec la condition disabled).
+
+Code ici :
+```jsx
+<Button type="submit" disabled={isPending || !form.formState.isValid}>
+    {isPending ? (isEditMode ? dictionary.savingChangesButton : dictionary.savingButton) : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}
+</Button>
+```
+
+==================================================
+6. DONNÉES ENTRANTES (MODE CREATION + EDITION)
+--------------------------------------------------
+👉 Fournis :
+- Un exemple d’objet utilisé en création (avant reset)
+- Un exemple d’objet utilisé en édition (avant reset)
+- L’objet passé après reset()
+
+**Création (pour une nouvelle Facture) :**
+- Objet avant reset : `undefined` (car `pieceToEdit` est `undefined`)
+- Objet passé à `form.reset()` :
+```javascript
+{
+    date: new Date(), // (Objet Date JS actuel)
+    type: 'FACTURE',
+    total_piece: 0,
+    montant_paye: 0,
+    description: '',
+    payment_method: undefined,
+}
+```
+
+**Édition (d'une facture existante) :**
+- Objet `pieceToEdit` avant `reset()` (depuis la DB) :
+```javascript
+{
+  id: "uuid-string-from-db",
+  supplier_id: "uuid-string-of-supplier",
+  date: "2024-05-15T12:00:00.000Z", // string (format ISO)
+  type: "FACTURE",
+  total_piece: 50000, // number
+  montant_paye: 10000, // number
+  reste: 40000, // number
+  description: "Achat de matériel.", // string
+  payment_method: null, // null
+  created_at: "2024-05-15T12:00:00.000Z",
+  updated_at: "2024-05-15T12:00:00.000Z"
+}
+```
+
+- Objet passé à `form.reset()` :
+```javascript
+{
+  // Toutes les propriétés de pieceToEdit
+  date: new Date("2024-05-15T12:00:00.000Z"), // Converti en objet Date
+  total_piece: 50000, // Est déjà un nombre
+  montant_paye: 10000, // Est déjà un nombre
+  description: "Achat de matériel.", // Est déjà une string
+  payment_method: null // Reste null
+}
+```
+
+==================================================
+7. LOGS DE VALIDATION
+--------------------------------------------------
+👉 Active temporairement des console.log dans :
+- form.formState
+- La valeur de total_piece et montant_paye à chaque render
+- Les erreurs zod
+
+Copie/colle un extrait représentatif ici :
+*Hypothèse basée sur l'analyse du code, car je ne peux pas exécuter de `console.log` moi-même.*
+En mode **ÉDITION**, le log des erreurs (`form.formState.errors`) serait très probablement le suivant au premier rendu :
+
+```json
+{}
+```
+Cependant, `form.formState.isValid` serait `false`.
+
+Ceci est le symptôme classique d'une erreur de validation au niveau de l'objet entier via `.refine()` qui n'est pas attachée à un champ spécifique, ou d'un type invalide qui n'est pas correctement "coercé" (comme le `null` pour `payment_method` avant la correction que j'ai proposée). Zod invalide l'objet, mais RHF ne sait pas à quel champ attacher l'erreur.
+
+==================================================
+8. VERSIONS ET DEPENDANCES
+--------------------------------------------------
+👉 Copie les versions de :
+- react
+- next
+- react-hook-form
+- @hookform/resolvers
+- zod
+- typescript
+
+Extrait package.json ici :
+```json
+{
+  "dependencies": {
+    "react": "^18.3.1",
+    "next": "15.3.3",
+    "react-hook-form": "^7.54.2",
+    "@hookform/resolvers": "^4.1.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}
+```
+
+==================================================
+9. REMARQUES SUPPLEMENTAIRES
+--------------------------------------------------
+👉 Tout autre détail que tu juges utile (ex : règles refine particulières, formats de date, etc.).
+
+Notes :
+- **Conflit `null` vs `undefined` :** La cause la plus probable du bug en mode édition est que la base de données renvoie `null` pour le champ `payment_method` lorsqu'il est vide. Le schéma Zod initial n'acceptait probablement que `undefined` (via `.optional()`) et non `null`. Le formulaire est donc invalide dès le départ. La solution est de mettre à jour le schéma avec `.nullable().optional()`.
+
+- **Validation Manuelle au Démarrage :** L'appel à `await form.trigger()` dans le `useEffect` est une bonne pratique pour forcer la validation immédiatement après `reset()`. Cela garantit que `form.formState.isValid` reflète l'état réel des données chargées, ce qui active ou désactive correctement le bouton "Sauvegarder".
+
+- **`CurrencyInput` :** Ce composant est complexe. Il gère un état interne `displayValue` (une chaîne formatée) et notifie le formulaire avec une valeur numérique. Il faut s'assurer que la conversion (`parseValue`) est robuste et renvoie bien un `number` que Zod peut valider avec `z.coerce.number()`.
+
+
+==================================================
+FIN DU RAPPORT
+==================================================
