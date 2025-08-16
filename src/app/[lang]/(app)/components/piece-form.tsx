@@ -22,14 +22,18 @@ import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from './currency-input';
 
-// Client-side schema, updated to correctly handle nullable payment_method
+// Schéma corrigé pour normaliser 'payment_method'
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
     total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
-    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).nullable().optional(),
+    payment_method: z.union([
+        z.enum(['espece', 'cheque', 'virement', 'traite']),
+        z.literal('').transform(() => undefined),
+        z.null().transform(() => undefined),
+    ]).optional(),
 }).refine((data) => {
     // For a versement, the paid amount must be greater than 0
     if (data.type === 'VERSEMENT') {
@@ -87,7 +91,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 total_piece: pieceToEdit.total_piece ?? 0,
                 montant_paye: pieceToEdit.montant_paye ?? 0,
                 description: pieceToEdit.description ?? '',
-                payment_method: pieceToEdit.payment_method,
+                payment_method: pieceToEdit.payment_method ?? undefined, // Normalisation ici
             });
             setCurrentType(pieceToEdit.type);
         } else {
@@ -97,7 +101,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 total_piece: 0,
                 montant_paye: 0,
                 description: '',
-                payment_method: undefined,
+                payment_method: undefined, // Cohérent
             };
             form.reset(defaultValues);
             setCurrentType(defaultValues.type);
@@ -106,7 +110,6 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
         await form.trigger();
     };
     void initializeForm();
-  // IMPORTANT: Do not add `form` to the dependency array to avoid infinite loops.
   }, [pieceToEdit, isEditMode, defaultType]);
 
 
@@ -302,5 +305,3 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
-
-    
