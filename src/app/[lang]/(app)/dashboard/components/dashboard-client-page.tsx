@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -61,7 +61,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     supplierFormRef.current?.autoFill();
   }
 
-  const supplierDataWithCalculations = suppliers.map((supplier) => {
+  const supplierDataWithCalculations = useMemo(() => suppliers.map((supplier) => {
     const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
     const totalFromPieces = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
     const paidFromPieces = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
@@ -76,9 +76,10 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
       ...supplier,
       totalDebt,
       totalFromPieces,
-      mostRecentPieceDate: mostRecentPiece ? new Date(mostRecentPiece.date) : new Date(0) // Use epoch for suppliers with no pieces
+      // Use date string directly to avoid Date object mismatch between server/client
+      mostRecentPieceDate: mostRecentPiece ? mostRecentPiece.date : '1970-01-01T00:00:00.000Z'
     };
-  });
+  }), [suppliers, pieces]);
 
   const grandTotalDebt = supplierDataWithCalculations.reduce((sum, s) => sum + s.totalDebt, 0);
   const totalPieces = pieces.filter(p => p.type !== 'VERSEMENT').length;
@@ -93,7 +94,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
 
   const recentSuppliers = [...supplierDataWithCalculations]
-    .sort((a, b) => b.mostRecentPieceDate.getTime() - a.mostRecentPieceDate.getTime())
+    .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
     .slice(0, 5);
 
   return (

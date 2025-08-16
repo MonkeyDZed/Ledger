@@ -1,37 +1,16 @@
 
-'use client';
-
 import { getSuppliers, getPieces } from '@/lib/db';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import { DashboardClientPage } from './components/dashboard-client-page';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
-import { useEffect, useState } from 'react';
-import type { Supplier, Piece, Dictionary } from '@/lib/types';
 
-
-export default function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [pieces, setPieces] = useState<Piece[]>([]);
-  const [dictionary, setDictionary] = useState<any>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      const serverSuppliers = await getSuppliers();
-      const serverPieces = await getPieces();
-      const serverDict = await getDictionary(lang);
-      
-      setSuppliers(serverSuppliers);
-      setPieces(serverPieces);
-      setDictionary(serverDict);
-    }
-    fetchData();
-  }, [lang]);
-
-  if (!dictionary) {
-    return <div>Chargement...</div>;
-  }
+// This is a Server Component, responsible for fetching data.
+export default async function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
+  const suppliers = await getSuppliers();
+  const pieces = await getPieces();
+  const dictionary = await getDictionary(lang);
 
   const dashboardDict = {
     suppliers: dictionary.dashboard.suppliers,
@@ -59,6 +38,7 @@ export default function DashboardPage({ params: { lang } }: { params: { lang: Lo
     currency: dictionary.dashboard.currency,
   };
 
+  // The Server Component passes data to the Client Component as props.
   return <DashboardClientPage 
     suppliers={suppliers} 
     pieces={pieces} 
