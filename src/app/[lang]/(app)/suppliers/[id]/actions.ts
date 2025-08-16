@@ -12,7 +12,11 @@ const PieceSchema = z.object({
     total_piece: z.coerce.number().optional(),
     montant_paye: z.coerce.number(),
     description: z.string().optional(),
-    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).nullable().optional(),
+    payment_method: z.union([
+        z.enum(['espece', 'cheque', 'virement', 'traite']),
+        z.literal('').transform(() => undefined),
+        z.null().transform(() => undefined),
+    ]).optional(),
 });
 
 type PieceFormValues = z.infer<typeof PieceSchema>;
@@ -21,6 +25,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
     const validation = PieceSchema.safeParse(data);
     if (!validation.success) {
         // This should not happen if client-side validation is working
+        console.error("Validation Zod côté serveur échouée :", validation.error.flatten().fieldErrors);
         return { success: false, message: 'Invalid data provided.' };
     }
     try {
@@ -30,6 +35,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
             total_piece: validation.data.total_piece ?? 0,
         };
 
+        console.log("Données envoyées à la DB (addPieceToDb) :", dataForDb);
         await addPieceToDb(dataForDb);
         
         revalidatePath('/');
@@ -41,7 +47,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
         return { success: true };
     } catch(e) {
         const error = e as Error;
-        console.error(error);
+        console.error("Erreur serveur lors de l'ajout d'une pièce :", error);
         return { success: false, message: "Une erreur est survenue lors de l'ajout de la pièce." };
     }
 }
