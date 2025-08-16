@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CurrencyInput } from './currency-input';
 
 // Client-side schema, completely independent of server-side dictionaries.
+// Using z.coerce.number() to handle string-to-number conversion.
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
@@ -32,6 +33,7 @@ const clientPieceFormSchema = z.object({
     description: z.string().optional(),
     payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
 }).refine((data) => {
+    // For a versement, the paid amount must be greater than 0
     if (data.type === 'VERSEMENT') {
         return data.montant_paye > 0;
     }
@@ -40,6 +42,7 @@ const clientPieceFormSchema = z.object({
     message: "Le montant du versement doit être supérieur à 0.",
     path: ["montant_paye"],
 }).refine((data) => {
+    // For invoices/BL, the paid amount cannot exceed the total.
     if (data.type === 'VERSEMENT') return true;
     return data.montant_paye <= (data.total_piece ?? 0);
 }, {
@@ -69,7 +72,14 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
-    defaultValues: {
+    mode: 'onChange', // Validate on change to enable button
+    defaultValues: isEditMode && pieceToEdit ? {
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+        total_piece: pieceToEdit.total_piece ?? 0,
+        montant_paye: pieceToEdit.montant_paye ?? 0,
+        description: pieceToEdit.description ?? '',
+    } : {
         date: new Date(),
         type: defaultType,
         total_piece: 0,
@@ -81,25 +91,24 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   const [currentType, setCurrentType] = useState(form.getValues('type'));
   
   useEffect(() => {
-    if (isEditMode && pieceToEdit) {
-      form.reset({
+    const initialValues = isEditMode && pieceToEdit ? {
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
+        // Ensure values are numbers, defaulting to 0 if null/undefined
         total_piece: pieceToEdit.total_piece ?? 0,
         montant_paye: pieceToEdit.montant_paye ?? 0,
         description: pieceToEdit.description ?? '',
-      });
-      setCurrentType(pieceToEdit.type);
-    } else {
-        form.reset({
-            date: new Date(),
-            type: defaultType,
-            total_piece: 0,
-            montant_paye: 0,
-            description: '',
-        });
-        setCurrentType(defaultType);
-    }
+    } : {
+        date: new Date(),
+        type: defaultType,
+        total_piece: 0,
+        montant_paye: 0,
+        description: '',
+    };
+    
+    form.reset(initialValues);
+    setCurrentType(initialValues.type);
+
   }, [pieceToEdit, isEditMode, form, defaultType]);
 
 
@@ -131,11 +140,15 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     form.setValue('type', value);
     setCurrentType(value);
     if (value === 'VERSEMENT') {
+        // When switching to Versement, reset total_piece and its potential errors
         form.setValue('total_piece', 0, { shouldValidate: true });
     }
   }
 
   const isVersement = currentType === 'VERSEMENT';
+  
+  // Debug log to check form state
+  // console.log("Form is valid:", form.formState.isValid, "Errors:", form.formState.errors);
 
   return (
     <Form {...form}>
@@ -226,7 +239,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 <FormItem>
                   <FormLabel>{dictionary.totalLabel}</FormLabel>
                   <FormControl>
-                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value)} />
+                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value, { shouldValidate: true })} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -240,7 +253,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 <FormItem>
                   <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
                   <FormControl>
-                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value)} />
+                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value, { shouldValidate: true })} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -287,7 +300,9 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
         />
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>{dictionary.cancelButton}</Button>
-            <Button type="submit" disabled={isPending}>{isPending ? (isEditMode ? dictionary.savingChangesButton : dictionary.savingButton) : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}</Button>
+            <Button type="submit" disabled={isPending || !form.formState.isValid}>
+                {isPending ? (isEditMode ? dictionary.savingChangesButton : dictionary.savingButton) : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}
+            </Button>
         </div>
       </form>
     </Form>
