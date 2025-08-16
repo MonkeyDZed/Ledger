@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -35,7 +35,7 @@ const PdfIcon = () => (
     <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 0h12a2 2 0 012 2v16a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2zm2 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clipRule="evenodd" fillRule="evenodd"></path></svg>
 );
 const CsvIcon = () => (
-    <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
+    <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1-1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
 );
 
 interface DashboardClientPageProps {
@@ -63,9 +63,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
   const supplierDataWithCalculations = useMemo(() => suppliers.map((supplier) => {
     const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
-    const totalFromPieces = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
-    const paidFromPieces = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
-    const balanceFromPieces = totalFromPieces - paidFromPieces;
+    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const balanceFromPieces = totalInvoiced - totalPaid;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
 
     const mostRecentPiece = supplierPieces.length > 0
@@ -75,11 +75,20 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     return {
       ...supplier,
       totalDebt,
-      totalFromPieces,
-      // Use date string directly to avoid Date object mismatch between server/client
+      totalFromPieces: totalInvoiced,
       mostRecentPieceDate: mostRecentPiece ? mostRecentPiece.date : '1970-01-01T00:00:00.000Z'
     };
   }), [suppliers, pieces]);
+  
+  const [recentSuppliers, setRecentSuppliers] = useState<typeof supplierDataWithCalculations>([]);
+
+  useEffect(() => {
+    const sorted = [...supplierDataWithCalculations]
+        .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
+        .slice(0, 5);
+    setRecentSuppliers(sorted);
+  }, [supplierDataWithCalculations]);
+
 
   const grandTotalDebt = supplierDataWithCalculations.reduce((sum, s) => sum + s.totalDebt, 0);
   const totalPieces = pieces.filter(p => p.type !== 'VERSEMENT').length;
@@ -87,15 +96,10 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
   // Financial Overview Calculation
   const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-  // Correctly calculate total to pay by summing individual debts
   const totalToPay = grandTotalDebt; 
   
   const grandTotal = totalPaid + totalToPay;
 
-
-  const recentSuppliers = [...supplierDataWithCalculations]
-    .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
-    .slice(0, 5);
 
   return (
     <>
@@ -316,3 +320,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
+
+    

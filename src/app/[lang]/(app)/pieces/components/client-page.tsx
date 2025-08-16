@@ -3,7 +3,7 @@
 
 import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
-import type { Piece } from '@/lib/types';
+import type { Piece, Supplier } from '@/lib/types';
 import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
@@ -25,6 +25,7 @@ type PieceWithSupplierName = Piece & { supplierName: string; };
 
 interface ClientPageProps {
   pieces: PieceWithSupplierName[];
+  suppliers: Supplier[];
   dictionary: any;
   pieceFormDictionary: any;
   lang: 'fr' | 'ar';
@@ -57,7 +58,7 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
+export function ClientPage({ pieces: initialPieces, suppliers, dictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
@@ -98,9 +99,13 @@ export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDiction
     const totals = useMemo(() => {
         const totalBilled = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
         const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-        const totalRemaining = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.reste, 0);
+        
+        // Correct calculation for total remaining debt across all suppliers
+        const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
+        const totalRemaining = (totalInitialBalance + totalBilled) - totalPaid;
+
         return { totalBilled, totalPaid, totalRemaining };
-    }, [pieces]);
+    }, [pieces, suppliers]);
 
     const columns = useMemo((): ColumnDef<PieceWithSupplierName>[] => {
       const dict = dictionary.table;
@@ -274,3 +279,4 @@ export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDiction
   );
 }
 
+    
