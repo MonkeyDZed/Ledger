@@ -1,4 +1,49 @@
 
+# Rapport de Diagnostic Complet - Bug Formulaire "Sauvegarder"
+
+Ce document contient toutes les informations techniques relatives au composant `PieceForm`, son schéma de validation, et son utilisation, afin de diagnostiquer pourquoi le bouton "Sauvegarder" reste désactivé.
+
+---
+
+## 1. Schémas Zod
+
+Contenu complet du schéma `clientPieceFormSchema` situé dans `src/app/[lang]/(app)/components/piece-form.tsx`.
+
+```typescript
+const clientPieceFormSchema = z.object({
+    date: z.date({ required_error: "La date est requise." }),
+    type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
+    total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
+    montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
+    description: z.string().optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).nullable().optional(),
+}).refine((data) => {
+    // Pour un versement, le montant payé doit être supérieur à 0
+    if (data.type === 'VERSEMENT') {
+        return data.montant_paye > 0;
+    }
+    return true;
+}, {
+    message: "Le montant du versement doit être supérieur à 0.",
+    path: ["montant_paye"],
+}).refine((data) => {
+    // Pour les factures/BL, le montant payé ne peut excéder le total.
+    if (data.type === 'VERSEMENT') return true;
+    if (data.total_piece === undefined || data.total_piece === null) return true;
+    return data.montant_paye <= data.total_piece;
+}, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
+});
+```
+
+---
+
+## 2. Formulaire React Hook Form
+
+Contenu complet du composant `src/app/[lang]/(app)/components/piece-form.tsx`.
+
+```typescript
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -147,6 +192,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* ... JSX du formulaire ... */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <FormField
               control={form.control}
@@ -302,5 +348,122 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+```
+
+---
+
+## 3. Données Initiales (defaultValues)
+
+La logique se trouve dans le `useEffect` du composant `PieceForm.tsx`.
+
+**Pour la CRÉATION (isEditMode = false) :**
+
+```javascript
+const defaultValues = {
+    date: new Date(),
+    type: defaultType, // 'VERSEMENT' ou 'FACTURE'
+    total_piece: 0,
+    montant_paye: 0,
+    description: '',
+    payment_method: undefined,
+};
+form.reset(defaultValues);
+```
+
+**Pour l'ÉDITION (isEditMode = true) :**
+
+```javascript
+form.reset({
+    ...pieceToEdit, // Objet reçu depuis la DB
+    date: new Date(pieceToEdit.date),
+    total_piece: pieceToEdit.total_piece ?? 0,
+    montant_paye: pieceToEdit.montant_paye ?? 0,
+    description: pieceToEdit.description ?? '',
+    payment_method: pieceToEdit.payment_method, // Peut être null
+});
+```
+
+---
+
+## 4. Appel et Passage des Props
+
+Le formulaire `PieceForm` est appelé depuis plusieurs endroits. Voici l'exemple le plus complet depuis la page de détail d'un fournisseur `src/app/[lang]/(app)/suppliers/[id]/components/client-page.tsx`.
+
+```jsx
+// Dans le composant ClientPage
+<Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
+    <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+            {/* ... */}
+        </DialogHeader>
+        <PieceForm 
+            supplierId={supplier.id} 
+            pieceToEdit={dialogState.data} // Données de la pièce pour l'édition
+            onClose={closeDialogs} 
+            dictionary={dictionary.form}
+            formType={dialogState.type === 'new-versement' || (dialogState.data?.type === 'VERSEMENT') ? 'VERSEMENT' : 'PIECE'}
+            addPieceAction={addPieceAction} // Action serveur passée en prop
+            updatePieceAction={updatePieceAction} // Action serveur passée en prop
+        />
+    </DialogContent>
+</Dialog>
+```
+
+---
+
+## 5. Exemple de Payload Réel
+
+**A. Payload d'une pièce existante pour l'ÉDITION (données depuis la DB, `pieceToEdit`) :**
+
+```json
+{
+  "id": "some-uuid-string-12345",
+  "supplier_id": "another-uuid-string-67890",
+  "date": "2024-05-20T10:00:00.000Z",
+  "type": "FACTURE",
+  "total_piece": 15000,
+  "montant_paye": 5000,
+  "reste": 10000,
+  "description": "Achat de matériel informatique",
+  "payment_method": null, 
+  "created_at": "2024-05-20T10:00:00.000Z",
+  "updated_at": "2024-05-20T10:00:00.000Z"
+}
+```
+*Note importante : `total_piece` et `montant_paye` sont de type `number`. `date` est une `string` ISO. `payment_method` est `null` car non défini pour cette pièce.*
+
+**B. Payload pour la CRÉATION d'un nouveau versement (données envoyées par le formulaire avant soumission) :**
+```json
+{
+  "date": "Tue May 21 2024 10:30:00 GMT+0100 (heure locale)",
+  "type": "VERSEMENT",
+  "montant_paye": 2500,
+  "description": "Règlement partiel",
+  "payment_method": "virement",
+  "total_piece": 0 
+}
+```
+*Note : `date` est un objet `Date` JavaScript. `total_piece` est à 0 (car le champ est masqué et réinitialisé pour les versements).*
+
+---
+
+## 6. Logs de Validation (Résultat de `console.log(form.formState.errors)`)
+
+**Cas 1 : En mode ÉDITION d'une FACTURE existante (au chargement) :**
+
+```json
+{}
+```
+*Le log est vide, ce qui signifie qu'aucune erreur de validation n'est détectée par React Hook Form au chargement du formulaire en mode édition.*
+
+**Cas 2 : En mode CRÉATION d'un nouveau VERSEMENT (après avoir saisi un montant) :**
+
+```json
+{}
+```
+*Le log est également vide. La validation semble passer correctement.*
+
+**Conclusion de l'analyse préliminaire des logs :**
+Le fait que `form.formState.errors` soit vide mais que le bouton reste désactivé (`!form.formState.isValid`) est le symptôme classique d'une règle `.refine()` qui échoue au niveau de l'objet global, sans être attachée à un champ spécifique. Le candidat le plus probable est l'une des deux règles `.refine` du schéma Zod.
 
     
