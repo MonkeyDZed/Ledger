@@ -5,24 +5,26 @@ import { addSupplier as addSupplierToDb, deleteSupplier as deleteSupplierFromDb,
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
-// Client-side validation is now the primary source of validation before calling the action.
-// The server action performs the DB operation directly.
+// This is a server-action-safe schema. It will not be imported by any client components.
 const SupplierFormSchema = z.object({
-    name: z.string(),
+    name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
     wilaya: z.string().optional(),
     phone: z.string().optional(),
     nif: z.string().optional(),
     bank_info: z.string().optional(),
-    solde_initial: z.coerce.number(),
+    solde_initial: z.coerce.number().default(0),
     notes: z.string().optional(),
 });
 
 type SupplierFormValues = z.infer<typeof SupplierFormSchema>;
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    // Server-side validation is removed to prevent locale contamination issues.
+    const validation = SupplierFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: 'Invalid data provided.' };
+    }
     try {
-        await addSupplierToDb(data);
+        await addSupplierToDb(validation.data);
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');
@@ -38,9 +40,12 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
-    // Server-side validation is removed to prevent locale contamination issues.
+    const validation = SupplierFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: 'Invalid data provided.' };
+    }
     try {
-        await updateSupplierInDb(id, data);
+        await updateSupplierInDb(id, validation.data);
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');

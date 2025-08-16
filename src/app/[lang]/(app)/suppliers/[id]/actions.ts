@@ -5,8 +5,7 @@ import { z } from 'zod';
 import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
-// Client-side validation is now the primary source of validation before calling the action.
-// The server action performs the DB operation directly.
+// This is a server-action-safe schema. It will not be imported by any client components.
 const PieceFormSchema = z.object({
     date: z.date(),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT']),
@@ -19,9 +18,12 @@ const PieceFormSchema = z.object({
 type PieceFormValues = z.infer<typeof PieceFormSchema>;
 
 export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
-    // Server-side validation is removed to prevent locale contamination issues.
+    const validation = PieceFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: 'Invalid data provided.' };
+    }
     try {
-        await addPieceToDb(data);
+        await addPieceToDb(validation.data);
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');
@@ -38,9 +40,12 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    // Server-side validation is removed to prevent locale contamination issues.
+    const validation = PieceFormSchema.safeParse(data);
+    if (!validation.success) {
+        return { success: false, message: 'Invalid data provided.' };
+    }
     try {
-        await updatePieceInDb(id, data);
+        await updatePieceInDb(id, validation.data);
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');

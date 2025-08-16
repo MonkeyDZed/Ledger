@@ -44,7 +44,8 @@ const clientPieceFormSchema = z.object({
 }).refine((data) => {
     // For invoices/BL, the paid amount cannot exceed the total.
     if (data.type === 'VERSEMENT') return true;
-    return data.montant_paye <= (data.total_piece ?? 0);
+    if (data.total_piece === undefined || data.total_piece === null) return true;
+    return data.montant_paye <= data.total_piece;
 }, {
     message: "Le montant payé ne peut pas dépasser le total de la pièce.",
     path: ["montant_paye"],
@@ -91,24 +92,26 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   const [currentType, setCurrentType] = useState(form.getValues('type'));
   
   useEffect(() => {
-    const initialValues = isEditMode && pieceToEdit ? {
-        ...pieceToEdit,
-        date: new Date(pieceToEdit.date),
-        // Ensure values are numbers, defaulting to 0 if null/undefined
-        total_piece: pieceToEdit.total_piece ?? 0,
-        montant_paye: pieceToEdit.montant_paye ?? 0,
-        description: pieceToEdit.description ?? '',
-    } : {
-        date: new Date(),
-        type: defaultType,
-        total_piece: 0,
-        montant_paye: 0,
-        description: '',
-    };
-    
-    form.reset(initialValues);
-    setCurrentType(initialValues.type);
-
+    if (isEditMode && pieceToEdit) {
+      form.reset({
+          ...pieceToEdit,
+          date: new Date(pieceToEdit.date),
+          total_piece: pieceToEdit.total_piece ?? 0,
+          montant_paye: pieceToEdit.montant_paye ?? 0,
+          description: pieceToEdit.description ?? '',
+      });
+      setCurrentType(pieceToEdit.type);
+    } else {
+        const defaultValues = {
+            date: new Date(),
+            type: defaultType,
+            total_piece: 0,
+            montant_paye: 0,
+            description: '',
+        };
+        form.reset(defaultValues);
+        setCurrentType(defaultValues.type);
+    }
   }, [pieceToEdit, isEditMode, form, defaultType]);
 
 
@@ -137,7 +140,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   }
   
   const handleTypeChange = (value: 'FACTURE' | 'BL' | 'VERSEMENT') => {
-    form.setValue('type', value);
+    form.setValue('type', value, { shouldValidate: true });
     setCurrentType(value);
     if (value === 'VERSEMENT') {
         // When switching to Versement, reset total_piece and its potential errors
