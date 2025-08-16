@@ -82,13 +82,13 @@ export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDiction
         const result = await deletePieceAction(dialogState.data.id, dialogState.data.supplier_id);
         if (result.success) {
             toast({
-                title: pieceFormDictionary.form.toast.deleteSuccess.title,
-                description: pieceFormDictionary.form.toast.deleteSuccess.description,
+                title: pieceFormDictionary.toast.deleteSuccess.title,
+                description: pieceFormDictionary.toast.deleteSuccess.description,
             });
         } else {
             toast({
-                title: pieceFormDictionary.form.toast.error.title,
-                description: result.message || pieceFormDictionary.form.toast.error.description,
+                title: pieceFormDictionary.toast.error.title,
+                description: result.message || pieceFormDictionary.toast.error.description,
                 variant: "destructive",
             });
         }
@@ -211,7 +211,7 @@ export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDiction
           },
         },
       ];
-    }, [lang, dictionary]);
+    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
 
   return (
     <>

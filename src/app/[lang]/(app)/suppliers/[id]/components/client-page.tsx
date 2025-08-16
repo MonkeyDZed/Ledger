@@ -193,7 +193,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         },
       },
     ];
-  }, [lang, dictionary]);
+  }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
 
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
