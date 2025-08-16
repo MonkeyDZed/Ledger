@@ -7,7 +7,14 @@ import { Check } from 'lucide-react'
 
 type Locale = 'fr' | 'ar';
 
-export function LanguageSwitcherMenu({ params }: { params: { lang: Locale }}) {
+interface LanguageSwitcherProps {
+    params: { lang: Locale };
+    dictionary: {
+        language: string;
+    };
+}
+
+export function LanguageSwitcherMenu({ params, dictionary }: LanguageSwitcherProps) {
   const router = useRouter()
   const pathname = usePathname()
 
@@ -20,7 +27,7 @@ export function LanguageSwitcherMenu({ params }: { params: { lang: Locale }}) {
   return (
     <DropdownMenuSub>
         <DropdownMenuSubTrigger>
-            <span>{params.lang === 'fr' ? 'Langue' : 'اللغة'}</span>
+            <span>{dictionary.language}</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent>
             <DropdownMenuItem onClick={() => switchLanguage('fr')}>

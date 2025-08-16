@@ -24,7 +24,13 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
         return { success: false, message: 'Invalid data provided.' };
     }
     try {
-        await addPieceToDb(validation.data);
+        // Ensure total_piece is 0 if it's not provided (especially for 'VERSEMENT')
+        const dataForDb = {
+            ...validation.data,
+            total_piece: validation.data.total_piece ?? 0,
+        };
+
+        await addPieceToDb(dataForDb);
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');

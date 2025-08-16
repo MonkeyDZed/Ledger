@@ -45,6 +45,14 @@ export default function AppLayout({
     // Starts with for others to handle sub-pages like /suppliers/[id]
     return pathname.startsWith(fullPath);
   };
+  
+  const dict = {
+    myAccount: params.lang === 'ar' ? 'حسابي' : 'Mon Compte',
+    settings: params.lang === 'ar' ? 'الإعدادات' : 'Paramètres',
+    support: params.lang === 'ar' ? 'الدعم' : 'Support',
+    logout: params.lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion',
+    language: params.lang === 'ar' ? 'اللغة' : 'Langue',
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-50" dir={params.lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -107,14 +115,14 @@ export default function AppLayout({
                         </div>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>{params.lang === 'ar' ? 'حسابي' : 'Mon Compte'}</DropdownMenuLabel>
+                        <DropdownMenuLabel>{dict.myAccount}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>{params.lang === 'ar' ? 'الإعدادات' : 'Paramètres'}</DropdownMenuItem>
-                        <DropdownMenuItem>{params.lang === 'ar' ? 'الدعم' : 'Support'}</DropdownMenuItem>
-                        <LanguageSwitcherMenu params={params} />
+                        <DropdownMenuItem>{dict.settings}</DropdownMenuItem>
+                        <DropdownMenuItem>{dict.support}</DropdownMenuItem>
+                        <LanguageSwitcherMenu params={params} dictionary={{ language: dict.language }} />
                         <DropdownMenuSeparator />
                         <Link href={`/${params.lang}`}>
-                          <DropdownMenuItem>{params.lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion'}</DropdownMenuItem>
+                          <DropdownMenuItem>{dict.logout}</DropdownMenuItem>
                         </Link>
                       </DropdownMenuContent>
                     </DropdownMenu>
