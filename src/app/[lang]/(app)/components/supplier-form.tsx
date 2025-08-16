@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { addSupplier, updateSupplier } from '../suppliers/actions';
+import type { addSupplier, updateSupplier } from '../suppliers/actions';
 import type { Supplier } from '@/lib/types';
 import { CurrencyInput } from './currency-input';
 
@@ -31,9 +31,11 @@ interface SupplierFormProps {
   onClose: () => void;
   dictionary: any;
   supplierToEdit?: Supplier;
+  addSupplierAction: typeof addSupplier;
+  updateSupplierAction: typeof updateSupplier;
 }
 
-export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit }, ref) => {
+export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ onClose, dictionary, supplierToEdit, addSupplierAction, updateSupplierAction }, ref) => {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   
@@ -85,8 +87,8 @@ export const SupplierForm = forwardRef<SupplierFormRef, SupplierFormProps>(({ on
   function onSubmit(data: SupplierFormValues) {
     startTransition(async () => {
         const action = isEditMode
-          ? updateSupplier(supplierToEdit!.id, data)
-          : addSupplier(data);
+          ? updateSupplierAction(supplierToEdit!.id, data)
+          : addSupplierAction(data);
 
         const result = await action;
         

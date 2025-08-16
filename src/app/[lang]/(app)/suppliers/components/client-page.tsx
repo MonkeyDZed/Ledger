@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
 import type { Supplier, Piece } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { deleteSupplier } from '../actions';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -20,12 +19,17 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
+import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
+
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 
 interface ClientPageProps {
   suppliers: SupplierWithDebt[];
   dictionary: any;
+  deleteSupplierAction: typeof deleteSupplier;
+  addSupplierAction: typeof addSupplier;
+  updateSupplierAction: typeof updateSupplier;
 }
 
 
@@ -35,7 +39,7 @@ const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" 
 const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
 
 
-export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
+export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
@@ -62,7 +66,7 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
-    const result = await deleteSupplier(dialogState.data.id);
+    const result = await deleteSupplierAction(dialogState.data.id);
     if(result.success) {
         toast({
             title: dictionary.form.toast.deleteSuccess.title,
@@ -280,6 +284,8 @@ export function ClientPage({ suppliers, dictionary }: ClientPageProps) {
             onClose={closeDialogs} 
             dictionary={dictionary.form}
             supplierToEdit={dialogState.data}
+            addSupplierAction={addSupplierAction}
+            updateSupplierAction={updateSupplierAction}
           />
         </DialogContent>
       </Dialog>

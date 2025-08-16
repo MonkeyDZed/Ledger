@@ -16,7 +16,7 @@ const SupplierSchema = z.object({
     notes: z.string().optional(),
 });
 
-type SupplierFormValues = z.infer<typeof SupplierSchema>;
+export type SupplierFormValues = z.infer<typeof SupplierSchema>;
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
     const validation = SupplierSchema.safeParse(data);

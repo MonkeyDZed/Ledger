@@ -15,10 +15,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { deletePiece } from '../../suppliers/[id]/actions';
 import { PieceForm } from '../../components/piece-form';
 import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
+import type { addPiece, updatePiece, deletePiece } from '../../suppliers/[id]/actions';
 
 
 type PieceWithSupplierName = Piece & { supplierName: string; };
@@ -28,6 +28,9 @@ interface ClientPageProps {
   dictionary: any;
   pieceFormDictionary: any;
   lang: 'fr' | 'ar';
+  addPieceAction: typeof addPiece;
+  updatePieceAction: typeof updatePiece;
+  deletePieceAction: typeof deletePiece;
 }
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
@@ -54,7 +57,7 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDictionary, lang }: ClientPageProps) {
+export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
@@ -76,7 +79,7 @@ export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDiction
     const handleDelete = async () => {
         if (dialogState.type !== 'delete' || !dialogState.data) return;
 
-        const result = await deletePiece(dialogState.data.id, dialogState.data.supplier_id);
+        const result = await deletePieceAction(dialogState.data.id, dialogState.data.supplier_id);
         if (result.success) {
             toast({
                 title: pieceFormDictionary.form.toast.deleteSuccess.title,
@@ -247,6 +250,8 @@ export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDiction
             onClose={closeDialogs} 
             dictionary={pieceFormDictionary.form}
             formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
+            addPieceAction={addPieceAction}
+            updatePieceAction={updatePieceAction}
           />
         </DialogContent>
       </Dialog>

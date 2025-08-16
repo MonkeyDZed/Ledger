@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTransition, useEffect, useState } from 'react';
-import { addPiece, updatePiece } from '../suppliers/[id]/actions';
+import type { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -58,9 +58,11 @@ interface PieceFormProps {
   pieceToEdit?: Piece;
   dictionary: any;
   formType?: 'VERSEMENT' | 'PIECE';
+  addPieceAction: typeof addPiece;
+  updatePieceAction: typeof updatePiece;
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType = 'PIECE' }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType = 'PIECE', addPieceAction, updatePieceAction }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
@@ -111,8 +113,8 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
       const action = isEditMode
-        ? updatePiece(pieceToEdit!.id, supplierId, data)
-        : addPiece({ ...data, supplier_id: supplierId, total_piece: data.total_piece ?? 0 });
+        ? updatePieceAction(pieceToEdit!.id, supplierId, data)
+        : addPieceAction({ ...data, supplier_id: supplierId, total_piece: data.total_piece ?? 0 });
       
       const result = await action;
 
@@ -304,6 +306,3 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
-
-
-    

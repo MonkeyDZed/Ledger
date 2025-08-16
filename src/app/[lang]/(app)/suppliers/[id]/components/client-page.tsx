@@ -13,7 +13,6 @@ import type { Supplier, Piece } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { deletePiece } from '../actions';
 import { useParams } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -22,6 +21,8 @@ import { Badge } from '@/components/ui/badge';
 import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
 import { cn } from '@/lib/utils';
 import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
+import type { addPiece, updatePiece, deletePiece } from '../actions';
+import type { updateSupplier, addSupplier } from '../../actions';
 
 
 const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
@@ -59,9 +60,13 @@ interface ClientPageProps {
   pieces: Piece[];
   dictionary: any;
   supplierFormDictionary: any;
+  addPieceAction: typeof addPiece;
+  updatePieceAction: typeof updatePiece;
+  deletePieceAction: typeof deletePiece;
+  updateSupplierAction: typeof updateSupplier;
 }
 
-export function ClientPage({ supplier, pieces: initialPieces, dictionary, supplierFormDictionary }: ClientPageProps) {
+export function ClientPage({ supplier, pieces: initialPieces, dictionary, supplierFormDictionary, addPieceAction, updatePieceAction, deletePieceAction, updateSupplierAction }: ClientPageProps) {
   const { toast } = useToast();
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -87,7 +92,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
-    const result = await deletePiece(dialogState.data.id, supplier.id);
+    const result = await deletePieceAction(dialogState.data.id, supplier.id);
     if(result.success) {
         toast({
             title: dictionary.form.toast.deleteSuccess.title,
@@ -280,6 +285,8 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             onClose={closeDialogs} 
             dictionary={dictionary.form}
             formType={dialogState.type === 'new-versement' || (dialogState.data?.type === 'VERSEMENT') ? 'VERSEMENT' : 'PIECE'}
+            addPieceAction={addPieceAction}
+            updatePieceAction={updatePieceAction}
           />
         </DialogContent>
       </Dialog>
@@ -297,6 +304,8 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             onClose={() => setIsEditSupplierOpen(false)} 
             dictionary={supplierFormDictionary}
             supplierToEdit={supplier}
+            addSupplierAction={() => { throw new Error("addSupplier not available here"); }}
+            updateSupplierAction={updateSupplierAction}
           />
         </DialogContent>
       </Dialog>

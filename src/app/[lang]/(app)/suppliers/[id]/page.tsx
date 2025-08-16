@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
+import { addPiece, updatePiece, deletePiece } from './actions';
+import { updateSupplier } from '../actions';
 
 export default async function SupplierDetailPage({ params }: { params: { id: string, lang: Locale } }) {
   const dictionary = await getDictionary(params.lang);
@@ -20,5 +22,9 @@ export default async function SupplierDetailPage({ params }: { params: { id: str
     pieces={supplierPieces} 
     dictionary={dictionary.supplierDetailPage} 
     supplierFormDictionary={dictionary.suppliersPage.form}
+    addPieceAction={addPiece}
+    updatePieceAction={updatePiece}
+    deletePieceAction={deletePiece}
+    updateSupplierAction={updateSupplier}
   />;
 }

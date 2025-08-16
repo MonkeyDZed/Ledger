@@ -3,6 +3,7 @@ import { getSuppliers, getPieces } from '@/lib/db';
 import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
+import { addSupplier, updateSupplier, deleteSupplier } from './actions';
 
 export default async function SuppliersPage({ params: { lang } }: { params: { lang: Locale }}) {
   const dictionary = await getDictionary(lang);
@@ -18,5 +19,11 @@ export default async function SuppliersPage({ params: { lang } }: { params: { la
     return { ...supplier, totalDebt, totalInvoiced, totalPaid };
   });
 
-  return <ClientPage suppliers={suppliersWithDebt} dictionary={dictionary.suppliersPage} />;
+  return <ClientPage 
+    suppliers={suppliersWithDebt} 
+    dictionary={dictionary.suppliersPage} 
+    addSupplierAction={addSupplier}
+    updateSupplierAction={updateSupplier}
+    deleteSupplierAction={deleteSupplier}
+    />;
 }

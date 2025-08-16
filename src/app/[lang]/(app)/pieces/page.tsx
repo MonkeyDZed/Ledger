@@ -2,6 +2,7 @@
 import { getPieces, getSuppliers } from '@/lib/db';
 import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
+import { addPiece, updatePiece, deletePiece } from '../suppliers/[id]/actions';
 
 export default async function PiecesPage({ params: { lang } }: { params: { lang: 'fr' | 'ar' }}) {
   const pieces = await getPieces();
@@ -21,5 +22,8 @@ export default async function PiecesPage({ params: { lang } }: { params: { lang:
     dictionary={dictionary.piecesPage} 
     pieceFormDictionary={dictionary.supplierDetailPage}
     lang={lang} 
+    addPieceAction={addPiece}
+    updatePieceAction={updatePiece}
+    deletePieceAction={deletePiece}
   />;
 }
