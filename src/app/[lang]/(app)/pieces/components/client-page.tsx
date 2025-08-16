@@ -4,7 +4,7 @@
 import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece } from '@/lib/types';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
@@ -54,12 +54,19 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces, dictionary, pieceFormDictionary, lang }: ClientPageProps) {
+export function ClientPage({ pieces: initialPieces, dictionary, pieceFormDictionary, lang }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
         data?: PieceWithSupplierName;
     }>({ type: null });
+    
+    // Defer state to client to avoid hydration mismatch
+    const [pieces, setPieces] = useState<PieceWithSupplierName[]>([]);
+    useEffect(() => {
+        setPieces(initialPieces);
+    }, [initialPieces]);
+
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });

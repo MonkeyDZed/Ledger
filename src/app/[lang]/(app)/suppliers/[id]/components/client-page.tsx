@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
@@ -61,7 +61,7 @@ interface ClientPageProps {
   supplierFormDictionary: any;
 }
 
-export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary }: ClientPageProps) {
+export function ClientPage({ supplier, pieces: initialPieces, dictionary, supplierFormDictionary }: ClientPageProps) {
   const { toast } = useToast();
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -72,6 +72,12 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
 
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
+  
+  // Defer state to client to avoid hydration mismatch
+  const [pieces, setPieces] = useState<Piece[]>([]);
+  useEffect(() => {
+    setPieces(initialPieces);
+  }, [initialPieces]);
 
   const openDialog = (type: 'new-piece' | 'new-versement' | 'edit' | 'delete', data?: Piece) => {
     setDialogState({ type, data });

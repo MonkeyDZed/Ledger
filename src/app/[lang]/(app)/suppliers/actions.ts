@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 // This is a server-action-safe schema. It will not be imported by any client components.
-const SupplierFormSchema = z.object({
+const SupplierSchema = z.object({
     name: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères." }),
     wilaya: z.string().optional(),
     phone: z.string().optional(),
@@ -16,10 +16,10 @@ const SupplierFormSchema = z.object({
     notes: z.string().optional(),
 });
 
-type SupplierFormValues = z.infer<typeof SupplierFormSchema>;
+type SupplierFormValues = z.infer<typeof SupplierSchema>;
 
 export async function addSupplier(data: SupplierFormValues) : Promise<{success: boolean, message?: string}> {
-    const validation = SupplierFormSchema.safeParse(data);
+    const validation = SupplierSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: 'Invalid data provided.' };
     }
@@ -40,7 +40,7 @@ export async function addSupplier(data: SupplierFormValues) : Promise<{success: 
 }
 
 export async function updateSupplier(id: string, data: SupplierFormValues): Promise<{success: boolean, message?: string}> {
-    const validation = SupplierFormSchema.safeParse(data);
+    const validation = SupplierSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: 'Invalid data provided.' };
     }

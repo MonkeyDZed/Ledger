@@ -6,20 +6,21 @@ import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
 // This is a server-action-safe schema. It will not be imported by any client components.
-const PieceFormSchema = z.object({
+const PieceSchema = z.object({
     date: z.date(),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT']),
     total_piece: z.coerce.number().optional(),
     montant_paye: z.coerce.number(),
     description: z.string().optional(),
-    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).nullable().optional(),
 });
 
-type PieceFormValues = z.infer<typeof PieceFormSchema>;
+type PieceFormValues = z.infer<typeof PieceSchema>;
 
 export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
-    const validation = PieceFormSchema.safeParse(data);
+    const validation = PieceSchema.safeParse(data);
     if (!validation.success) {
+        // This should not happen if client-side validation is working
         return { success: false, message: 'Invalid data provided.' };
     }
     try {
@@ -40,7 +41,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    const validation = PieceFormSchema.safeParse(data);
+    const validation = PieceSchema.safeParse(data);
     if (!validation.success) {
         return { success: false, message: 'Invalid data provided.' };
     }
