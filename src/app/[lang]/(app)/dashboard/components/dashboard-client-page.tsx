@@ -63,7 +63,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
   const supplierDataWithCalculations = suppliers.map((supplier) => {
     const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
-    const totalFromPieces = supplierPieces.reduce((sum, p) => sum + p.total_piece, 0);
+    const totalFromPieces = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
     const paidFromPieces = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
     const balanceFromPieces = totalFromPieces - paidFromPieces;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
@@ -86,9 +86,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
 
   // Financial Overview Calculation
   const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-  const totalInitialBalances = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
-  const totalResteFromPieces = pieces.reduce((sum, p) => sum + p.reste, 0);
-  const totalToPay = totalInitialBalances + totalResteFromPieces;
+  // Correctly calculate total to pay by summing individual debts
+  const totalToPay = grandTotalDebt; 
   
   const grandTotal = totalPaid + totalToPay;
 

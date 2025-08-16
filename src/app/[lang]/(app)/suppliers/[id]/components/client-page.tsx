@@ -284,7 +284,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             pieceToEdit={dialogState.data}
             onClose={closeDialogs} 
             dictionary={dictionary.form}
-            formType={dialogState.type === 'new-versement' || (dialogState.data?.type === 'VERSEMENT') ? 'VERSEMENT' : 'PIECE'}
+            formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
             addPieceAction={addPieceAction}
             updatePieceAction={updatePieceAction}
           />
