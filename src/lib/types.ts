@@ -1,4 +1,5 @@
 
+
 export type Supplier = {
   id: string;
   name: string;
@@ -24,4 +25,9 @@ export type Piece = {
   payment_method?: 'espece' | 'cheque' | 'virement' | 'traite';
   created_at: string;
   updated_at: string;
+};
+
+// This type was moved from dictionaries.ts to be available on the client
+export type Dictionary = {
+  [key: string]: any;
 };

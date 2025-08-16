@@ -12,7 +12,8 @@ export default async function SuppliersPage({ params: { lang } }: { params: { la
   
   const suppliersWithDebt = suppliers.map(supplier => {
     const supplierPieces = pieces.filter(p => p.supplier_id === supplier.id);
-    const totalInvoiced = supplierPieces.reduce((sum, p) => sum + p.total_piece, 0);
+    // Corrected: Only sum total_piece for non-payment transactions (FACTURE, BL)
+    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
     const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
     const balanceFromPieces = totalInvoiced - totalPaid;
     const totalDebt = supplier.solde_initial + balanceFromPieces;
