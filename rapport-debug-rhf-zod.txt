@@ -1,0 +1,259 @@
+# Rapport de Diagnostic : Bouton "Sauvegarder" désactivé dans PieceForm
+
+À : Expert React Hook Form / Zod
+De : Assistant IA Firebase Studio
+Objectif : Fournir toutes les informations nécessaires pour diagnostiquer et corriger le bug du bouton de sauvegarde inactif en mode édition.
+
+---
+
+## 1. Extraits de Code Exacts (`src/app/[lang]/(app)/components/piece-form.tsx`)
+
+### a. Schéma Zod (`clientPieceFormSchema`)
+
+```typescript
+const clientPieceFormSchema = z.object({
+    date: z.date({ required_error: "La date est requise." }),
+    type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
+    total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
+    montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
+    description: z.string().optional(),
+    payment_method: z.enum(['espece', 'cheque', 'virement', 'traite']).optional(),
+}).refine((data) => {
+    // For a versement, the paid amount must be greater than 0
+    if (data.type === 'VERSEMENT') {
+        return data.montant_paye > 0;
+    }
+    return true;
+}, {
+    message: "Le montant du versement doit être supérieur à 0.",
+    path: ["montant_paye"],
+}).refine((data) => {
+    // For invoices/BL, the paid amount cannot exceed the total.
+    if (data.type === 'VERSEMENT') return true;
+    if (data.total_piece === undefined || data.total_piece === null) return true;
+    return data.montant_paye <= data.total_piece;
+}, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
+});
+```
+
+### b. Initialisation de `useForm`
+
+```typescript
+const form = useForm<PieceFormValues>({
+    resolver: zodResolver(clientPieceFormSchema),
+    mode: 'onChange', // Le mode est 'onChange'
+    defaultValues: isEditMode && pieceToEdit ? {
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+        total_piece: pieceToEdit.total_piece ?? 0,
+        montant_paye: pieceToEdit.montant_paye ?? 0,
+        description: pieceToEdit.description ?? '',
+    } : {
+        date: new Date(),
+        type: defaultType,
+        total_piece: 0,
+        montant_paye: 0,
+        description: ''
+    },
+});
+```
+**Note:** Le `mode` est déjà défini sur `'onChange'`, ce qui contredit l'hypothèse (2) d'un mode par défaut à `'onSubmit'`.
+
+### c. `useEffect` avec `form.reset()`
+
+```typescript
+useEffect(() => {
+    if (isEditMode && pieceToEdit) {
+      form.reset({
+          ...pieceToEdit,
+          date: new Date(pieceToEdit.date),
+          total_piece: pieceToEdit.total_piece ?? 0,
+          montant_paye: pieceToEdit.montant_paye ?? 0,
+          description: pieceToEdit.description ?? '',
+      });
+      setCurrentType(pieceToEdit.type);
+    } else {
+        const defaultValues = {
+            date: new Date(),
+            type: defaultType,
+            total_piece: 0,
+            montant_paye: 0,
+            description: '',
+        };
+        form.reset(defaultValues);
+        setCurrentType(defaultValues.type);
+    }
+}, [pieceToEdit, isEditMode, form, defaultType]);
+```
+**Note:** Le `form.reset()` est bien présent, mais n'est pas suivi d'un `form.trigger()`.
+
+### d. JSX du bouton "Sauvegarder"
+
+```jsx
+<Button type="submit" disabled={isPending || !form.formState.isValid}>
+    {isPending ? (isEditMode ? dictionary.savingChangesButton : dictionary.savingButton) : (isEditMode ? dictionary.saveChangesButton : dictionary.saveButton)}
+</Button>
+```
+**Note:** La condition `disabled` dépend bien de `!form.formState.isValid` et de `isPending` (état de la transition).
+
+### e. Champs `total_piece` et `montant_paye`
+
+Les deux champs sont rendus via un `FormField` qui utilise un composant personnalisé `CurrencyInput`.
+
+**`PieceForm.tsx` (Utilisation) :**
+```jsx
+<FormField
+  control={form.control}
+  name="total_piece"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>{dictionary.totalLabel}</FormLabel>
+      <FormControl>
+         <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value, { shouldValidate: true })} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="montant_paye"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
+      <FormControl>
+         <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value, { shouldValidate: true })} />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+```
+
+**`currency-input.tsx` (Implémentation du composant) :**
+Ce composant gère le formatage (séparateurs de milliers, virgule décimale) et le "parsing" de la valeur. Il utilise un `<input type="text">` pour ce faire. Il est probable que la valeur renvoyée au formulaire soit une chaîne de caractères formatée, ce qui pourrait causer le conflit avec `z.coerce.number()`.
+
+```tsx
+// src/app/[lang]/(app)/components/currency-input.tsx
+
+'use client';
+
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { useState, forwardRef, useEffect } from 'react';
+import { ControllerRenderProps, FieldValues } from 'react-hook-form';
+
+interface CurrencyInputProps {
+  field: ControllerRenderProps<FieldValues, any>;
+  onValueChange: (value: number) => void;
+  className?: string;
+}
+
+const formatValue = (value: number | string | undefined): string => {
+  if (value === undefined || value === null || value === '' || isNaN(Number(value))) return '';
+  const num = typeof value === 'string' ? parseFloat(value.toString().replace(/[^0-9.]/g, '')) : value;
+  if (isNaN(num)) return '';
+  // Utilise un espace comme séparateur de milliers et une virgule pour les décimales
+  return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const parseValue = (value: string): number => {
+    // Gère à la fois les formats avec virgule et avec point pour la robustesse
+    const parsed = parseFloat(value.replace(/\s/g, '').replace(',', '.'));
+    return isNaN(parsed) ? 0 : parsed;
+};
+
+export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
+  ({ field, onValueChange, className }, ref) => {
+    // ... logique interne ...
+  }
+);
+```
+
+### f. Règle Métier Bloquante
+
+Il existe bien une règle `refine` qui lie `montant_paye` et `total_piece` :
+```typescript
+.refine((data) => {
+    // For invoices/BL, the paid amount cannot exceed the total.
+    if (data.type === 'VERSEMENT') return true;
+    if (data.total_piece === undefined || data.total_piece === null) return true;
+    return data.montant_paye <= data.total_piece;
+}, {
+    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
+    path: ["montant_paye"],
+});
+```
+
+---
+
+## 2. Versions des Dépendances (depuis `package.json`)
+
+- **react-hook-form:** `^7.54.2`
+- **@hookform/resolvers:** `^4.1.3`
+- **zod:** `^3.24.2`
+- **react:** `^18.3.1`
+- **next:** `15.3.3`
+- **typescript:** `^5`
+
+---
+
+## 3. Données d'Entrée (Mode Édition)
+
+### a. Payload de la pièce (Exemple depuis la BDD)
+```json
+{
+  "id": "acc9071d-3db6-4aa6-a182-0146bfa19097",
+  "supplier_id": "8767b736-8547-4793-bc07-511a5da972c5",
+  "date": "2025-08-16T00:05:56.204Z",
+  "type": "BL",
+  "total_piece": 50000,
+  "montant_paye": 0,
+  "reste": 50000,
+  "description": "",
+  "created_at": "2025-08-16T00:06:06.239Z",
+  "updated_at": "2025-08-16T00:06:06.239Z",
+  "payment_method": null
+}
+```
+
+### b. Payload juste avant `form.reset()`
+```javascript
+// Les types dans l'objet 'pieceToEdit' sont les suivants:
+{
+  id: "string",
+  supplier_id: "string",
+  date: "string" (format ISO),
+  type: "string" ('BL'),
+  total_piece: "number" (50000),
+  montant_paye: "number" (0),
+  reste: "number" (50000),
+  description: "string" (""),
+  payment_method: "object" (null),
+  created_at: "string",
+  updated_at: "string"
+}
+```
+**L'objet passé à `form.reset()` est :**
+```javascript
+{
+  // ...toutes les propriétés de pieceToEdit
+  date: new Date("2025-08-16T00:05:56.204Z"), // Converti en objet Date
+  total_piece: 50000, // Déjà un nombre
+  montant_paye: 0, // Déjà un nombre
+  description: "" // Déjà une chaîne
+}
+```
+
+### c. Formatage des nombres
+Le composant `CurrencyInput` formate les nombres pour l'affichage avec des espaces comme séparateurs de milliers et une virgule comme séparateur décimal (ex: `50 000,00`). Lors de la saisie, l'utilisateur tape une chaîne, qui est ensuite "parsée" par le composant. C'est une source très probable de conflit.
+
+---
+**Conclusion Préliminaire:**
+
+L'hypothèse la plus forte est la **(4) mismatch de types/formatage** aggravée par la **(6) transformation par le composant `CurrencyInput`**. `z.coerce.number()` peut échouer si la chaîne contient des caractères non numériques comme les espaces. Le `refine` cross-champ est également un suspect. Le `mode: 'onChange'` suggère que la validation devrait se déclencher, mais si elle échoue dès le montage, le bouton reste bloqué.
+
+La prochaine étape logique serait de procéder à l'instrumentation (étape 4 du questionnaire) pour confirmer cette hypothèse.

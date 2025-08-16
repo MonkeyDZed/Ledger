@@ -39,18 +39,13 @@ const CsvIcon = () => (
 interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
-  dictionary: any; // Keep this for now for simplicity, but avoid passing it down
+  dictionary: any;
   formDictionary: any;
   pieceFormDictionary: any;
   lang: 'fr' | 'ar';
-  chartLabels: {
-    paid: string;
-    toPay: string;
-    currency: string;
-  }
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang, chartLabels }: DashboardClientPageProps) {
+export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
@@ -230,9 +225,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <CardContent>
                         <FinancialOverviewChart 
                           data={{ paid: totalPaid, toPay: totalToPay }} 
-                          paidLabel={chartLabels.paid}
-                          toPayLabel={chartLabels.toPay}
-                          currencyLabel={chartLabels.currency}
+                          paidLabel={dictionary.paid}
+                          toPayLabel={dictionary.toPay}
+                          currencyLabel={dictionary.currency}
                         />
 
                         <div className="space-y-4 mt-6">
@@ -305,5 +300,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
 
     

@@ -9,20 +9,42 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
 
-  // Extract labels for the chart to pass as simple strings
-  const chartLabels = {
+  // IMPORTANT: Do not pass the whole dictionary object to client components.
+  // Extract only the necessary strings to avoid server-only module leakage.
+  const dashboardDict = {
+    suppliers: dict.dashboard.suppliers,
+    pieces: dict.dashboard.pieces,
+    totalDebts: dict.dashboard.totalDebts,
+    lastSync: dict.dashboard.lastSync,
+    upToDate: dict.dashboard.upToDate,
+    quickActions: dict.dashboard.quickActions,
+    addSupplier: dict.dashboard.addSupplier,
+    newPiece: dict.dashboard.newPiece,
+    newPayment: dict.dashboard.newPayment,
+    recentSuppliers: dict.dashboard.recentSuppliers,
+    seeAll: dict.dashboard.seeAll,
+    supplierName: dict.dashboard.supplierName,
+    wilaya: dict.dashboard.wilaya,
+    totalInvoiced: dict.dashboard.totalInvoiced,
+    remaining: dict.dashboard.remaining,
+    action: dict.dashboard.action,
+    nif: dict.dashboard.nif,
+    financialOverview: dict.dashboard.financialOverview,
     paid: dict.dashboard.paid,
     toPay: dict.dashboard.toPay,
+    exportPdf: dict.dashboard.exportPdf,
+    exportCsv: dict.dashboard.exportCsv,
     currency: dict.dashboard.currency,
   };
 
   return <DashboardClientPage 
     suppliers={suppliers} 
     pieces={pieces} 
-    dictionary={dict.dashboard} 
+    dictionary={dashboardDict} 
     formDictionary={dict.suppliersPage.form}
     pieceFormDictionary={dict.supplierDetailPage.form}
     lang={lang}
-    chartLabels={chartLabels}
   />;
 }
+
+    
