@@ -17,11 +17,12 @@ const PieceSchema = z.object({
         z.literal('').transform(() => undefined),
         z.null().transform(() => undefined),
     ]).optional(),
+    supplier_id: z.string().min(1, "Le fournisseur est obligatoire."), // Supplier ID is now mandatory
 });
 
-type PieceFormValues = z.infer<typeof PieceSchema>;
+type PieceFormValues = Omit<z.infer<typeof PieceSchema>, 'supplier_id'>;
 
-export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
+export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{success: boolean, message?: string}> {
     const validation = PieceSchema.safeParse(data);
     if (!validation.success) {
         // This should not happen if client-side validation is working
@@ -32,10 +33,12 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
         // Ensure total_piece is 0 if it's not provided (especially for 'VERSEMENT')
         const dataForDb = {
             ...validation.data,
-            total_piece: validation.data.total_piece ?? 0,
+            total_piece: validation.data.type === 'VERSEMENT' ? 0 : (validation.data.total_piece ?? 0),
+            montant_paye: validation.data.montant_paye ?? 0,
+            description: validation.data.description ?? '',
+            payment_method: validation.data.payment_method ?? null,
         };
 
-        console.log("Données envoyées à la DB (addPieceToDb) :", dataForDb);
         await addPieceToDb(dataForDb);
         
         revalidatePath('/');
@@ -53,7 +56,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    const validation = PieceSchema.safeParse(data);
+    const validation = PieceSchema.omit({ supplier_id: true }).safeParse(data);
     if (!validation.success) {
         return { success: false, message: 'Invalid data provided.' };
     }
@@ -91,5 +94,3 @@ export async function deletePiece(id: string, supplier_id: string): Promise<{suc
         return { success: false, message: error.message || "Une erreur est survenue lors de la suppression de la pièce." };
     }
 }
-
-    

@@ -51,7 +51,6 @@ export default function AppLayout({
     settings: params.lang === 'ar' ? 'الإعدادات' : 'Paramètres',
     support: params.lang === 'ar' ? 'الدعم' : 'Support',
     logout: params.lang === 'ar' ? 'تسجيل الخروج' : 'Déconnexion',
-    language: params.lang === 'ar' ? 'اللغة' : 'Langue',
   }
 
   return (
@@ -119,7 +118,7 @@ export default function AppLayout({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>{dict.settings}</DropdownMenuItem>
                         <DropdownMenuItem>{dict.support}</DropdownMenuItem>
-                        <LanguageSwitcherMenu params={params} dictionary={{ language: dict.language }} />
+                        <LanguageSwitcherMenu params={params} />
                         <DropdownMenuSeparator />
                         <Link href={`/${params.lang}`}>
                           <DropdownMenuItem>{dict.logout}</DropdownMenuItem>

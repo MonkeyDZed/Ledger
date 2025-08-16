@@ -9,12 +9,9 @@ type Locale = 'fr' | 'ar';
 
 interface LanguageSwitcherProps {
     params: { lang: Locale };
-    dictionary: {
-        language: string;
-    };
 }
 
-export function LanguageSwitcherMenu({ params, dictionary }: LanguageSwitcherProps) {
+export function LanguageSwitcherMenu({ params }: LanguageSwitcherProps) {
   const router = useRouter()
   const pathname = usePathname()
 
@@ -23,11 +20,13 @@ export function LanguageSwitcherMenu({ params, dictionary }: LanguageSwitcherPro
     const newPath = pathname.replace(`/${params.lang}`, `/${newLang}`)
     router.push(newPath)
   }
+  
+  const languageLabel = params.lang === 'ar' ? 'اللغة' : 'Langue';
 
   return (
     <DropdownMenuSub>
         <DropdownMenuSubTrigger>
-            <span>{dictionary.language}</span>
+            <span>{languageLabel}</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent>
             <DropdownMenuItem onClick={() => switchLanguage('fr')}>
