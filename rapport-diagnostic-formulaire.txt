@@ -465,5 +465,3 @@ Le formulaire `PieceForm` est appelé depuis plusieurs endroits. Voici l'exemple
 
 **Conclusion de l'analyse préliminaire des logs :**
 Le fait que `form.formState.errors` soit vide mais que le bouton reste désactivé (`!form.formState.isValid`) est le symptôme classique d'une règle `.refine()` qui échoue au niveau de l'objet global, sans être attachée à un champ spécifique. Le candidat le plus probable est l'une des deux règles `.refine` du schéma Zod.
-
-    
