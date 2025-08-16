@@ -22,20 +22,22 @@ import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from './currency-input';
 
-// Schéma corrigé pour normaliser 'payment_method'
+// ✅ Schéma Zod Corrigé et Robuste
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
-    total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
+    total_piece: z.coerce.number().min(0, { message: "Le total ne peut pas être négatif." }).optional(),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
+
+    // ✅ Nouveau schéma robuste pour payment_method
     payment_method: z.union([
         z.enum(['espece', 'cheque', 'virement', 'traite']),
         z.literal('').transform(() => undefined),
         z.null().transform(() => undefined),
     ]).optional(),
 }).refine((data) => {
-    // For a versement, the paid amount must be greater than 0
+    // Pour un versement, le montant payé doit être supérieur à 0
     if (data.type === 'VERSEMENT') {
         return data.montant_paye > 0;
     }
@@ -44,7 +46,7 @@ const clientPieceFormSchema = z.object({
     message: "Le montant du versement doit être supérieur à 0.",
     path: ["montant_paye"],
 }).refine((data) => {
-    // For invoices/BL, the paid amount cannot exceed the total.
+    // Pour les factures/BL, le montant payé ne peut excéder le total.
     if (data.type === 'VERSEMENT') return true;
     if (data.total_piece === undefined || data.total_piece === null) return true;
     return data.montant_paye <= data.total_piece;
@@ -82,6 +84,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
 
   const [currentType, setCurrentType] = useState(form.getValues('type'));
   
+  // ✅ Logique d'initialisation corrigée
   useEffect(() => {
     const initializeForm = async () => {
         if (isEditMode && pieceToEdit) {
@@ -91,7 +94,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 total_piece: pieceToEdit.total_piece ?? 0,
                 montant_paye: pieceToEdit.montant_paye ?? 0,
                 description: pieceToEdit.description ?? '',
-                payment_method: pieceToEdit.payment_method ?? undefined, // Normalisation ici
+                payment_method: pieceToEdit.payment_method ?? undefined, // ✅ Normalisé
             });
             setCurrentType(pieceToEdit.type);
         } else {
@@ -101,16 +104,16 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 total_piece: 0,
                 montant_paye: 0,
                 description: '',
-                payment_method: undefined, // Cohérent
+                payment_method: undefined, // ✅ Cohérent
             };
             form.reset(defaultValues);
             setCurrentType(defaultValues.type);
         }
-        // Force validation right after reset to update isValid state
+        // ✅ Force la validation après reset pour synchroniser isValid
         await form.trigger();
     };
     void initializeForm();
-  // IMPORTANT: Do not add `form` to the dependency array to avoid infinite loops.
+  // ⚠️ `form` est retiré des dépendances pour éviter les boucles infinies.
   }, [pieceToEdit, isEditMode, defaultType]);
 
 
@@ -306,5 +309,3 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
-
-    
