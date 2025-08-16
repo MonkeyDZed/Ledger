@@ -17,7 +17,6 @@ async function initializeDb() {
   const tablesExist = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='suppliers'");
   
   if (!tablesExist) {
-    console.log('Database not found, initializing...');
     await db.exec(`
       CREATE TABLE suppliers (
         id TEXT PRIMARY KEY,
@@ -48,13 +47,10 @@ async function initializeDb() {
             FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE
         );
     `);
-     console.log('--- Database initialized successfully. ---');
   } else {
-    console.log('Database found. Checking for migrations...');
     // Migration for payment_method column if it doesn't exist
     const piecesCols = await db.all("PRAGMA table_info(pieces);");
     if (!piecesCols.some(col => col.name === 'payment_method')) {
-        console.log('Adding payment_method column to pieces table.');
         await db.exec('ALTER TABLE pieces ADD COLUMN payment_method TEXT');
     }
   }
