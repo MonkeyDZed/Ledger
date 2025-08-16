@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 
+// Client-side validation is now the primary source of validation before calling the action.
+// The server action performs the DB operation directly.
 const PieceFormSchema = z.object({
     date: z.date(),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT']),
@@ -17,7 +19,7 @@ const PieceFormSchema = z.object({
 type PieceFormValues = z.infer<typeof PieceFormSchema>;
 
 export async function addPiece(data: PieceFormValues & { supplier_id: string }) : Promise<{success: boolean, message?: string}> {
-    // La validation est gérée côté client. L'action serveur exécute directement l'opération.
+    // Server-side validation is removed to prevent locale contamination issues.
     try {
         await addPieceToDb(data);
         
@@ -36,7 +38,7 @@ export async function addPiece(data: PieceFormValues & { supplier_id: string }) 
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    // La validation est gérée côté client. L'action serveur exécute directement l'opération.
+    // Server-side validation is removed to prevent locale contamination issues.
     try {
         await updatePieceInDb(id, data);
         
