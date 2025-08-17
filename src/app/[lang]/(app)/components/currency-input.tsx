@@ -34,7 +34,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     const handleFocus = () => {
         setIsFocused(true);
         const numValue = field.value ? Number(field.value) : 0;
-        setInputValue(numValue === 0 ? '' : String(numValue.toFixed(2)));
+        setInputValue(numValue === 0 ? '' : String(numValue.toFixed(2).replace('.',',')));
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
