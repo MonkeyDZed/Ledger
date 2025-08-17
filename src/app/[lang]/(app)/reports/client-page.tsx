@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 import { Calendar, FileText, TrendingUp, DollarSign, Users, Download, Eye, AlertCircle } from 'lucide-react';
 import type { Supplier, Piece } from '@/lib/types';
 import { format, subMonths, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
@@ -14,6 +14,27 @@ interface ReportsClientPageProps {
     dictionary: any;
     lang: 'fr' | 'ar';
 }
+
+const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="rounded-lg border bg-background p-2.5 shadow-sm">
+                <div className="grid grid-cols-1 gap-1.5">
+                    {labelFormatter && <p className="font-medium">{labelFormatter(label)}</p>}
+                    {payload.map((entry: any, index: number) => (
+                         <div key={`item-${index}`} className="flex items-center gap-2">
+                             <div className="h-2 w-2 flex-shrink-0 rounded-[2px]" style={{backgroundColor: entry.fill}}></div>
+                             <p className="text-sm text-muted-foreground">
+                                {formatter(entry.value, entry.name)}
+                             </p>
+                         </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
 
 
 export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: ReportsClientPageProps) => {
@@ -152,15 +173,23 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={supplierDataWithCalculations}>
+              <defs>
+                 <linearGradient id="creanceGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis dataKey="name" tick={{fontSize: 12}} angle={-45} textAnchor="end" height={100} interval={0} />
               <YAxis tickFormatter={(value) => `${Number(value) / 1000}K`} />
               <Tooltip 
-                formatter={(value) => [isClient ? formatCurrencyWithLocale(value as number, lang) : '...', dictionary.creancesReport.tooltipCreance]}
-                labelFormatter={(label) => `${dictionary.creancesReport.tooltipSupplier}: ${label}`}
-                contentStyle={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                cursor={{fill: 'rgba(59, 130, 246, 0.1)'}}
+                content={<CustomTooltip 
+                    formatter={(value: any) => `${dictionary.creancesReport.tooltipCreance}: ${isClient ? formatCurrencyWithLocale(value, lang) : '...'}`}
+                    labelFormatter={(label: any) => `${dictionary.creancesReport.tooltipSupplier}: ${label}`}
+                />}
               />
-              <Bar dataKey="creanceTotale" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="creanceTotale" fill="url(#creanceGradient)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -238,23 +267,27 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
             <AreaChart data={transactionData}>
               <defs>
                 <linearGradient id="colorEntrees" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/>
                   <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
                 </linearGradient>
                 <linearGradient id="colorSorties" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" />
+              <XAxis dataKey="date" tick={{fontSize: 12}} />
               <YAxis tickFormatter={(value) => `${Number(value) / 1000}K`} />
               <Tooltip 
-                formatter={(value, name) => [isClient ? formatCurrencyWithLocale(value as number, lang) : '...', name === 'entrees' ? dictionary.transactionsReport.inflow : dictionary.transactionsReport.outflow]}
-                contentStyle={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                cursor={{stroke: '#cbd5e1', strokeDasharray: '3 3'}}
+                content={<CustomTooltip 
+                    formatter={(value: any, name: any) => `${name === 'entrees' ? dictionary.transactionsReport.inflow : dictionary.transactionsReport.outflow}: ${isClient ? formatCurrencyWithLocale(value, lang) : '...'}`}
+                    labelFormatter={(label: any) => `Mois: ${label}`}
+                />}
               />
-              <Area type="monotone" dataKey="entrees" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorEntrees)" />
-              <Area type="monotone" dataKey="sorties" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorSorties)" />
+              <Legend verticalAlign="top" height={40} />
+              <Area type="monotone" dataKey="entrees" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorEntrees)" name={dictionary.transactionsReport.inflow} />
+              <Area type="monotone" dataKey="sorties" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorSorties)" name={dictionary.transactionsReport.outflow} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -304,7 +337,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 <Pie data={paymentMethodData} cx="50%" cy="50%" outerRadius={80} fill="#8884d8" dataKey="value" label={({name, value}) => `${name} (${value}%)`}>
                   {paymentMethodData.map((entry, index) => ( <Cell key={`cell-${index}`} fill={entry.color} /> ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`${value}%`, dictionary.paymentsReport.percentage]} />
+                <Tooltip formatter={(value, name, props) => [`${value}% (${isClient ? formatCurrencyWithLocale(props.payload.amount, lang, 0) : '...'})`, name]} />
               </PieChart>
             </ResponsiveContainer>
           </div>
