@@ -42,6 +42,9 @@ export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLa
     return <div className="w-full h-[250px] flex items-center justify-center"><p>Chargement du graphique...</p></div>;
   }
 
+  // Defer formatting to the client-side render to prevent hydration mismatch.
+  const formattedTotal = formatCurrencySimple(total, 0);
+
   return (
     <div className="w-full h-[250px] relative">
       <ResponsiveContainer width="100%" height="100%">
@@ -75,7 +78,7 @@ export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLa
       <div className="absolute inset-0 flex items-center justify-center flex-col text-center">
         <span className="text-sm text-muted-foreground">TOTAL</span>
         <div className="text-2xl font-bold font-mono text-gray-800 break-all px-4">
-          {formatCurrencySimple(total, 0)}
+          {formattedTotal}
         </div>
         <div className="text-sm font-mono text-muted-foreground font-bold mt-1">{currencyLabel}</div>
       </div>

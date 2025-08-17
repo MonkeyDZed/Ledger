@@ -90,15 +90,18 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
   useEffect(() => {
     const sorted = [...supplierDataWithCalculations]
         .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
-        .slice(0, 5);
+        .slice(0, 10);
     setRecentSuppliers(sorted);
   }, [supplierDataWithCalculations]);
 
-  const grandTotalDebt = supplierDataWithCalculations.reduce((sum, s) => sum + s.totalDebt, 0);
+  const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
+  const totalInvoiced = pieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+  const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
+  const grandTotalDebt = totalInitialBalance + totalInvoiced - totalPaid;
+  
   const totalPieces = pieces.filter(p => p.type !== 'VERSEMENT').length;
   const totalSuppliers = suppliers.length;
 
-  const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
   const totalToPay = grandTotalDebt < 0 ? 0 : grandTotalDebt; 
   
   const grandTotal = totalPaid + totalToPay;
@@ -180,7 +183,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto max-h-[25rem] relative">
+                        <div className="overflow-y-auto relative h-[21rem]">
                             <Table>
                                 <TableHeader className="sticky top-0 bg-gray-50 z-10">
                                     <TableRow>
