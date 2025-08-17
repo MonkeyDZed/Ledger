@@ -5,13 +5,14 @@ import { Locale } from '@/i18n.config';
 import { DashboardClientPage } from './components/dashboard-client-page';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
+import React from 'react';
 
 // This is a Server Component, responsible for fetching data.
-export default async function DashboardPage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
-  const suppliers = await getSuppliers();
-  const pieces = await getPieces();
-  const dictionary = await getDictionary(lang);
+export default function DashboardPage({ params: paramsProp }: { params: { lang: Locale } }) {
+  const { lang } = React.use(paramsProp);
+  const suppliers = React.use(getSuppliers());
+  const pieces = React.use(getPieces());
+  const dictionary = React.use(getDictionary(lang));
 
   const dashboardDict = {
     suppliers: dictionary.dashboard.suppliers,

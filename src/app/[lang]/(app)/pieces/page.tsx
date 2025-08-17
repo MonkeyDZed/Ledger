@@ -4,11 +4,13 @@ import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
 import { addPiece, updatePiece, deletePiece } from '../suppliers/[id]/actions';
 import { Supplier } from '@/lib/types';
+import React from 'react';
 
-export default async function PiecesPage({ params: { lang } }: { params: { lang: 'fr' | 'ar' }}) {
-  const pieces = await getPieces();
-  const suppliers: Supplier[] = await getSuppliers();
-  const dictionary = await getDictionary(lang);
+export default function PiecesPage({ params: paramsProp }: { params: { lang: 'fr' | 'ar' }}) {
+  const { lang } = React.use(paramsProp);
+  const pieces = React.use(getPieces());
+  const suppliers: Supplier[] = React.use(getSuppliers());
+  const dictionary = React.use(getDictionary(lang));
 
   const piecesWithSupplier = pieces.map(piece => {
     const supplier = suppliers.find(s => s.id === piece.supplier_id);
@@ -29,5 +31,3 @@ export default async function PiecesPage({ params: { lang } }: { params: { lang:
     deletePieceAction={deletePiece}
   />;
 }
-
-    

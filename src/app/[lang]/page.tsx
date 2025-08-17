@@ -8,9 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import Link from 'next/link';
+import React from 'react';
 
-export default async function LoginPage({ params: { lang } }: { params: { lang: Locale } }) {
-  const dict = await getDictionary(lang);
+export default function LoginPage({ params: paramsProp }: { params: { lang: Locale } }) {
+  const { lang } = React.use(paramsProp);
+  const dict = React.use(getDictionary(lang));
   const { loginPage } = dict;
 
   return (

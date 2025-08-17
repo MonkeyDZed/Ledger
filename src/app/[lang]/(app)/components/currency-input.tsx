@@ -29,46 +29,78 @@ const parseValue = (value: string): number => {
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ field, onValueChange, className }, ref) => {
     const [isFocused, setIsFocused] = useState(false);
-    const [inputValue, setInputValue] = useState<string | null>(null);
+    const [localValue, setLocalValue] = useState<string>(
+        field.value ? String(field.value.toFixed(2)) : ''
+    );
+    
+    // Synchroniser l'état local si la valeur du formulaire change de l'extérieur.
+    useEffect(() => {
+        const formValue = field.value ? String(Number(field.value).toFixed(2)) : '0.00';
+        if (Number(formValue).toFixed(2) !== Number(parseValue(localValue)).toFixed(2)) {
+             setLocalValue(formValue.replace('.',','));
+        }
+    }, [field.value]);
+
 
     const handleFocus = () => {
         setIsFocused(true);
-        const numValue = field.value ? Number(field.value) : 0;
-        setInputValue(numValue === 0 ? '' : String(numValue.toFixed(2).replace('.',',')));
+        // Au focus, on affiche la valeur numérique brute pour l'édition.
+        setLocalValue(field.value ? String(field.value.toFixed(2)).replace('.', ',') : '');
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         setIsFocused(false);
         const numValue = parseValue(e.target.value);
-        onValueChange(numValue);
-        setInputValue(null); // Clear local input state on blur
+        onValueChange(numValue); // Mettre à jour le formulaire
+        // On ne met à jour l'affichage local qu'au blur pour éviter les re-render pendant la saisie
+        setLocalValue(formatValue(numValue));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value;
+         // Permettre la saisie de nombres avec virgule ou point
         const numberValue = rawValue.replace(/[^0-9.,]/g, '');
-        setInputValue(numberValue);
+        setLocalValue(numberValue);
     };
 
-    const displayValue = isFocused
-      ? inputValue ?? ''
-      : formatValue(field.value);
+    // La valeur affichée est soit la valeur en cours de saisie, soit la valeur formatée au blur.
+    const displayValue = isFocused ? localValue : formatValue(field.value);
 
-    // Condition to show placeholder-like zero
-    const showFictiveZero = !isFocused && !field.value;
+    // Pour éviter l'erreur d'hydratation, le rendu initial (serveur et client) doit être identique.
+    // On n'affiche la valeur formatée que côté client et après le montage pour être sûr.
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => {
+      setHasMounted(true);
+    }, []);
 
-
+    if (!hasMounted) {
+      // Rendu initial (serveur et premier rendu client)
+      return (
+         <Input
+            {...field}
+            ref={ref}
+            type="text" 
+            className={cn('text-end font-mono', className)}
+            value={field.value ? Number(field.value).toFixed(2) : ''}
+            onChange={() => {}}
+            onFocus={() => {}}
+            onBlur={() => {}}
+        />
+      );
+    }
+    
     return (
       <div className="relative">
         <Input
           {...field}
           ref={ref}
           type="text" 
-          className={cn('text-end font-mono', className, { 'text-muted-foreground': showFictiveZero && !isFocused })}
+          className={cn('text-end font-mono', className)}
           value={displayValue}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
+          placeholder="0,00"
         />
       </div>
     );
