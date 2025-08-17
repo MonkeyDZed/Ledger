@@ -183,7 +183,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-y-auto relative h-[21rem]">
+                        <div className="overflow-y-auto relative h-[14rem]">
                             <Table>
                                 <TableHeader className="sticky top-0 bg-gray-50 z-10">
                                     <TableRow>

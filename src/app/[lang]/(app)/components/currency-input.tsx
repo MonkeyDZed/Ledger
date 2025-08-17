@@ -28,59 +28,44 @@ const parseValue = (value: string): number => {
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ field, onValueChange, className }, ref) => {
-    const [displayValue, setDisplayValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-
-    useEffect(() => {
-        // Met à jour l'affichage formaté si la valeur du formulaire change de l'extérieur
-        if (!isFocused) {
-            const numValue = field.value ? Number(field.value) : 0;
-            setDisplayValue(formatValue(numValue));
-        }
-    }, [field.value, isFocused]);
-    
+    const [inputValue, setInputValue] = useState<string | null>(null);
 
     const handleFocus = () => {
         setIsFocused(true);
-        // Affiche la valeur brute (ex: 120000.50) sans formatage pour la modification
         const numValue = field.value ? Number(field.value) : 0;
-        if (numValue === 0) {
-             setDisplayValue('');
-        } else {
-            // Affiche avec un point pour une édition standard
-            setDisplayValue(String(numValue.toFixed(2)));
-        }
+        setInputValue(numValue === 0 ? '' : String(numValue.toFixed(2)));
     };
 
-    const handleBlur = () => {
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         setIsFocused(false);
-        // Parse la valeur brute et la met à jour dans le formulaire
-        const numValue = parseValue(displayValue);
+        const numValue = parseValue(e.target.value);
         onValueChange(numValue);
-        // Met à jour l'affichage avec la valeur formatée
-        setDisplayValue(formatValue(numValue));
+        setInputValue(null); // Clear local input state on blur
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const rawValue = e.target.value;
-        // Accepte uniquement les chiffres, le point et la virgule pour la saisie
         const numberValue = rawValue.replace(/[^0-9.,]/g, '');
-        setDisplayValue(numberValue); // Affiche la saisie brute de l'utilisateur en temps réel
+        setInputValue(numberValue);
     };
-    
-    // Condition pour afficher le zéro fictif
+
+    const displayValue = isFocused
+      ? inputValue ?? ''
+      : formatValue(field.value);
+
+    // Condition to show placeholder-like zero
     const showFictiveZero = !isFocused && !field.value;
-    // Détermine la valeur à afficher : saisie brute si focus, sinon valeur formatée
-    const finalDisplayValue = isFocused ? displayValue : (showFictiveZero ? formatValue(0) : formatValue(field.value));
+
 
     return (
       <div className="relative">
         <Input
           {...field}
           ref={ref}
-          type="text" // On utilise toujours text pour pouvoir contrôler le formatage
+          type="text" 
           className={cn('text-end font-mono', className, { 'text-muted-foreground': showFictiveZero && !isFocused })}
-          value={finalDisplayValue}
+          value={displayValue}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
