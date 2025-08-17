@@ -293,7 +293,8 @@
                 "initialBalance": "الرصيد الأولي",
                 "totalInvoiced": "إجمالي الفواتير",
                 "totalPaid": "إجمالي المدفوعات",
-                "totalDebt": "إجمالي الدين"
+                "totalDebt": "إجمالي الدين",
+                "totals": "المجموع"
             }
         },
         "transactionsReport": {

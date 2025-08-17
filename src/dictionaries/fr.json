@@ -293,7 +293,8 @@
                 "initialBalance": "Solde Initial",
                 "totalInvoiced": "Total Facturé",
                 "totalPaid": "Total Payé",
-                "totalDebt": "Créance Totale"
+                "totalDebt": "Créance Totale",
+                "totals": "Totaux"
             }
         },
         "transactionsReport": {

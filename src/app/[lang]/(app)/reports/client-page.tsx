@@ -15,6 +15,13 @@ interface ReportsClientPageProps {
     lang: 'fr' | 'ar';
 }
 
+type SupplierDataWithCalculations = Supplier & {
+    totalFacture: number;
+    totalPaye: number;
+    creanceTotale: number;
+};
+
+
 const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: any) => {
     if (active && payload && payload.length) {
         return (
@@ -25,7 +32,7 @@ const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: an
                          <div key={`item-${index}`} className="flex items-center gap-2">
                              <div className="h-2 w-2 flex-shrink-0 rounded-[2px]" style={{backgroundColor: entry.fill}}></div>
                              <p className="text-sm text-muted-foreground">
-                                {formatter(entry.value, entry.name)}
+                                {formatter(entry.value, entry.name, entry.payload)}
                              </p>
                          </div>
                     ))}
@@ -47,7 +54,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   const [dateRange, setDateRange] = useState('6m');
 
   // --- Data Processing ---
-  const supplierDataWithCalculations = useMemo(() => suppliers.map(supplier => {
+  const supplierDataWithCalculations: SupplierDataWithCalculations[] = useMemo(() => suppliers.map(supplier => {
     const supplierPieces = pieces.filter(p => p.supplier_id === supplier.id);
     const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
     const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
@@ -160,7 +167,15 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
     </div>
   );
 
-  const CreancesReport = () => (
+  const CreancesReport = ({ data }: { data: SupplierDataWithCalculations[] }) => {
+    const totals = {
+        soldeInitial: data.reduce((sum, s) => sum + s.solde_initial, 0),
+        totalFacture: data.reduce((sum, s) => sum + s.totalFacture, 0),
+        totalPaye: data.reduce((sum, s) => sum + s.totalPaye, 0),
+        creanceTotale: data.reduce((sum, s) => sum + s.creanceTotale, 0),
+    };
+    
+    return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center justify-between mb-6">
@@ -172,7 +187,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
         </div>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={supplierDataWithCalculations}>
+            <BarChart data={data}>
               <defs>
                  <linearGradient id="creanceGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
@@ -200,7 +215,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
           <h3 className="text-lg font-semibold text-gray-900">{dictionary.creancesReport.detailTitle}</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{dictionary.creancesReport.table.supplier}</th>
@@ -212,22 +227,20 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {supplierDataWithCalculations.map((supplier) => (
+              {data.map((supplier) => (
                 <tr key={supplier.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{supplier.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{supplier.wilaya}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{supplier.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-600">{supplier.wilaya}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right font-mono">
                     {isClient ? formatCurrencyWithLocale(supplier.solde_initial, lang) : '...'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-right font-mono">
                     {isClient ? formatCurrencyWithLocale(supplier.totalFacture, lang) : '...'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-green-600 font-mono">
                     {isClient ? formatCurrencyWithLocale(supplier.totalPaye, lang) : '...'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold">
+                  <td className="px-6 py-4 whitespace-nowrap text-right font-bold font-mono">
                     <span className={supplier.creanceTotale > 0 ? 'text-red-600' : 'text-green-600'}>
                       {isClient ? formatCurrencyWithLocale(supplier.creanceTotale, lang) : '...'}
                     </span>
@@ -235,11 +248,30 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 </tr>
               ))}
             </tbody>
+            <tfoot className="bg-gray-100 border-t-2 border-gray-300">
+                <tr>
+                    <td colSpan={2} className="px-6 py-3 text-right font-bold text-gray-700 uppercase">{dictionary.creancesReport.table.totals}</td>
+                    <td className="px-6 py-3 text-right font-bold font-mono text-gray-800">
+                         {isClient ? formatCurrencyWithLocale(totals.soldeInitial, lang) : '...'}
+                    </td>
+                    <td className="px-6 py-3 text-right font-bold font-mono text-gray-800">
+                        {isClient ? formatCurrencyWithLocale(totals.totalFacture, lang) : '...'}
+                    </td>
+                    <td className="px-6 py-3 text-right font-bold font-mono text-green-700">
+                        {isClient ? formatCurrencyWithLocale(totals.totalPaye, lang) : '...'}
+                    </td>
+                     <td className="px-6 py-3 text-right font-bold font-mono">
+                        <span className={totals.creanceTotale > 0 ? 'text-red-700' : 'text-green-700'}>
+                            {isClient ? formatCurrencyWithLocale(totals.creanceTotale, lang) : '...'}
+                        </span>
+                    </td>
+                </tr>
+            </tfoot>
           </table>
         </div>
       </div>
     </div>
-  );
+  )};
 
   const TransactionsReport = () => (
     <div className="space-y-6">
@@ -374,10 +406,10 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
 
   const renderReport = () => {
     switch(selectedReport) {
-      case 'creances': return <CreancesReport />;
+      case 'creances': return <CreancesReport data={supplierDataWithCalculations}/>;
       case 'transactions': return <TransactionsReport />;
       case 'paiements': return <PaymentsReport />;
-      default: return <CreancesReport />;
+      default: return <CreancesReport data={supplierDataWithCalculations}/>;
     }
   };
 
