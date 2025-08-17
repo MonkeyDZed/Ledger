@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { Calendar, FileText, TrendingUp, DollarSign, Users, Download, Eye, AlertCircle } from 'lucide-react';
 import type { Supplier, Piece } from '@/lib/types';
-import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 interface ReportsClientPageProps {
@@ -36,27 +36,45 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
 
   const transactionData = useMemo(() => {
     const now = new Date();
-    const months = Array.from({ length: 6 }).map((_, i) => subMonths(now, 5 - i));
-    const monthlyData = months.map(month => {
-        const monthStart = startOfMonth(month);
-        const monthEnd = endOfMonth(month);
+    let startDate: Date;
 
-        const monthPieces = pieces.filter(p => {
-            const pieceDate = new Date(p.date);
-            return pieceDate >= monthStart && pieceDate <= monthEnd;
-        });
+    switch(dateRange) {
+        case '1m':
+            startDate = startOfMonth(now);
+            break;
+        case '3m':
+            startDate = startOfMonth(subMonths(now, 2));
+            break;
+        case '1y':
+            startDate = startOfYear(now);
+            break;
+        case '6m':
+        default:
+            startDate = startOfMonth(subMonths(now, 5));
+            break;
+    }
 
-        const entrees = monthPieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
-        const sorties = monthPieces.reduce((sum, p) => sum + p.montant_paye, 0);
-        
-        return {
-            date: format(month, 'yyyy-MM'),
-            entrees,
-            sorties
-        };
+    const filteredPieces = pieces.filter(p => new Date(p.date) >= startDate);
+    
+    const dataByMonth: { [key: string]: { entrees: number; sorties: number } } = {};
+
+    filteredPieces.forEach(p => {
+        const monthKey = format(new Date(p.date), 'yyyy-MM');
+        if (!dataByMonth[monthKey]) {
+            dataByMonth[monthKey] = { entrees: 0, sorties: 0 };
+        }
+        if (p.type !== 'VERSEMENT') {
+            dataByMonth[monthKey].entrees += p.total_piece;
+        }
+        dataByMonth[monthKey].sorties += p.montant_paye;
     });
-    return monthlyData;
-  }, [pieces]);
+
+    return Object.entries(dataByMonth)
+        .map(([date, values]) => ({ date, ...values }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+  }, [pieces, dateRange]);
+
 
   const paymentMethodData = useMemo(() => {
     const paymentMethods = pieces
@@ -93,7 +111,12 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   const totalCreances = supplierDataWithCalculations.reduce((sum, s) => sum + s.creanceTotale, 0);
   const totalSuppliers = suppliers.length;
   const avgCreance = totalSuppliers > 0 ? totalCreances / totalSuppliers : 0;
-  const totalTransactionsThisMonth = pieces.filter(p => new Date(p.date).getMonth() === new Date().getMonth()).length;
+  const totalTransactionsThisMonth = pieces.filter(p => {
+      const pieceDate = new Date(p.date);
+      const now = new Date();
+      return pieceDate.getMonth() === now.getMonth() && pieceDate.getFullYear() === now.getFullYear();
+  }).length;
+
 
   const reportTypes = [
     { id: 'creances', title: dictionary.reportTypes.creances.title, icon: DollarSign, desc: dictionary.reportTypes.creances.desc },
@@ -200,7 +223,10 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
             onChange={(e) => setDateRange(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
+            <option value="1m">{dictionary.transactionsReport.thisMonth}</option>
+            <option value="3m">{dictionary.transactionsReport.last3Months}</option>
             <option value="6m">{dictionary.transactionsReport.last6Months}</option>
+            <option value="1y">{dictionary.transactionsReport.thisYear}</option>
           </select>
         </div>
       </div>
@@ -368,5 +394,3 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
     </div>
   );
 };
-
-    

@@ -298,7 +298,10 @@
         },
         "transactionsReport": {
             "period": "Période d'analyse:",
+            "thisMonth": "Ce mois-ci",
+            "last3Months": "3 derniers mois",
             "last6Months": "6 derniers mois",
+            "thisYear": "Cette année",
             "title": "Évolution Entrées vs Sorties",
             "inflow": "Entrées (Factures/BL)",
             "outflow": "Sorties (Paiements)",
