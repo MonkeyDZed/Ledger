@@ -254,6 +254,75 @@
             }
         }
     },
+    "reportsPage": {
+        "title": "تقارير مالية",
+        "description": "تحليل مفصل لعلاقاتك مع الموردين",
+        "exportPdf": "تصدير PDF",
+        "stats": {
+            "totalDebts": "إجمالي الديون",
+            "totalDebtsSubtitle": "الدين الإجمالي",
+            "activeSuppliers": "الموردون النشطون",
+            "activeSuppliersSubtitle": "الشركاء المسجلون",
+            "avgDebt": "متوسط الدين",
+            "avgDebtSubtitle": "لكل مورد",
+            "transactionsThisMonth": "معاملات هذا الشهر",
+            "transactionsThisMonthSubtitle": "فواتير ومدفوعات"
+        },
+        "reportTypes": {
+            "creances": {
+                "title": "حالة الديون",
+                "desc": "نظرة عامة على الديون لكل مورد"
+            },
+            "transactions": {
+                "title": "التطور المالي",
+                "desc": "سجل الإيرادات والمصروفات"
+            },
+            "paiements": {
+                "title": "تحليل المدفوعات",
+                "desc": "التوزيع حسب طرق الدفع"
+            }
+        },
+        "creancesReport": {
+            "title": "الديون حسب المورد",
+            "tooltipCreance": "الدين",
+            "tooltipSupplier": "المورد",
+            "detailTitle": "تفاصيل الديون",
+            "table": {
+                "supplier": "المورد",
+                "wilaya": "الولاية",
+                "initialBalance": "الرصيد الأولي",
+                "totalInvoiced": "إجمالي الفواتير",
+                "totalPaid": "إجمالي المدفوعات",
+                "totalDebt": "إجمالي الدين"
+            }
+        },
+        "transactionsReport": {
+            "period": "فترة التحليل:",
+            "last6Months": "آخر 6 أشهر",
+            "title": "تطور الإيرادات مقابل المصروفات",
+            "inflow": "الإيرادات (فواتير/وصولات)",
+            "outflow": "المصروفات (دفعات)",
+            "recentTitle": "المعاملات الأخيرة"
+        },
+        "paymentsReport": {
+            "title": "التوزيع حسب طريقة الدفع",
+            "percentage": "النسبة المئوية",
+            "detailTitle": "تفاصيل المبالغ",
+            "ofTotal": "من الإجمالي",
+            "totalPayments": "إجمالي المدفوعات"
+        },
+        "paymentMethods": {
+            "espece": "نقداً",
+            "cheque": "شيك",
+            "virement": "تحويل بنكي",
+            "traite": "سفتجة"
+        },
+        "pieceTypes": {
+            "facture": "فاتورة",
+            "bl": "وصل تسليم",
+            "versement": "دفعة"
+        }
+    },
      "schemas": {
         "supplier": {
             "nameMin": "يجب أن يحتوي الاسم على حرفين على الأقل."

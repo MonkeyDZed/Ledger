@@ -254,7 +254,76 @@
             }
         }
     },
-    "schemas": {
+    "reportsPage": {
+        "title": "Rapports Financiers",
+        "description": "Analyse détaillée de vos relations fournisseurs",
+        "exportPdf": "Exporter PDF",
+        "stats": {
+            "totalDebts": "Total Créances",
+            "totalDebtsSubtitle": "Dette totale",
+            "activeSuppliers": "Fournisseurs Actifs",
+            "activeSuppliersSubtitle": "Partenaires enregistrés",
+            "avgDebt": "Créance Moyenne",
+            "avgDebtSubtitle": "Par fournisseur",
+            "transactionsThisMonth": "Transactions ce Mois",
+            "transactionsThisMonthSubtitle": "Factures et paiements"
+        },
+        "reportTypes": {
+            "creances": {
+                "title": "État des Créances",
+                "desc": "Vue d'ensemble des dettes par fournisseur"
+            },
+            "transactions": {
+                "title": "Évolution Financière",
+                "desc": "Historique des entrées et sorties"
+            },
+            "paiements": {
+                "title": "Analyse des Paiements",
+                "desc": "Répartition par moyens de paiement"
+            }
+        },
+        "creancesReport": {
+            "title": "Créances par Fournisseur",
+            "tooltipCreance": "Créance",
+            "tooltipSupplier": "Fournisseur",
+            "detailTitle": "Détail des Créances",
+            "table": {
+                "supplier": "Fournisseur",
+                "wilaya": "Wilaya",
+                "initialBalance": "Solde Initial",
+                "totalInvoiced": "Total Facturé",
+                "totalPaid": "Total Payé",
+                "totalDebt": "Créance Totale"
+            }
+        },
+        "transactionsReport": {
+            "period": "Période d'analyse:",
+            "last6Months": "6 derniers mois",
+            "title": "Évolution Entrées vs Sorties",
+            "inflow": "Entrées (Factures/BL)",
+            "outflow": "Sorties (Paiements)",
+            "recentTitle": "Transactions Récentes"
+        },
+        "paymentsReport": {
+            "title": "Répartition par Moyen de Paiement",
+            "percentage": "Pourcentage",
+            "detailTitle": "Détail des Montants",
+            "ofTotal": "du total",
+            "totalPayments": "Total des Paiements"
+        },
+        "paymentMethods": {
+            "espece": "Espèce",
+            "cheque": "Chèque",
+            "virement": "Virement",
+            "traite": "Traite"
+        },
+        "pieceTypes": {
+            "facture": "Facture",
+            "bl": "BL",
+            "versement": "Versement"
+        }
+    },
+     "schemas": {
         "supplier": {
             "nameMin": "Le nom doit contenir au moins 2 caractères."
         },
