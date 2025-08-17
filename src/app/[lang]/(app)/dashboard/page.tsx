@@ -7,7 +7,8 @@ import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 
 // This is a Server Component, responsible for fetching data.
-export default async function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function DashboardPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
   const dictionary = await getDictionary(lang);

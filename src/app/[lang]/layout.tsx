@@ -20,7 +20,7 @@ export function generateStaticParams() {
   return [{ lang: 'fr' }, { lang: 'ar' }]
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params
 }: Readonly<{

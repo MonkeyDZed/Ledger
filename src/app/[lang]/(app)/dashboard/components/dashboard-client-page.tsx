@@ -52,10 +52,15 @@ interface DashboardClientPageProps {
 }
 
 export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
+  const [isClient, setIsClient] = useState(false);
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleAutoFill = () => {
     supplierFormRef.current?.autoFill();
@@ -89,14 +94,12 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     setRecentSuppliers(sorted);
   }, [supplierDataWithCalculations]);
 
-
   const grandTotalDebt = supplierDataWithCalculations.reduce((sum, s) => sum + s.totalDebt, 0);
   const totalPieces = pieces.filter(p => p.type !== 'VERSEMENT').length;
   const totalSuppliers = suppliers.length;
 
-  // Financial Overview Calculation
   const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-  const totalToPay = grandTotalDebt; 
+  const totalToPay = grandTotalDebt < 0 ? 0 : grandTotalDebt; 
   
   const grandTotal = totalPaid + totalToPay;
 
@@ -297,7 +300,8 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
            />
         </DialogContent>
       </Dialog>
-     <NewPieceDialog
+     {isClient && <>
+      <NewPieceDialog
         isOpen={isNewPieceOpen}
         onOpenChange={setIsNewPieceOpen}
         suppliers={suppliers}
@@ -317,10 +321,9 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         addPieceAction={addPieceAction}
         updatePieceAction={updatePieceAction}
        />
+       </>}
     </>
   );
 }
-
-    
 
     
