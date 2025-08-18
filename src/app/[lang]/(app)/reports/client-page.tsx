@@ -46,6 +46,8 @@ const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: an
 
 export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: ReportsClientPageProps) => {
   const [isClient, setIsClient] = useState(false);
+  const [now] = useState(() => new Date()); // <-- Correction: Date stable
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -63,7 +65,6 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   }), [suppliers, pieces]);
 
   const transactionData = useMemo(() => {
-    const now = new Date();
     let startDate: Date;
 
     switch(dateRange) {
@@ -93,15 +94,16 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
         }
         if (p.type !== 'VERSEMENT') {
             dataByMonth[monthKey].entrees += p.total_piece;
+        } else {
+             dataByMonth[monthKey].sorties += p.montant_paye;
         }
-        dataByMonth[monthKey].sorties += p.montant_paye;
     });
 
     return Object.entries(dataByMonth)
         .map(([date, values]) => ({ date, ...values }))
         .sort((a, b) => a.date.localeCompare(b.date));
 
-  }, [pieces, dateRange]);
+  }, [pieces, dateRange, now]);
 
 
   const paymentMethodData = useMemo(() => {
@@ -141,7 +143,6 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   const avgCreance = totalSuppliers > 0 ? totalCreances / totalSuppliers : 0;
   const totalTransactionsThisMonth = pieces.filter(p => {
       const pieceDate = new Date(p.date);
-      const now = new Date();
       return pieceDate.getMonth() === now.getMonth() && pieceDate.getFullYear() === now.getFullYear();
   }).length;
 
@@ -336,7 +337,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 <div className={`w-2 h-2 rounded-full ${transaction.type === 'VERSEMENT' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">{transaction.supplierName}</p>
-                  <p className="text-xs text-gray-500">{isClient ? new Date(transaction.date).toLocaleDateString(lang) : '...'}</p>
+                  {isClient ? <p className="text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString(lang)}</p> : <p className="text-xs text-gray-500">...</p>}
                 </div>
               </div>
               <div className="text-right">
@@ -369,7 +370,10 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 <Pie data={paymentMethodData} cx="50%" cy="50%" outerRadius={80} fill="#8884d8" dataKey="value" label={({name, value}) => `${name} (${value}%)`}>
                   {paymentMethodData.map((entry, index) => ( <Cell key={`cell-${index}`} fill={entry.color} /> ))}
                 </Pie>
-                <Tooltip formatter={(value, name, props) => [`${value}% (${isClient ? formatCurrencyWithLocale(props.payload.amount, lang, 0) : '...'})`, name]} />
+                <Tooltip formatter={(value, name, props) => {
+                    const formattedAmount = isClient ? formatCurrencyWithLocale(props.payload.amount, lang, 0) : '...';
+                    return [`${value}% (${formattedAmount})`, name];
+                }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
