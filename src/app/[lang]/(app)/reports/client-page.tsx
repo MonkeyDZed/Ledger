@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 import { Calendar, FileText, TrendingUp, DollarSign, Users, Download, Eye, AlertCircle } from 'lucide-react';
 import type { Supplier, Piece } from '@/lib/types';
-import { format, subMonths, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, startOfYear, getWeek, startOfWeek } from 'date-fns';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 interface ReportsClientPageProps {
@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: an
                     {labelFormatter && <p className="font-medium">{labelFormatter(label)}</p>}
                     {payload.map((entry: any, index: number) => (
                          <div key={`item-${index}`} className="flex items-center gap-2">
-                             <div className="h-2 w-2 flex-shrink-0 rounded-[2px]" style={{backgroundColor: entry.fill}}></div>
+                             <div className="h-2 w-2 flex-shrink-0 rounded-[2px]" style={{backgroundColor: entry.fill || entry.stroke}}></div>
                              <p className="text-sm text-muted-foreground">
                                 {formatter(entry.value, entry.name, entry.payload)}
                              </p>
@@ -46,7 +46,7 @@ const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: an
 
 export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: ReportsClientPageProps) => {
   const [isClient, setIsClient] = useState(false);
-  const [now] = useState(() => new Date()); // <-- Correction: Date stable
+  const [now] = useState(() => new Date());
 
   useEffect(() => {
     setIsClient(true);
@@ -66,41 +66,59 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
 
   const transactionData = useMemo(() => {
     let startDate: Date;
+    let keyGenerator: (date: Date) => string;
 
     switch(dateRange) {
         case '1m':
             startDate = startOfMonth(now);
+            keyGenerator = (d) => format(d, 'yyyy-MM-dd');
             break;
         case '3m':
             startDate = startOfMonth(subMonths(now, 2));
+            keyGenerator = (d) => format(startOfWeek(d, { weekStartsOn: 1 }), 'yyyy-MM-dd');
             break;
         case '1y':
             startDate = startOfYear(now);
+            keyGenerator = (d) => format(d, 'yyyy-MM');
             break;
         case '6m':
         default:
             startDate = startOfMonth(subMonths(now, 5));
+            keyGenerator = (d) => format(startOfWeek(d, { weekStartsOn: 1 }), 'yyyy-MM-dd');
             break;
     }
 
-    const filteredPieces = pieces.filter(p => new Date(p.date) >= startDate);
+    const filteredPieces = pieces.filter(p => new Date(p.date) >= startDate && new Date(p.date) <= now);
     
-    const dataByMonth: { [key: string]: { entrees: number; sorties: number } } = {};
+    const dataByPeriod: { [key: string]: { entrees: number; sorties: number } } = {};
 
     filteredPieces.forEach(p => {
-        const monthKey = format(new Date(p.date), 'yyyy-MM');
-        if (!dataByMonth[monthKey]) {
-            dataByMonth[monthKey] = { entrees: 0, sorties: 0 };
+        const pieceDate = new Date(p.date);
+        const key = keyGenerator(pieceDate);
+
+        if (!dataByPeriod[key]) {
+            dataByPeriod[key] = { entrees: 0, sorties: 0 };
         }
         if (p.type !== 'VERSEMENT') {
-            dataByMonth[monthKey].entrees += p.total_piece;
+            dataByPeriod[key].entrees += p.total_piece;
         } else {
-             dataByMonth[monthKey].sorties += p.montant_paye;
+             dataByPeriod[key].sorties += p.montant_paye;
         }
     });
 
-    return Object.entries(dataByMonth)
-        .map(([date, values]) => ({ date, ...values }))
+    return Object.entries(dataByPeriod)
+        .map(([date, values]) => {
+            let label = date;
+            if (dateRange === '1m') {
+                label = format(new Date(date), 'dd');
+            } else if (dateRange === '3m' || dateRange === '6m') {
+                const week = getWeek(new Date(date));
+                label = `S${week}`;
+            } else if (dateRange === '1y') {
+                 label = format(new Date(date), 'MMM');
+            }
+            return { date, label, ...values }
+        })
         .sort((a, b) => a.date.localeCompare(b.date));
 
   }, [pieces, dateRange, now]);
@@ -309,13 +327,17 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" tick={{fontSize: 12}} />
+              <XAxis dataKey="label" tick={{fontSize: 12}} />
               <YAxis tickFormatter={(value) => `${Number(value) / 1000}K`} />
               <Tooltip 
                 cursor={{stroke: '#cbd5e1', strokeDasharray: '3 3'}}
                 content={<CustomTooltip 
                     formatter={(value: any, name: any) => `${name === 'entrees' ? dictionary.transactionsReport.inflow : dictionary.transactionsReport.outflow}: ${isClient ? formatCurrencyWithLocale(value, lang) : '...'}`}
-                    labelFormatter={(label: any) => `Mois: ${label}`}
+                    labelFormatter={(label: any) => {
+                         if (dateRange === '1y') return `Mois: ${label}`;
+                         if (dateRange === '1m') return `Jour: ${label}`;
+                         return `Semaine: ${label}`;
+                    }}
                 />}
               />
               <Legend verticalAlign="top" height={40} />
