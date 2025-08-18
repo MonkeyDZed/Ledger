@@ -5,8 +5,9 @@ import { getDictionary } from '@/lib/dictionaries';
 import { addPiece, updatePiece, deletePiece } from '../suppliers/[id]/actions';
 import { Supplier } from '@/lib/types';
 import React from 'react';
+import type { Locale } from '@/i18n.config';
 
-export default function PiecesPage({ params: paramsProp }: { params: { lang: 'fr' | 'ar' }}) {
+export default function PiecesPage({ params: paramsProp }: { params: { lang: Locale }}) {
   const { lang } = React.use(paramsProp);
   const pieces = React.use(getPieces());
   const suppliers: Supplier[] = React.use(getSuppliers());
