@@ -32,7 +32,7 @@ const EyeIcon = () => (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fillRule="evenodd" d="M.458 10C3.732 4.943 7.523 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-7.03 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"></path></svg>
 );
 const PdfIcon = () => (
-    <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 0h12a2 2 0 012 2v16a2 2 0 01-2-2H4a2 2 0 01-2-2V2a2 2 0 012-2zm2 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+    <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 0h12a2 2 0 012 2v16a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2zm2 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clipRule="evenodd" fillRule="evenodd"></path></svg>
 );
 const CsvIcon = () => (
     <svg className="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1-1H3a1 1 0 01-1-1V3zm2 1v2h12V4H4zm0 4v2h12V8H4zm0 4v2h12v-2H4z"></path></svg>
@@ -85,10 +85,13 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     };
   }), [suppliers, pieces]);
   
-  const recentSuppliers = useMemo(() => {
-    return [...supplierDataWithCalculations]
+  const [recentSuppliers, setRecentSuppliers] = useState<typeof supplierDataWithCalculations>([]);
+
+  useEffect(() => {
+    const sorted = [...supplierDataWithCalculations]
         .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
         .slice(0, 10);
+    setRecentSuppliers(sorted);
   }, [supplierDataWithCalculations]);
 
   const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
@@ -327,5 +330,3 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
-
-    
