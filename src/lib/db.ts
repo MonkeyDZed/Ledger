@@ -1,5 +1,5 @@
 
-import { open } from 'sqlite';
+import { open, type Database } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import type { Supplier, Piece } from './types';
 import { randomUUID } from 'crypto';
@@ -38,6 +38,37 @@ async function getDbPath(): Promise<string> {
 }
 
 
+async function applyMigrations(db: Database) {
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS migrations (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            applied_at TEXT NOT NULL
+        );
+    `);
+
+    const appliedMigrations = (await db.all('SELECT name FROM migrations')).map(row => row.name);
+    
+    const migrationsDir = path.join(process.cwd(), 'src', 'lib', 'migrations');
+    const migrationFiles = (await fs.readdir(migrationsDir))
+        .filter(file => file.endsWith('.sql'))
+        .sort();
+
+    for (const file of migrationFiles) {
+        if (!appliedMigrations.includes(file)) {
+            console.log(`Applying migration: ${file}`);
+            const sql = await fs.readFile(path.join(migrationsDir, file), 'utf-8');
+            await db.exec(sql);
+            await db.run(
+                'INSERT INTO migrations (name, applied_at) VALUES (?, ?)',
+                file,
+                new Date().toISOString()
+            );
+        }
+    }
+}
+
+
 async function initializeDb() {
   const dbPath = await getDbPath();
   const db = await open({
@@ -47,49 +78,7 @@ async function initializeDb() {
 
   await db.exec('PRAGMA foreign_keys = ON;');
 
-  // --- Logique de migration future peut être insérée ici ---
-  // Exemple : await applyMigrations(db);
-
-  const tablesExist = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='suppliers'");
-  
-  if (!tablesExist) {
-    await db.exec(`
-      CREATE TABLE suppliers (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        wilaya TEXT,
-        phone TEXT,
-        nif TEXT,
-        bank_info TEXT,
-        solde_initial REAL NOT NULL,
-        notes TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      );
-    `);
-    await db.exec(`
-        CREATE TABLE pieces (
-            id TEXT PRIMARY KEY,
-            supplier_id TEXT NOT NULL,
-            date TEXT NOT NULL,
-            type TEXT NOT NULL,
-            total_piece REAL NOT NULL,
-            montant_paye REAL NOT NULL,
-            reste REAL NOT NULL,
-            description TEXT,
-            payment_method TEXT,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-            FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE
-        );
-    `);
-  } else {
-    // Migration for payment_method column if it doesn't exist
-    const piecesCols = await db.all("PRAGMA table_info(pieces);");
-    if (!piecesCols.some(col => col.name === 'payment_method')) {
-        await db.exec('ALTER TABLE pieces ADD COLUMN payment_method TEXT');
-    }
-  }
+  await applyMigrations(db);
 
   return db;
 }
