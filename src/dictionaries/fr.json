@@ -306,7 +306,8 @@
             "title": "Évolution Entrées vs Sorties",
             "inflow": "Entrées (Factures/BL)",
             "outflow": "Sorties (Paiements)",
-            "recentTitle": "Transactions Récentes"
+            "recentTitle": "Transactions Récentes",
+            "week": "Semaine"
         },
         "paymentsReport": {
             "title": "Répartition par Moyen de Paiement",

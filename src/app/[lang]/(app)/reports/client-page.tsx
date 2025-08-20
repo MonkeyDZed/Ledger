@@ -5,7 +5,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area, Legend } from 'recharts';
 import { Calendar, FileText, TrendingUp, DollarSign, Users, Download, Eye, AlertCircle } from 'lucide-react';
 import type { Supplier, Piece } from '@/lib/types';
-import { format, subMonths, startOfMonth, endOfMonth, startOfYear, getWeek, startOfWeek } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, startOfYear, getWeek, startOfWeek, parse } from 'date-fns';
+import { fr, ar } from 'date-fns/locale';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 
 interface ReportsClientPageProps {
@@ -27,7 +28,7 @@ const CustomTooltip = ({ active, payload, label, formatter, labelFormatter }: an
         return (
             <div className="rounded-lg border bg-background p-2.5 shadow-sm">
                 <div className="grid grid-cols-1 gap-1.5">
-                    {labelFormatter && <p className="font-medium">{labelFormatter(label)}</p>}
+                    {labelFormatter && <p className="font-medium">{labelFormatter(label, payload)}</p>}
                     {payload.map((entry: any, index: number) => (
                          <div key={`item-${index}`} className="flex items-center gap-2">
                              <div className="h-2 w-2 flex-shrink-0 rounded-[2px]" style={{backgroundColor: entry.fill || entry.stroke}}></div>
@@ -67,24 +68,25 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   const transactionData = useMemo(() => {
     let startDate: Date;
     let keyGenerator: (date: Date) => string;
+    let labelGenerator: (key: string) => string;
 
     switch(dateRange) {
         case '1m':
             startDate = startOfMonth(now);
             keyGenerator = (d) => format(d, 'yyyy-MM-dd');
+            labelGenerator = (key) => format(parse(key, 'yyyy-MM-dd', new Date()), 'dd');
             break;
         case '3m':
-            startDate = startOfMonth(subMonths(now, 2));
+        case '6m':
+            startDate = startOfMonth(subMonths(now, dateRange === '3m' ? 2 : 5));
             keyGenerator = (d) => format(startOfWeek(d, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+            labelGenerator = (key) => `S${getWeek(parse(key, 'yyyy-MM-dd', new Date()), { weekStartsOn: 1 })}`;
             break;
         case '1y':
+        default:
             startDate = startOfYear(now);
             keyGenerator = (d) => format(d, 'yyyy-MM');
-            break;
-        case '6m':
-        default:
-            startDate = startOfMonth(subMonths(now, 5));
-            keyGenerator = (d) => format(startOfWeek(d, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+            labelGenerator = (key) => key; // Use the key itself, which is `yyyy-MM`
             break;
     }
 
@@ -107,18 +109,11 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
     });
 
     return Object.entries(dataByPeriod)
-        .map(([date, values]) => {
-            let label = date;
-            if (dateRange === '1m') {
-                label = format(new Date(date), 'dd');
-            } else if (dateRange === '3m' || dateRange === '6m') {
-                const week = getWeek(new Date(date));
-                label = `S${week}`;
-            } else if (dateRange === '1y') {
-                 label = format(new Date(date), 'MMM');
-            }
-            return { date, label, ...values }
-        })
+        .map(([dateKey, values]) => ({ 
+            date: dateKey, 
+            label: labelGenerator(dateKey),
+            ...values 
+        }))
         .sort((a, b) => a.date.localeCompare(b.date));
 
   }, [pieces, dateRange, now]);
@@ -327,16 +322,28 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="label" tick={{fontSize: 12}} />
+              <XAxis dataKey="label" tickFormatter={(value) => {
+                  if (dateRange === '1y') {
+                      return format(parse(value, 'yyyy-MM', new Date()), 'MMM', { locale: lang === 'ar' ? ar : fr });
+                  }
+                  return value;
+              }} tick={{fontSize: 12}} />
               <YAxis tickFormatter={(value) => `${Number(value) / 1000}K`} />
               <Tooltip 
                 cursor={{stroke: '#cbd5e1', strokeDasharray: '3 3'}}
                 content={<CustomTooltip 
                     formatter={(value: any, name: any) => `${name === 'entrees' ? dictionary.transactionsReport.inflow : dictionary.transactionsReport.outflow}: ${isClient ? formatCurrencyWithLocale(value, lang) : '...'}`}
-                    labelFormatter={(label: any) => {
-                         if (dateRange === '1y') return `Mois: ${label}`;
-                         if (dateRange === '1m') return `Jour: ${label}`;
-                         return `Semaine: ${label}`;
+                    labelFormatter={(label: any, payload: any) => {
+                         const point = payload?.[0]?.payload;
+                         if (!point) return label;
+
+                         if (dateRange === '1y') return format(parse(point.date, 'yyyy-MM', new Date()), 'MMMM yyyy', { locale: lang === 'ar' ? ar : fr });
+                         if (dateRange === '1m') return format(parse(point.date, 'yyyy-MM-dd', new Date()), 'PPP', { locale: lang === 'ar' ? ar : fr });
+                         
+                         const weekDate = parse(point.date, 'yyyy-MM-dd', new Date());
+                         const weekStart = startOfWeek(weekDate, { weekStartsOn: 1 });
+                         const weekEnd = format(new Date(weekStart.setDate(weekStart.getDate() + 6)), 'dd MMM', { locale: lang === 'ar' ? ar : fr });
+                         return `${dictionary.transactionsReport.week} ${label}: ${format(weekStart, 'dd MMM', { locale: lang === 'ar' ? ar : fr })} - ${weekEnd}`;
                     }}
                 />}
               />
@@ -359,7 +366,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 <div className={`w-2 h-2 rounded-full ${transaction.type === 'VERSEMENT' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">{transaction.supplierName}</p>
-                  {isClient ? <p className="text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString(lang)}</p> : <p className="text-xs text-gray-500">...</p>}
+                  {isClient ? <p className="text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR')}</p> : <p className="text-xs text-gray-500">...</p>}
                 </div>
               </div>
               <div className="text-right">
