@@ -3,16 +3,52 @@ import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import type { Supplier, Piece } from './types';
 import { randomUUID } from 'crypto';
+import path from 'path';
+import os from 'os';
+import fs from 'fs/promises';
+
 
 let dbInstance: Awaited<ReturnType<typeof open>> | null = null;
 
+async function getDbPath(): Promise<string> {
+    const getAppDataPath = () => {
+        switch (process.platform) {
+            case 'win32':
+                return process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
+            case 'darwin':
+                return path.join(os.homedir(), 'Library', 'Application Support');
+            case 'linux':
+                return process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
+            default:
+                return path.join(os.homedir(), '.local', 'share');
+        }
+    };
+    
+    const appDataPath = getAppDataPath();
+    const dbDir = path.join(appDataPath, 'LedgerSync');
+    
+    try {
+        await fs.mkdir(dbDir, { recursive: true });
+    } catch (error) {
+        console.error("Impossible de créer le répertoire de la base de données:", error);
+        throw new Error("Impossible de créer le répertoire de la base de données.");
+    }
+    
+    return path.join(dbDir, 'database.db');
+}
+
+
 async function initializeDb() {
+  const dbPath = await getDbPath();
   const db = await open({
-    filename: './database.db',
+    filename: dbPath,
     driver: sqlite3.Database,
   });
 
   await db.exec('PRAGMA foreign_keys = ON;');
+
+  // --- Logique de migration future peut être insérée ici ---
+  // Exemple : await applyMigrations(db);
 
   const tablesExist = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='suppliers'");
   
