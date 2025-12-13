@@ -9,7 +9,7 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, description, children }: PageHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
       <div className="grid gap-1">
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{title}</h1>
         {description && <p className="text-muted-foreground">{description}</p>}

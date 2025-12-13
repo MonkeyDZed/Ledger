@@ -225,41 +225,41 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         </Button>
       </PageHeader>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 mb-4">
         <Card className="bg-slate-100 border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                <CardTitle className="text-xs font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
                 <div className="text-slate-500"><BalanceIcon /></div>
             </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold text-slate-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalInitialBalance, lang) : '...'}</div>
+            <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold text-slate-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalInitialBalance, lang) : '...'}</div>
             </CardContent>
         </Card>
         <Card className="bg-blue-50 border-blue-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-blue-800">{dictionary.table.totalInvoiced}</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                <CardTitle className="text-xs font-medium text-blue-800">{dictionary.table.totalInvoiced}</CardTitle>
                 <div className="text-blue-700"><ReceiptIcon /></div>
             </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold text-blue-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalInvoiced, lang) : '...'}</div>
+            <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold text-blue-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalInvoiced, lang) : '...'}</div>
             </CardContent>
         </Card>
         <Card className="bg-green-50 border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-green-800">{dictionary.table.totalPaid}</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                <CardTitle className="text-xs font-medium text-green-800">{dictionary.table.totalPaid}</CardTitle>
                 <div className="text-green-700"><CreditCardIcon /></div>
             </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold text-green-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'}</div>
+            <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold text-green-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'}</div>
             </CardContent>
         </Card>
         <Card className="bg-rose-50 border-rose-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-rose-800">{dictionary.table.totalDebt}</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                <CardTitle className="text-xs font-medium text-rose-800">{dictionary.table.totalDebt}</CardTitle>
                 <div className="text-rose-700"><AlertCircleIcon /></div>
             </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold text-rose-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalDebt, lang) : '...'}</div>
+            <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold text-rose-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalDebt, lang) : '...'}</div>
             </CardContent>
         </Card>
       </div>

@@ -140,15 +140,20 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
     }));
   }, [pieces, dictionary]);
   
-  const recentTransactions = useMemo(() => {
-    return pieces
-        .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 5)
-        .map(p => ({
-            ...p,
-            supplierName: suppliers.find(s => s.id === p.supplier_id)?.name || 'N/A'
-        }));
-  }, [pieces, suppliers]);
+  const [recentTransactions, setRecentTransactions] = useState<(Piece & { supplierName: string })[]>([]);
+
+    useEffect(() => {
+        if (isClient) {
+            const sorted = pieces
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .slice(0, 5)
+                .map(p => ({
+                    ...p,
+                    supplierName: suppliers.find(s => s.id === p.supplier_id)?.name || 'N/A'
+                }));
+            setRecentTransactions(sorted);
+        }
+    }, [pieces, suppliers, isClient]);
 
 
   const totalCreances = supplierDataWithCalculations.reduce((sum, s) => sum + s.creanceTotale, 0);
@@ -366,7 +371,7 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
                 <div className={`w-2 h-2 rounded-full ${transaction.type === 'VERSEMENT' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">{transaction.supplierName}</p>
-                  {isClient ? <p className="text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR')}</p> : <p className="text-xs text-gray-500">...</p>}
+                   <p className="text-xs text-gray-500">{new Date(transaction.date).toLocaleDateString(lang === 'ar' ? 'ar-DZ' : 'fr-FR')}</p>
                 </div>
               </div>
               <div className="text-right">
