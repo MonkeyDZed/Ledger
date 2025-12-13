@@ -8,7 +8,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -34,16 +34,18 @@ interface ClientPageProps {
   deletePieceAction: typeof deletePiece;
 }
 
-const StatCard = ({ title, value }: { title: string, value: string | React.ReactNode }) => (
-    <Card>
-        <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
+    <Card className={cardClassName}>
+        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+            <CardTitle className={`text-xs font-medium ${titleClassName}`}>{title}</CardTitle>
+            <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
-        <CardContent>
-            <p className="text-2xl font-bold text-gray-900 font-mono">{value}</p>
+        <CardContent className="p-4 pt-0">
+            <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
         </CardContent>
     </Card>
 );
+
 
 const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => {
     if (!method) return null;
@@ -227,17 +229,34 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
         description={dictionary.description}
       />
 
-        <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <StatCard title={dictionary.totalBilled} value={isClient ? formatCurrencyWithLocale(totals.totalBilled, lang) : '...'} />
-            <StatCard title={dictionary.totalPaid} value={isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'} />
-            <Card className="bg-amber-50">
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-2xl font-bold text-amber-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalRemaining, lang) : '...'}</p>
-                </CardContent>
-            </Card>
+        <div className="grid gap-2 md:grid-cols-3 mb-4">
+            <StatCard 
+                title={dictionary.totalBilled} 
+                value={isClient ? formatCurrencyWithLocale(totals.totalBilled, lang) : '...'}
+                icon={<Receipt className="h-5 w-5"/>}
+                cardClassName="bg-blue-50 border-blue-200"
+                titleClassName="text-blue-800"
+                valueClassName="text-blue-900"
+                iconWrapperClassName="text-blue-700"
+             />
+             <StatCard 
+                title={dictionary.totalPaid} 
+                value={isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'}
+                icon={<CreditCard className="h-5 w-5"/>}
+                cardClassName="bg-green-50 border-green-200"
+                titleClassName="text-green-800"
+                valueClassName="text-green-900"
+                iconWrapperClassName="text-green-700"
+             />
+             <StatCard 
+                title={dictionary.totalRemaining} 
+                value={isClient ? formatCurrencyWithLocale(totals.totalRemaining, lang) : '...'}
+                icon={<AlertCircle className="h-5 w-5"/>}
+                cardClassName="bg-rose-50 border-rose-200"
+                titleClassName="text-rose-800"
+                valueClassName="text-rose-900"
+                iconWrapperClassName="text-rose-700"
+             />
         </div>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
@@ -280,6 +299,8 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     </>
   );
 }
+
+    
 
     
 

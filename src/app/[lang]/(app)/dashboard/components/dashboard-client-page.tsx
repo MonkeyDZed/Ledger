@@ -85,13 +85,10 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     };
   }), [suppliers, pieces]);
   
-  const [recentSuppliers, setRecentSuppliers] = useState<typeof supplierDataWithCalculations>([]);
-
-  useEffect(() => {
-    const sorted = [...supplierDataWithCalculations]
+  const recentSuppliers = useMemo(() => {
+    return [...supplierDataWithCalculations]
         .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
         .slice(0, 10);
-    setRecentSuppliers(sorted);
   }, [supplierDataWithCalculations]);
 
   const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
@@ -330,3 +327,5 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
