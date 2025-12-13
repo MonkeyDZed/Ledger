@@ -113,12 +113,9 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
           );
         },
         cell: ({ row }) => (
-          <div>
             <Link href={`/${lang}/suppliers/${row.original.id}`} className="font-medium text-primary hover:underline">
               {row.getValue('name')}
             </Link>
-            <div className="text-gray-900">{row.original.phone}</div>
-          </div>
         ),
       },
        {
@@ -315,5 +312,3 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
-
-    
