@@ -313,9 +313,9 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           isOpen={isNewPieceOpen}
           onOpenChange={setIsNewPieceOpen}
           suppliers={suppliers}
-          pieces={initialPieces}
+          pieces={pieces}
           dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary}
+          pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
           updatePieceAction={updatePieceAction}
         />
@@ -323,9 +323,9 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           isOpen={isNewVersementOpen}
           onOpenChange={setIsNewVersementOpen}
           suppliers={suppliers}
-          pieces={initialPieces}
+          pieces={pieces}
           dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary}
+          pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
           updatePieceAction={updatePieceAction}
         />
@@ -333,3 +333,10 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     </>
   );
 }
+
+    
+
+    
+
+    
+

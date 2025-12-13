@@ -40,11 +40,15 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
     if (!supplier) return 0;
 
     const supplierPieces = pieces.filter(p => p.supplier_id === selectedSupplierId);
-    const balanceFromPieces = supplierPieces.reduce((sum, p) => sum + p.reste, 0);
+    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const balanceFromPieces = totalInvoiced - totalPaid;
+    
     return supplier.solde_initial + balanceFromPieces;
   }, [selectedSupplierId, suppliers, pieces]);
   
   const selectedSupplier = suppliers.find(s => s.id === selectedSupplierId);
+  const dict = pieceFormDictionary;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -56,7 +60,7 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
         <DialogHeader>
           <DialogTitle>{dictionary.newPayment}</DialogTitle>
            <DialogDescription>
-            {selectedSupplierId ? pieceFormDictionary.addPaymentDescription : "Choisissez d'abord un fournisseur pour enregistrer un versement."}
+            {selectedSupplierId ? dict.addPaymentDescription : (lang === 'fr' ? "Choisissez d'abord un fournisseur pour enregistrer un versement." : "اختر موردًا أولاً لتسجيل دفعة.")}
           </DialogDescription>
         </DialogHeader>
         
@@ -64,7 +68,7 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
             <div className="pt-4 space-y-4">
                 <Select onValueChange={setSelectedSupplierId}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un fournisseur" />
+                        <SelectValue placeholder={lang === 'fr' ? "Sélectionnez un fournisseur" : "اختر موردًا"} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[280px]">
                         {suppliers.map(supplier => (
@@ -80,13 +84,13 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
             <Card 
               className="mb-4 bg-gray-50 border-dashed cursor-pointer"
               onDoubleClick={() => setSelectedSupplierId(null)}
-              title="Double-cliquez pour changer de fournisseur"
+              title={lang === 'fr' ? "Double-cliquez pour changer de fournisseur" : "انقر نقرًا مزدوجًا لتغيير المورد"}
             >
                 <CardContent className="p-4">
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="font-semibold text-gray-800">{selectedSupplier?.name}</p>
-                            <CardDescription>Créance actuelle avant ce versement</CardDescription>
+                            <CardDescription>{lang === 'fr' ? "Créance actuelle avant ce versement" : "الدين الحالي قبل هذه الدفعة"}</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
                            {formatCurrencyWithLocale(selectedSupplierDebt, lang)}
@@ -97,7 +101,7 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
             <PieceForm 
               supplierId={selectedSupplierId} 
               onClose={handleClose} 
-              dictionary={pieceFormDictionary}
+              dictionary={dict}
               formType="VERSEMENT"
               addPieceAction={addPieceAction}
               updatePieceAction={updatePieceAction}
@@ -108,3 +112,4 @@ export function NewVersementDialog({ isOpen, onOpenChange, suppliers, pieces, di
     </Dialog>
   );
 }
+

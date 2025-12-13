@@ -41,7 +41,10 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
     if (!supplier) return 0;
 
     const supplierPieces = pieces.filter(p => p.supplier_id === selectedSupplierId);
-    const balanceFromPieces = supplierPieces.reduce((sum, p) => sum + p.reste, 0);
+    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const balanceFromPieces = totalInvoiced - totalPaid;
+    
     return supplier.solde_initial + balanceFromPieces;
   }, [selectedSupplierId, suppliers, pieces]);
   
@@ -57,7 +60,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
         <DialogHeader>
           <DialogTitle>{dictionary.newPiece}</DialogTitle>
            <DialogDescription>
-            {selectedSupplierId ? pieceFormDictionary.addDescription : "Choisissez d'abord un fournisseur."}
+            {selectedSupplierId ? pieceFormDictionary.addDescription : (lang === 'fr' ? "Choisissez d'abord un fournisseur." : "اختر موردًا أولاً.")}
           </DialogDescription>
         </DialogHeader>
         
@@ -65,7 +68,7 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
             <div className="pt-4 space-y-4">
                 <Select onValueChange={setSelectedSupplierId}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un fournisseur" />
+                        <SelectValue placeholder={lang === 'fr' ? "Sélectionnez un fournisseur" : "اختر موردًا"} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[280px]">
                         {suppliers.map(supplier => (
@@ -81,13 +84,13 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
             <Card 
               className="mb-4 bg-gray-50 border-dashed cursor-pointer"
               onDoubleClick={() => setSelectedSupplierId(null)}
-              title="Double-cliquez pour changer de fournisseur"
+              title={lang === 'fr' ? "Double-cliquez pour changer de fournisseur" : "انقر نقرًا مزدوجًا لتغيير المورد"}
             >
                 <CardContent className="p-4">
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="font-semibold text-gray-800">{selectedSupplier?.name}</p>
-                            <CardDescription>Créance actuelle avant cette pièce</CardDescription>
+                            <CardDescription>{lang === 'fr' ? "Créance actuelle avant cette pièce" : "الدين الحالي قبل هذا المستند"}</CardDescription>
                         </div>
                         <p className={`text-lg font-bold font-mono ${selectedSupplierDebt > 0 ? 'text-destructive' : 'text-green-600'}`}>
                            {formatCurrencyWithLocale(selectedSupplierDebt, lang)}
@@ -108,3 +111,4 @@ export function NewPieceDialog({ isOpen, onOpenChange, suppliers, pieces, dictio
     </Dialog>
   );
 }
+
