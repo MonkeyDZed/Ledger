@@ -3,95 +3,56 @@
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useState, forwardRef, useEffect } from 'react';
-import { ControllerRenderProps, FieldValues } from 'react-hook-form';
+import React, { forwardRef } from 'react';
+import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 interface CurrencyInputProps {
   field: ControllerRenderProps<FieldValues, any>;
   onValueChange: (value: number) => void;
   className?: string;
+  placeholder?: string;
 }
 
-const formatValue = (value: number | string | undefined): string => {
-  if (value === undefined || value === null || value === '' || isNaN(Number(value))) return '';
-  const num = typeof value === 'string' ? parseFloat(value.toString().replace(/[^0-9,.]/g, '').replace(',', '.')) : value;
-  if (isNaN(num)) return '';
-  // Utilise un espace comme séparateur de milliers et une virgule pour les décimales
-  return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
+const parseLocaleNumber = (stringNumber: string, locale: string = 'fr-FR'): number => {
+    const thousandSeparator = Intl.NumberFormat(locale).format(11111).replace(/1/g, '');
+    const decimalSeparator = Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
 
-const parseValue = (value: string): number => {
-    // Gère à la fois les formats avec virgule et avec point pour la robustesse
-    const parsed = parseFloat(value.replace(/\s/g, '').replace(',', '.'));
+    const parsed = parseFloat(
+        stringNumber
+            .replace(new RegExp('\\' + thousandSeparator, 'g'), '')
+            .replace(new RegExp('\\' + decimalSeparator), '.')
+    );
+
     return isNaN(parsed) ? 0 : parsed;
 };
 
+
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ field, onValueChange, className }, ref) => {
-    const [isFocused, setIsFocused] = useState(false);
-    const [localValue, setLocalValue] = useState<string>('');
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+  ({ field, onValueChange, className, placeholder = "0,00" }, ref) => {
     
-    useEffect(() => {
-        if(isMounted) {
-            setLocalValue(formatValue(field.value));
-        }
-    }, [field.value, isMounted]);
-
-
-    const handleFocus = () => {
-        setIsFocused(true);
-        // Au focus, on affiche la valeur numérique brute pour l'édition.
-        setLocalValue(field.value ? String(field.value.toFixed(2)).replace('.', ',') : '');
-    };
-
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        setIsFocused(false);
-        const numValue = parseValue(e.target.value);
-        onValueChange(numValue); // Mettre à jour le formulaire
-        setLocalValue(formatValue(numValue));
+      const numValue = parseLocaleNumber(e.target.value);
+      onValueChange(numValue);
+      field.onBlur(); // Important pour la validation de react-hook-form
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const rawValue = e.target.value;
-         // Permettre la saisie de nombres avec virgule ou point
-        const numberValue = rawValue.replace(/[^0-9.,]/g, '');
-        setLocalValue(numberValue);
-    };
-
-    // La valeur affichée est soit la valeur en cours de saisie, soit la valeur formatée au blur.
-    const displayValue = isFocused ? localValue : formatValue(field.value);
-
-    if (!isMounted) {
-        // Rendu initial (serveur et premier rendu client)
-        return (
-            <Input
-                {...field}
-                ref={ref}
-                type="text" 
-                className={cn('text-end font-mono', className)}
-                value={field.value ? Number(field.value).toFixed(2) : '0.00'}
-                readOnly
-            />
-        );
-    }
-    
     return (
       <div className="relative">
         <Input
           {...field}
           ref={ref}
-          type="text" 
+          type="number"
+          step="0.01"
           className={cn('text-end font-mono', className)}
-          value={displayValue}
-          onFocus={handleFocus}
           onBlur={handleBlur}
-          onChange={handleChange}
-          placeholder="0,00"
+          placeholder={placeholder}
+          // La valeur est directement celle du formulaire (un nombre)
+          value={field.value === undefined || field.value === null ? '' : field.value}
+          onChange={(e) => {
+             // Permet la saisie directe, la validation se fait au "onBlur"
+             const value = e.target.value === '' ? null : e.target.valueAsNumber;
+             field.onChange(value);
+          }}
         />
       </div>
     );

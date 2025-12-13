@@ -172,92 +172,95 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
             )}
             />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                    <FormLabel>{isVersement ? dictionary.paymentDateLabel : dictionary.dateLabel}</FormLabel>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                        <FormControl>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "ps-3 text-start font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                            >
-                            {field.value ? (
-                                format(field.value, "PPP")
-                            ) : (
-                                <span>{dictionary.datePlaceholder}</span>
-                            )}
-                            <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
-                            </Button>
-                        </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                        />
-                        </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
-            )}
-            />
-            
-            {!isVersement && (
-                <FormField
-                  control={form.control}
-                  name="numero_piece"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{dictionary.numeroPieceLabel}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={dictionary.numeroPiecePlaceholder} {...field} />
-                      </FormControl>
+        <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                      <FormLabel>{isVersement ? dictionary.paymentDateLabel : dictionary.dateLabel}</FormLabel>
+                      <Popover>
+                          <PopoverTrigger asChild>
+                          <FormControl>
+                              <Button
+                              variant={"outline"}
+                              className={cn(
+                                  "ps-3 text-start font-normal",
+                                  !field.value && "text-muted-foreground"
+                              )}
+                              >
+                              {field.value ? (
+                                  format(field.value, "PPP")
+                              ) : (
+                                  <span>{dictionary.datePlaceholder}</span>
+                              )}
+                              <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
+                              </Button>
+                          </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                          />
+                          </PopoverContent>
+                      </Popover>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            )}
+                  </FormItem>
+              )}
+              />
+              {!isVersement && (
+                  <FormField
+                    control={form.control}
+                    name="numero_piece"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{dictionary.numeroPieceLabel}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={dictionary.numeroPiecePlaceholder} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
+            </div>
             
-            {!isVersement && <FormField
-              control={form.control}
-              name="total_piece"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{dictionary.totalLabel}</FormLabel>
-                  <FormControl>
-                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value, { shouldValidate: true })} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+              {!isVersement && <FormField
+                control={form.control}
+                name="total_piece"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{dictionary.totalLabel}</FormLabel>
+                    <FormControl>
+                       <CurrencyInput field={field} onValueChange={(value) => form.setValue('total_piece', value, { shouldValidate: true })} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />}
 
-             <FormField
-              control={form.control}
-              name="montant_paye"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
-                  <FormControl>
-                     <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value, { shouldValidate: true })} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+               <FormField
+                control={form.control}
+                name="montant_paye"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{isVersement ? dictionary.amountPaidLabel : dictionary.paidLabel}</FormLabel>
+                    <FormControl>
+                       <CurrencyInput field={field} onValueChange={(value) => form.setValue('montant_paye', value, { shouldValidate: true })} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
         </div>
 
         {isVersement && <FormField
@@ -307,4 +310,3 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
-
