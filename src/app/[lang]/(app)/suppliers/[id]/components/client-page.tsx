@@ -25,22 +25,20 @@ import type { addPiece, updatePiece, deletePiece } from '../actions';
 import type { updateSupplier, addSupplier } from '../../actions';
 
 
-const StatCard = ({ title, value, icon, description }: { title: string, value: string, icon: React.ReactNode, description?: string }) => (
-    <Card>
-        <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600 flex justify-between items-center">
-                {title}
-                <span className="text-gray-400">{icon}</span>
-            </CardTitle>
+const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
+    <Card className={cardClassName}>
+        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+            <CardTitle className={`text-xs font-medium ${titleClassName}`}>{title}</CardTitle>
+            <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
-        <CardContent>
-            <p className="text-2xl font-bold text-gray-900 font-mono">{value}</p>
-            {description && <CardDescription>{description}</CardDescription>}
+        <CardContent className="p-4 pt-0">
+            <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
         </CardContent>
     </Card>
 );
 
 const BadgeCentIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v8a1 1 0 102 0V7z" clipRule="evenodd"></path><path d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V11a1 1 0 11-2 0V7.414L5.707 9.707a1 1 0 01-1.414-1.414l4-4z"></path></svg>;
+const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
 
 const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => {
     if (!method) return null;
@@ -232,21 +230,43 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         </Button>
       </PageHeader>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title={dictionary.stats.initialBalance} value={isClient ? formatCurrencyWithLocale(supplier.solde_initial, lang) : '...'} icon={<BadgeCentIcon />} />
-        <StatCard title={dictionary.stats.totalInvoiced} value={isClient ? formatCurrencyWithLocale(totalFromPieces, lang) : '...'} icon={<FileTextIcon />} />
-        <StatCard title={dictionary.stats.totalPaid} value={isClient ? formatCurrencyWithLocale(paidFromPieces, lang) : '...'} icon={<BanknoteIcon />} />
-        <Card className="bg-blue-50">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-primary flex justify-between items-center">
-                    {dictionary.stats.totalDebt}
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{isClient ? formatCurrencyWithLocale(totalDebt, lang) : '...'}</p>
-                <CardDescription>{dictionary.stats.debtDescription}</CardDescription>
-            </CardContent>
-        </Card>
+       <div className="grid gap-2 md:grid-cols-4 mb-4">
+        <StatCard 
+            title={dictionary.stats.initialBalance} 
+            value={isClient ? formatCurrencyWithLocale(supplier.solde_initial, lang) : '...'}
+            icon={<BadgeCentIcon />}
+            cardClassName="bg-slate-100 border-slate-200"
+            titleClassName="text-slate-600"
+            valueClassName="text-slate-900"
+            iconWrapperClassName="text-slate-500"
+        />
+        <StatCard 
+            title={dictionary.stats.totalInvoiced} 
+            value={isClient ? formatCurrencyWithLocale(totalFromPieces, lang) : '...'}
+            icon={<FileTextIcon />}
+            cardClassName="bg-blue-50 border-blue-200"
+            titleClassName="text-blue-800"
+            valueClassName="text-blue-900"
+            iconWrapperClassName="text-blue-700"
+        />
+        <StatCard 
+            title={dictionary.stats.totalPaid} 
+            value={isClient ? formatCurrencyWithLocale(paidFromPieces, lang) : '...'}
+            icon={<BanknoteIcon />}
+            cardClassName="bg-green-50 border-green-200"
+            titleClassName="text-green-800"
+            valueClassName="text-green-900"
+            iconWrapperClassName="text-green-700"
+        />
+        <StatCard 
+            title={dictionary.stats.totalDebt} 
+            value={isClient ? formatCurrencyWithLocale(totalDebt, lang) : '...'}
+            icon={<AlertCircleIcon />}
+            cardClassName="bg-rose-50 border-rose-200"
+            titleClassName="text-rose-800"
+            valueClassName={cn("text-rose-900", { "text-green-900": totalDebt <= 0 })}
+            iconWrapperClassName="text-rose-700"
+        />
       </div>
 
       <DataTable 

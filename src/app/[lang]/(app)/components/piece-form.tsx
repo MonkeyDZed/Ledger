@@ -80,11 +80,25 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
     mode: 'onChange', // La validation se déclenche au changement.
+    defaultValues: isEditMode && pieceToEdit ? {
+        ...pieceToEdit,
+        date: new Date(pieceToEdit.date),
+        total_piece: pieceToEdit.total_piece ?? 0,
+        montant_paye: pieceToEdit.montant_paye ?? 0,
+        description: pieceToEdit.description ?? '',
+        payment_method: pieceToEdit.payment_method ?? undefined,
+    } : {
+        type: defaultType,
+        total_piece: 0,
+        montant_paye: 0,
+        description: '',
+        payment_method: undefined,
+    },
   });
 
   const [currentType, setCurrentType] = useState(form.getValues('type'));
   
-  // Logique d'initialisation et de réinitialisation du formulaire, exécutée uniquement côté client.
+  // Logique de réinitialisation du formulaire, exécutée uniquement côté client.
   useEffect(() => {
     if (isEditMode && pieceToEdit) {
         // Mode édition : on charge les données de la pièce existante.
@@ -100,7 +114,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     } else {
         // Mode création : on initialise avec des valeurs par défaut.
         const defaultValues = {
-            date: new Date(), // `new Date()` est appelé uniquement côté client, évitant l'erreur d'hydratation.
+            date: new Date(), // This will be used for calendar initial month, but not set as value
             type: defaultType,
             total_piece: 0,
             montant_paye: 0,
@@ -108,6 +122,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
             payment_method: undefined,
         };
         form.reset(defaultValues);
+        form.setValue('date', new Date())
         setCurrentType(defaultValues.type);
     }
   }, [pieceToEdit, isEditMode, defaultType, form]);
@@ -306,5 +321,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+
+    
 
     
