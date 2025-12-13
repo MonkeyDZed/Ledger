@@ -6,18 +6,6 @@ import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts"
 
 const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-4))"];
 
-// Internal formatter to avoid importing from a module with server-side dependencies
-function formatCurrencySimple(amount: number | undefined | null, fractionDigits = 2) {
-  // Use a basic formatter that doesn't rely on specific server locales
-  const numAmount = (amount === null || amount === undefined || isNaN(amount)) ? 0 : amount;
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'decimal',
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(numAmount);
-}
-
-
 interface FinancialOverviewChartProps {
     data: { paid: number; toPay: number };
     paidLabel: string;
@@ -32,17 +20,25 @@ export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLa
     setIsClient(true);
   }, []);
 
-  const chartData = [
-    { name: paidLabel, value: data.paid },
-    { name: toPayLabel, value: data.toPay },
-  ];
-  const total = data.paid + data.toPay;
+  // Defer formatting to the client-side render to prevent hydration mismatch.
+  const formatCurrencySimple = (amount: number | undefined | null, fractionDigits = 2) => {
+    const numAmount = (amount === null || amount === undefined || isNaN(amount)) ? 0 : amount;
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'decimal',
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    }).format(numAmount);
+  };
   
   if (!isClient) {
     return <div className="w-full h-[250px] flex items-center justify-center"><p>Chargement du graphique...</p></div>;
   }
 
-  // Defer formatting to the client-side render to prevent hydration mismatch.
+  const chartData = [
+    { name: paidLabel, value: data.paid },
+    { name: toPayLabel, value: data.toPay },
+  ];
+  const total = data.paid + data.toPay;
   const formattedTotal = formatCurrencySimple(total, 0);
 
   return (
