@@ -8,7 +8,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -19,6 +19,8 @@ import { PieceForm } from '../../components/piece-form';
 import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 import type { addPiece, updatePiece, deletePiece } from '../../suppliers/[id]/actions';
+import { NewPieceDialog } from '../../dashboard/components/new-piece-dialog';
+import { NewVersementDialog } from '../../dashboard/components/new-versement-dialog';
 
 
 type PieceWithSupplierName = Piece & { supplierName: string; };
@@ -28,6 +30,7 @@ interface ClientPageProps {
   suppliers: Supplier[];
   dictionary: any;
   pieceFormDictionary: any;
+  dashboardDictionary: any;
   lang: 'fr' | 'ar';
   addPieceAction: typeof addPiece;
   updatePieceAction: typeof updatePiece;
@@ -60,7 +63,7 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces: initialPieces, suppliers, dictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
+export function ClientPage({ pieces: initialPieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
@@ -70,6 +73,9 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     // Defer state to client to avoid hydration mismatch
     const [pieces, setPieces] = useState<PieceWithSupplierName[]>([]);
     const [isClient, setIsClient] = useState(false);
+    const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
+    const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
+
     useEffect(() => {
         setPieces(initialPieces);
         setIsClient(true);
@@ -227,7 +233,12 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
       <PageHeader
         title={dictionary.title}
         description={dictionary.description}
-      />
+      >
+        <Button onClick={() => setIsNewPieceOpen(true)}>
+          <PlusCircle className="me-2 h-4 w-4" />
+          {dashboardDictionary.newPiece}
+        </Button>
+      </PageHeader>
 
         <div className="grid gap-2 md:grid-cols-3 mb-4">
             <StatCard 
@@ -296,12 +307,29 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+       {isClient && <>
+        <NewPieceDialog
+          isOpen={isNewPieceOpen}
+          onOpenChange={setIsNewPieceOpen}
+          suppliers={suppliers}
+          pieces={initialPieces}
+          dictionary={dashboardDictionary}
+          pieceFormDictionary={pieceFormDictionary}
+          addPieceAction={addPieceAction}
+          updatePieceAction={updatePieceAction}
+        />
+        <NewVersementDialog
+          isOpen={isNewVersementOpen}
+          onOpenChange={setIsNewVersementOpen}
+          suppliers={suppliers}
+          pieces={initialPieces}
+          dictionary={dashboardDictionary}
+          pieceFormDictionary={pieceFormDictionary}
+          addPieceAction={addPieceAction}
+          updatePieceAction={updatePieceAction}
+        />
+       </>}
     </>
   );
 }
-
-    
-
-    
-
-    
