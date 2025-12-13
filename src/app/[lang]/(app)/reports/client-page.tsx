@@ -172,17 +172,17 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   ];
 
   const StatCard = ({ title, value, icon: Icon, color = 'blue', subtitle = '' }: {title: string, value: string | React.ReactNode, icon: React.ElementType, color?: string, subtitle?: string}) => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <div className={`text-2xl font-bold text-${color}-600`}>{value}</div>
-          {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow">
+        <div className="flex items-start justify-between">
+            <div className="flex-1">
+                <p className="text-xs font-medium text-gray-600 truncate">{title}</p>
+                <div className={`text-xl font-bold text-${color}-600`}>{value}</div>
+            </div>
+            <div className={`p-2 bg-${color}-50 rounded-full`}>
+                <Icon className={`h-5 w-5 text-${color}-600`} />
+            </div>
         </div>
-        <div className={`p-3 bg-${color}-50 rounded-full`}>
-          <Icon className={`h-6 w-6 text-${color}-600`} />
-        </div>
-      </div>
+        {subtitle && <p className="text-xs text-gray-500 mt-1 truncate">{subtitle}</p>}
     </div>
   );
 
@@ -454,19 +454,19 @@ export const ReportsClientPage = ({ suppliers, pieces, dictionary, lang }: Repor
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-4">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{dictionary.title}</h1>
           <p className="text-gray-600">{dictionary.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <StatCard title={dictionary.stats.totalDebts} value={isClient ? formatCurrencyWithLocale(totalCreances, lang) : <span className="text-gray-300">...</span>} icon={AlertCircle} color="red" subtitle={dictionary.stats.totalDebtsSubtitle} />
           <StatCard title={dictionary.stats.activeSuppliers} value={totalSuppliers.toString()} icon={Users} color="blue" subtitle={dictionary.stats.activeSuppliersSubtitle}/>
           <StatCard title={dictionary.stats.avgDebt} value={isClient ? formatCurrencyWithLocale(avgCreance, lang) : <span className="text-gray-300">...</span>} icon={TrendingUp} color="yellow" subtitle={dictionary.stats.avgDebtSubtitle} />
           <StatCard title={dictionary.stats.transactionsThisMonth} value={isClient ? totalTransactionsThisMonth.toString() : '...'} icon={FileText} color="green" subtitle={dictionary.stats.transactionsThisMonthSubtitle} />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-1 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-1 mb-6">
           <div className="flex space-x-1">
             {reportTypes.map((type) => {
               const Icon = type.icon;
