@@ -26,6 +26,7 @@ export default function PiecesPage({ params: paramsProp }: { params: { lang: Loc
     suppliers={suppliers}
     dictionary={dictionary.piecesPage} 
     pieceFormDictionary={dictionary.supplierDetailPage}
+    dashboardDictionary={dictionary.dashboard}
     lang={lang} 
     addPieceAction={addPiece}
     updatePieceAction={updatePiece}

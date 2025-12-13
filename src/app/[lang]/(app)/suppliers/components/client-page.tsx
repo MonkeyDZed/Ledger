@@ -44,12 +44,11 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
   }>({ type: null });
-
+  
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
-
 
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -225,7 +224,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         </Button>
       </PageHeader>
       
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 mb-4">
+      <div className="grid gap-2 md:grid-cols-4 mb-4">
         <Card className="bg-slate-100 border-slate-200">
             <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
                 <CardTitle className="text-xs font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
