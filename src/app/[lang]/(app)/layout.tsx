@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
-import { Search, Bell } from 'lucide-react';
+import { Search, Bell, Settings } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import {
@@ -116,7 +116,12 @@ export default function AppLayout({
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>{dict.myAccount}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>{dict.settings}</DropdownMenuItem>
+                         <Link href={`/${params.lang}/settings`}>
+                            <DropdownMenuItem>
+                                <Settings className="me-2 h-4 w-4" />
+                                <span>{dict.settings}</span>
+                            </DropdownMenuItem>
+                         </Link>
                         <DropdownMenuItem>{dict.support}</DropdownMenuItem>
                         <LanguageSwitcherMenu params={params} />
                         <DropdownMenuSeparator />

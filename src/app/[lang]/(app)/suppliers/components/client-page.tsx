@@ -76,7 +76,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     if(result.success) {
         toast({
             title: dictionary.form.toast.deleteSuccess.title,
-            description: `${'dictionary.form.toast.deleteSuccess.description'} ${dialogState.data.name}`,
+            description: `${dictionary.form.toast.deleteSuccess.description} ${dialogState.data.name}`,
         });
     } else {
         toast({
@@ -210,7 +210,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         },
       },
     ];
-  }, [lang, dictionary, isClient]);
+  }, [lang, dictionary, isClient, deleteSupplierAction]);
 
   return (
     <>
@@ -315,3 +315,5 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
+
+    

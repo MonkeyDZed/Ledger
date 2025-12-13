@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
-
+import { seedDatabase } from './seed';
 
 let dbInstance: Awaited<ReturnType<typeof open>> | null = null;
 
@@ -79,6 +79,15 @@ async function initializeDb() {
   await db.exec('PRAGMA foreign_keys = ON;');
 
   await applyMigrations(db);
+
+  // Seed the database if it's empty
+  const supplierCount = await db.get('SELECT COUNT(*) as count FROM suppliers');
+  if (supplierCount.count === 0) {
+      console.log('Database is empty. Seeding with initial data...');
+      await seedDatabase(db);
+      console.log('Seeding complete.');
+  }
+
 
   return db;
 }
@@ -237,4 +246,10 @@ export async function updatePieceInDb(id: string, data: UpdatePieceData): Promis
 export async function deletePieceFromDb(id: string): Promise<void> {
     const db = await getDb();
     await db.run('DELETE FROM pieces WHERE id = ?', id);
+}
+
+export async function clearDatabase(): Promise<void> {
+    const db = await getDb();
+    await db.exec('DELETE FROM pieces; DELETE FROM suppliers; DELETE FROM sqlite_sequence WHERE name IN (\'pieces\', \'suppliers\');');
+    console.log('Database cleared.');
 }

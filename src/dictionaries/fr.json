@@ -339,5 +339,32 @@
             "paidPositive": "Le montant payé doit être positif.",
             "paidExceedsTotal": "Le montant payé ne peut pas dépasser le total de la pièce."
         }
+    },
+    "settingsPage": {
+        "title": "Paramètres",
+        "description": "Gérez les paramètres de l'application.",
+        "dangerZone": {
+            "title": "Zone de Danger",
+            "description": "Ces actions sont irréversibles et doivent être utilisées avec précaution.",
+            "content": "La suppression de toutes les données effacera l'intégralité des fournisseurs, pièces, et transactions de la base de données. Cette opération est définitive.",
+            "confirmation": "Soyez absolument certain avant de continuer.",
+            "button": "Supprimer toutes les données",
+            "dialog": {
+                "title": "Êtes-vous absolument sûr ?",
+                "description": "Cette action est irréversible. Toutes les données seront définitivement effacées. Voulez-vous vraiment continuer ?",
+                "cancel": "Annuler",
+                "confirm": "Oui, tout supprimer"
+            },
+            "toast": {
+                "success": {
+                    "title": "Données supprimées",
+                    "description": "Toutes les données ont été effacées avec succès."
+                },
+                "error": {
+                    "title": "Erreur de suppression",
+                    "description": "Une erreur est survenue lors de la suppression des données."
+                }
+            }
+        }
     }
 }
