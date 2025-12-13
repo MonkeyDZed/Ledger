@@ -65,50 +65,40 @@ interface PieceFormProps {
   updatePieceAction: typeof updatePiece;
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType = 'PIECE', addPieceAction, updatePieceAction }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType: initialFormType = 'PIECE', addPieceAction, updatePieceAction }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
   
   const isEditMode = !!pieceToEdit;
-
-  const defaultType = formType === 'VERSEMENT' ? 'VERSEMENT' : (pieceToEdit?.type || 'FACTURE');
+  
+  const defaultValues: Partial<PieceFormValues> = isEditMode && pieceToEdit ? {
+      ...pieceToEdit,
+      date: new Date(pieceToEdit.date),
+      numero_piece: pieceToEdit.numero_piece ?? '',
+      total_piece: pieceToEdit.total_piece ?? 0,
+      montant_paye: pieceToEdit.montant_paye ?? 0,
+      description: pieceToEdit.description ?? '',
+      payment_method: pieceToEdit.payment_method ?? undefined,
+  } : {
+      type: initialFormType === 'VERSEMENT' ? 'VERSEMENT' : 'FACTURE',
+      date: new Date(),
+      numero_piece: '',
+      total_piece: 0,
+      montant_paye: 0,
+      description: '',
+      payment_method: undefined,
+  };
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
     mode: 'onChange',
-    defaultValues: isEditMode && pieceToEdit ? {
-        ...pieceToEdit,
-        date: new Date(pieceToEdit.date),
-        numero_piece: pieceToEdit.numero_piece ?? '',
-        total_piece: pieceToEdit.total_piece ?? 0,
-        montant_paye: pieceToEdit.montant_paye ?? 0,
-        description: pieceToEdit.description ?? '',
-        payment_method: pieceToEdit.payment_method ?? undefined,
-    } : {
-        type: defaultType,
-        date: new Date(),
-        numero_piece: '',
-        total_piece: 0,
-        montant_paye: 0,
-        description: '',
-        payment_method: undefined,
-    },
+    defaultValues,
   });
 
-  const [currentType, setCurrentType] = useState(form.getValues('type'));
-
-  // Sync currentType state when form value changes externally or on reset
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      if (value.type !== currentType) {
-        setCurrentType(value.type as Piece['type']);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form, currentType]);
-
+  const watchedType = form.watch('type');
+  const isVersement = watchedType === 'VERSEMENT';
 
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
@@ -136,17 +126,52 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   
   const handleTypeChange = (value: 'FACTURE' | 'BL' | 'VERSEMENT') => {
     form.setValue('type', value, { shouldValidate: true });
-    setCurrentType(value);
     if (value === 'VERSEMENT') {
         form.setValue('total_piece', 0, { shouldValidate: true });
     }
   }
 
-  const isVersement = currentType === 'VERSEMENT';
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+         <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+                <FormItem className="space-y-3">
+                <FormLabel>{dictionary.typeLabel}</FormLabel>
+                <FormControl>
+                    <RadioGroup
+                    onValueChange={(v) => handleTypeChange(v as any)}
+                    value={field.value}
+                    className="flex items-center space-x-4"
+                    >
+                    <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
+                        <FormControl>
+                        <RadioGroupItem value="FACTURE" id="type_facture" disabled={isEditMode && isVersement} />
+                        </FormControl>
+                        <FormLabel htmlFor="type_facture" className="font-normal">{dictionary.typeInvoice}</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
+                        <FormControl>
+                        <RadioGroupItem value="BL" id="type_bl" disabled={isEditMode && isVersement} />
+                        </FormControl>
+                        <FormLabel htmlFor="type_bl" className="font-normal">{dictionary.typeBl}</FormLabel>
+                    </FormItem>
+                     <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
+                        <FormControl>
+                        <RadioGroupItem value="VERSEMENT" id="type_versement" disabled={isEditMode && !isVersement} />
+                        </FormControl>
+                        <FormLabel htmlFor="type_versement" className="font-normal">{dictionary.typeVersement}</FormLabel>
+                    </FormItem>
+                    </RadioGroup>
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <FormField
               control={form.control}
@@ -205,44 +230,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                   )}
                 />
             )}
-
-             <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                    <FormItem className="space-y-3">
-                    <FormLabel>{dictionary.typeLabel}</FormLabel>
-                    <FormControl>
-                        <RadioGroup
-                        onValueChange={(v) => handleTypeChange(v as any)}
-                        value={field.value}
-                        className="flex items-center space-x-4"
-                        >
-                        <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
-                            <FormControl>
-                            <RadioGroupItem value="FACTURE" id="type_facture" disabled={isEditMode && isVersement} />
-                            </FormControl>
-                            <FormLabel htmlFor="type_facture" className="font-normal">{dictionary.typeInvoice}</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
-                            <FormControl>
-                            <RadioGroupItem value="BL" id="type_bl" disabled={isEditMode && isVersement} />
-                            </FormControl>
-                            <FormLabel htmlFor="type_bl" className="font-normal">{dictionary.typeBl}</FormLabel>
-                        </FormItem>
-                         <FormItem className="flex items-center space-x-2 space-y-0 rtl:space-x-reverse">
-                            <FormControl>
-                            <RadioGroupItem value="VERSEMENT" id="type_versement" disabled={isEditMode && !isVersement} />
-                            </FormControl>
-                            <FormLabel htmlFor="type_versement" className="font-normal">{dictionary.typeVersement}</FormLabel>
-                        </FormItem>
-                        </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-
+            
             {!isVersement && <FormField
               control={form.control}
               name="total_piece"
@@ -270,32 +258,32 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 </FormItem>
               )}
             />
-
-             {isVersement && <FormField
-                control={form.control}
-                name="payment_method"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>{dictionary.paymentMethodLabel}</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value ?? undefined}>
-                        <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder={dictionary.paymentMethodPlaceholder} />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem value="espece"><div className="flex items-center gap-2"><Hand />{dictionary.paymentMethods.cash}</div></SelectItem>
-                            <SelectItem value="cheque"><div className="flex items-center gap-2"><FileText />{dictionary.paymentMethods.check}</div></SelectItem>
-                            <SelectItem value="virement"><div className="flex items-center gap-2"><Landmark/>{dictionary.paymentMethods.transfer}</div></SelectItem>
-                            <SelectItem value="traite"><div className="flex items-center gap-2"><Banknote/>{dictionary.paymentMethods.draft}</div></SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />}
-
         </div>
+
+        {isVersement && <FormField
+            control={form.control}
+            name="payment_method"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>{dictionary.paymentMethodLabel}</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value ?? undefined}>
+                    <FormControl>
+                    <SelectTrigger>
+                        <SelectValue placeholder={dictionary.paymentMethodPlaceholder} />
+                    </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="espece"><div className="flex items-center gap-2"><Hand />{dictionary.paymentMethods.cash}</div></SelectItem>
+                        <SelectItem value="cheque"><div className="flex items-center gap-2"><FileText />{dictionary.paymentMethods.check}</div></SelectItem>
+                        <SelectItem value="virement"><div className="flex items-center gap-2"><Landmark/>{dictionary.paymentMethods.transfer}</div></SelectItem>
+                        <SelectItem value="traite"><div className="flex items-center gap-2"><Banknote/>{dictionary.paymentMethods.draft}</div></SelectItem>
+                    </SelectContent>
+                </Select>
+                <FormMessage />
+                </FormItem>
+            )}
+            />}
+
         <FormField
           control={form.control}
           name="description"
@@ -320,4 +308,3 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   );
 }
 
-    
