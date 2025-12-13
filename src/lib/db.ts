@@ -50,21 +50,26 @@ async function applyMigrations(db: Database) {
     const appliedMigrations = (await db.all('SELECT name FROM migrations')).map(row => row.name);
     
     const migrationsDir = path.join(process.cwd(), 'src', 'lib', 'migrations');
-    const migrationFiles = (await fs.readdir(migrationsDir))
-        .filter(file => file.endsWith('.sql'))
-        .sort();
+    
+    try {
+        const migrationFiles = (await fs.readdir(migrationsDir))
+            .filter(file => file.endsWith('.sql'))
+            .sort();
 
-    for (const file of migrationFiles) {
-        if (!appliedMigrations.includes(file)) {
-            console.log(`Applying migration: ${file}`);
-            const sql = await fs.readFile(path.join(migrationsDir, file), 'utf-8');
-            await db.exec(sql);
-            await db.run(
-                'INSERT INTO migrations (name, applied_at) VALUES (?, ?)',
-                file,
-                new Date().toISOString()
-            );
+        for (const file of migrationFiles) {
+            if (!appliedMigrations.includes(file)) {
+                console.log(`Applying migration: ${file}`);
+                const sql = await fs.readFile(path.join(migrationsDir, file), 'utf-8');
+                await db.exec(sql);
+                await db.run(
+                    'INSERT INTO migrations (name, applied_at) VALUES (?, ?)',
+                    file,
+                    new Date().toISOString()
+                );
+            }
         }
+    } catch (error) {
+        console.warn("Could not read migrations directory, maybe it doesn't exist yet.", error);
     }
 }
 
@@ -187,11 +192,12 @@ export async function addPieceToDb(data: NewPieceData): Promise<Piece> {
         updated_at: now,
     };
     await db.run(
-        'INSERT INTO pieces (id, supplier_id, date, type, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO pieces (id, supplier_id, date, type, numero_piece, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         newPiece.id,
         newPiece.supplier_id,
         newPiece.date,
         newPiece.type,
+        newPiece.numero_piece,
         newPiece.total_piece,
         newPiece.montant_paye,
         newPiece.reste,

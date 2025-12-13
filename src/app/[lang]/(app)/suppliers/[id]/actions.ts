@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache';
 const PieceSchema = z.object({
     date: z.date(),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT']),
+    numero_piece: z.string().optional(),
     total_piece: z.coerce.number().optional(),
     montant_paye: z.coerce.number(),
     description: z.string().optional(),
@@ -37,6 +38,7 @@ export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{suc
             montant_paye: validation.data.montant_paye ?? 0,
             description: validation.data.description ?? '',
             payment_method: validation.data.payment_method ?? null,
+            numero_piece: validation.data.numero_piece ?? '',
         };
 
         await addPieceToDb(dataForDb);

@@ -15,29 +15,28 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useTransition, useEffect, useState } from 'react';
+import { useTransition, useState, useEffect } from 'react';
 import type { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { useParams } from 'next/navigation';
 import type { Piece } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CurrencyInput } from './currency-input';
+import { Input } from '@/components/ui/input';
 
 // Schéma Zod robuste qui gère les cas `null` et `undefined` pour payment_method.
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
+    numero_piece: z.string().optional(),
     total_piece: z.coerce.number().min(0, { message: "Le total ne peut être négatif." }).optional(),
     montant_paye: z.coerce.number().min(0, { message: "Le montant payé doit être un nombre positif." }),
     description: z.string().optional(),
-
-    // Schéma robuste pour payment_method qui transforme null ou une chaîne vide en undefined.
     payment_method: z.union([
         z.enum(['espece', 'cheque', 'virement', 'traite']),
         z.literal('').transform(() => undefined),
         z.null().transform(() => undefined),
     ]).optional(),
 }).refine((data) => {
-    // Pour un versement, le montant payé doit être supérieur à 0.
     if (data.type === 'VERSEMENT') {
         return data.montant_paye > 0;
     }
@@ -46,7 +45,6 @@ const clientPieceFormSchema = z.object({
     message: "Le montant du versement doit être supérieur à 0.",
     path: ["montant_paye"],
 }).refine((data) => {
-    // Pour les factures/BL, le montant payé ne peut excéder le total.
     if (data.type === 'VERSEMENT') return true;
     if (data.total_piece === undefined || data.total_piece === null) return true;
     return data.montant_paye <= data.total_piece;
@@ -75,20 +73,23 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   
   const isEditMode = !!pieceToEdit;
 
-  const defaultType = formType === 'VERSEMENT' ? 'VERSEMENT' : (isEditMode ? pieceToEdit.type : 'FACTURE');
+  const defaultType = formType === 'VERSEMENT' ? 'VERSEMENT' : (pieceToEdit?.type || 'FACTURE');
 
   const form = useForm<PieceFormValues>({
     resolver: zodResolver(clientPieceFormSchema),
-    mode: 'onChange', // La validation se déclenche au changement.
+    mode: 'onChange',
     defaultValues: isEditMode && pieceToEdit ? {
         ...pieceToEdit,
         date: new Date(pieceToEdit.date),
+        numero_piece: pieceToEdit.numero_piece ?? '',
         total_piece: pieceToEdit.total_piece ?? 0,
         montant_paye: pieceToEdit.montant_paye ?? 0,
         description: pieceToEdit.description ?? '',
         payment_method: pieceToEdit.payment_method ?? undefined,
     } : {
         type: defaultType,
+        date: new Date(),
+        numero_piece: '',
         total_piece: 0,
         montant_paye: 0,
         description: '',
@@ -97,40 +98,20 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   });
 
   const [currentType, setCurrentType] = useState(form.getValues('type'));
-  
-  // Logique de réinitialisation du formulaire, exécutée uniquement côté client.
+
+  // Sync currentType state when form value changes externally or on reset
   useEffect(() => {
-    if (isEditMode && pieceToEdit) {
-        // Mode édition : on charge les données de la pièce existante.
-        form.reset({
-            ...pieceToEdit,
-            date: new Date(pieceToEdit.date),
-            total_piece: pieceToEdit.total_piece ?? 0,
-            montant_paye: pieceToEdit.montant_paye ?? 0,
-            description: pieceToEdit.description ?? '',
-            payment_method: pieceToEdit.payment_method ?? undefined, // Normalise null en undefined
-        });
-        setCurrentType(pieceToEdit.type);
-    } else {
-        // Mode création : on initialise avec des valeurs par défaut.
-        const defaultValues = {
-            date: new Date(), // This will be used for calendar initial month, but not set as value
-            type: defaultType,
-            total_piece: 0,
-            montant_paye: 0,
-            description: '',
-            payment_method: undefined,
-        };
-        form.reset(defaultValues);
-        form.setValue('date', new Date())
-        setCurrentType(defaultValues.type);
-    }
-  }, [pieceToEdit, isEditMode, defaultType, form]);
+    const subscription = form.watch((value) => {
+      if (value.type !== currentType) {
+        setCurrentType(value.type as Piece['type']);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, currentType]);
 
 
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
-      // Injection systématique du supplier_id avant l'envoi à l'action serveur.
       const action = isEditMode
         ? updatePieceAction(pieceToEdit!.id, supplierId, data)
         : addPieceAction({ ...data, supplier_id: supplierId });
@@ -208,6 +189,23 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 </FormItem>
             )}
             />
+            
+            {!isVersement && (
+                <FormField
+                  control={form.control}
+                  name="numero_piece"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{dictionary.numeroPieceLabel}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={dictionary.numeroPiecePlaceholder} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            )}
+
              <FormField
                 control={form.control}
                 name="type"
@@ -321,7 +319,5 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
-
-    
 
     

@@ -26,12 +26,12 @@ import type { updateSupplier, addSupplier } from '../../actions';
 
 
 const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
-    <Card className={cardClassName}>
-        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+    <Card className={cn("p-4", cardClassName)}>
+        <CardHeader className="flex flex-row items-center justify-between py-0 px-0 pb-2">
             <CardTitle className={`text-xs font-medium ${titleClassName}`}>{title}</CardTitle>
             <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
-        <CardContent className="p-4 pt-0">
+        <CardContent className="p-0">
             <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
         </CardContent>
     </Card>
@@ -123,6 +123,13 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
           </Button>
         ),
         cell: ({ row }) => isClient ? formatDate(row.original.date, lang) : '...',
+      },
+      {
+        accessorKey: 'numero_piece',
+        header: dict.numeroPiece,
+        cell: ({ row }) => {
+            return <span className="font-mono">{row.original.numero_piece}</span>
+        }
       },
       {
         accessorKey: 'type',
@@ -296,7 +303,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         </DialogContent>
       </Dialog>
       
-      <Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
+       <Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
             <DialogTitle>{
@@ -361,5 +368,3 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
     </>
   );
 }
-
-    

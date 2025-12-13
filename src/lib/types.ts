@@ -18,6 +18,7 @@ export type Piece = {
   supplier_id: string;
   date: string;
   type: 'BL' | 'FACTURE' | 'VERSEMENT';
+  numero_piece?: string;
   total_piece: number;
   montant_paye: number;
   reste: number;
