@@ -23,7 +23,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CurrencyInput } from './currency-input';
 import { Input } from '@/components/ui/input';
 
-// Schéma Zod robuste qui gère les cas `null` et `undefined` pour payment_method.
 const clientPieceFormSchema = z.object({
     date: z.date({ required_error: "La date est requise." }),
     type: z.enum(['BL', 'FACTURE', 'VERSEMENT'], { required_error: "Le type est requis." }),
@@ -60,12 +59,12 @@ interface PieceFormProps {
   onClose: () => void;
   pieceToEdit?: Piece;
   dictionary: any;
-  formType?: 'VERSEMENT' | 'PIECE';
+  formType: 'VERSEMENT' | 'PIECE';
   addPieceAction: typeof addPiece;
   updatePieceAction: typeof updatePiece;
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType: initialFormType = 'PIECE', addPieceAction, updatePieceAction }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType: initialFormType, addPieceAction, updatePieceAction }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
@@ -73,7 +72,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   
   const isEditMode = !!pieceToEdit;
   
-  const defaultValues: Partial<PieceFormValues> = isEditMode && pieceToEdit ? {
+  const defaultValues: Partial<PieceFormValues> = isEditMode ? {
       ...pieceToEdit,
       date: new Date(pieceToEdit.date),
       numero_piece: pieceToEdit.numero_piece ?? '',
@@ -173,7 +172,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
             />
 
         <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <FormField
                 control={form.control}
                 name="date"
@@ -310,3 +309,4 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
+
