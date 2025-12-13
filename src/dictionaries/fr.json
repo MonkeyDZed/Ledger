@@ -114,6 +114,7 @@
         "header": {
             "description": "Situation détaillée pour",
             "backButton": "Retour à la liste",
+            "detailsButton": "Détails",
             "newPieceButton": "Nouvelle Pièce",
             "newPaymentButton": "Nouveau Versement"
         },

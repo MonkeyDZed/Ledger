@@ -114,6 +114,7 @@
         "header": {
             "description": "الوضع التفصيلي لـ",
             "backButton": "العودة إلى القائمة",
+            "detailsButton": "التفاصيل",
             "newPieceButton": "مستند جديد",
             "newPaymentButton": "دفعة جديدة"
         },

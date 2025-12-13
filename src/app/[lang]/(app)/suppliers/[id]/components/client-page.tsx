@@ -5,7 +5,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { PlusCircle, ArrowLeft, FileEdit, HandCoins } from 'lucide-react';
+import { PlusCircle, ArrowLeft, FileEdit, HandCoins, Info } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PieceForm } from '../../../components/piece-form';
@@ -69,6 +69,7 @@ interface ClientPageProps {
 export function ClientPage({ supplier, pieces: initialPieces, dictionary, supplierFormDictionary, addPieceAction, updatePieceAction, deletePieceAction, updateSupplierAction }: ClientPageProps) {
   const { toast } = useToast();
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
   const [dialogState, setDialogState] = useState<{
     type: 'new-piece' | 'new-versement' | 'edit' | 'delete' | null;
@@ -217,6 +218,10 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             {dictionary.header.backButton}
           </Link>
         </Button>
+        <Button variant="outline" size="sm" onClick={() => setIsInfoOpen(true)}>
+            <Info className="me-2 h-4 w-4" />
+            {dictionary.header.detailsButton}
+        </Button>
          <Button variant="secondary" onClick={() => openDialog('new-versement')}>
           <HandCoins className="me-2 h-4 w-4" />
           {dictionary.header.newPaymentButton}
@@ -244,28 +249,32 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         </Card>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>{dictionary.info.title}</CardTitle>
-            <Button variant="outline" size="sm" onClick={() => setIsEditSupplierOpen(true)}>
-                <FileEdit className="me-2 h-4 w-4" />
-                {dictionary.info.editButton}
-            </Button>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4 text-sm pt-4">
-            <div><strong>{dictionary.info.wilaya}:</strong> {supplier.wilaya}</div>
-            <div><strong>{dictionary.info.phone}:</strong> {supplier.phone}</div>
-            <div><strong>{dictionary.info.nif}:</strong> <span className="font-mono">{supplier.nif}</span></div>
-            <div><strong>{dictionary.info.bank}:</strong> <span className="font-mono">{supplier.bank_info}</span></div>
-            <div className="md:col-span-2"><strong>{dictionary.info.notes}:</strong> {supplier.notes || 'N/A'}</div>
-        </CardContent>
-      </Card>
-
       <DataTable 
         columns={columns}
         data={pieces} 
         dictionary={dictionary.piecesTable} 
       />
+      
+      <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+             <DialogTitle>{dictionary.info.title}</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
+              <div><strong>{dictionary.info.wilaya}:</strong> {supplier.wilaya || 'N/A'}</div>
+              <div><strong>{dictionary.info.phone}:</strong> {supplier.phone || 'N/A'}</div>
+              <div><strong>{dictionary.info.nif}:</strong> <span className="font-mono">{supplier.nif || 'N/A'}</span></div>
+              <div><strong>{dictionary.info.bank}:</strong> <span className="font-mono">{supplier.bank_info || 'N/A'}</span></div>
+              <div className="md:col-span-2"><strong>{dictionary.info.notes}:</strong> {supplier.notes || 'N/A'}</div>
+          </div>
+           <div className="flex justify-end pt-4">
+            <Button variant="outline" onClick={() => { setIsInfoOpen(false); setIsEditSupplierOpen(true); }}>
+                <FileEdit className="me-2 h-4 w-4" />
+                {dictionary.info.editButton}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">
@@ -288,7 +297,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             pieceToEdit={dialogState.data}
             onClose={closeDialogs} 
             dictionary={dictionary.form}
-            formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
+            formType={dialogState.type === 'new-versement' ? 'VERSEMENT' : dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
             addPieceAction={addPieceAction}
             updatePieceAction={updatePieceAction}
           />

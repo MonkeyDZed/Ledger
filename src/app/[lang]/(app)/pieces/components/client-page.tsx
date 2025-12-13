@@ -34,7 +34,7 @@ interface ClientPageProps {
   deletePieceAction: typeof deletePiece;
 }
 
-const StatCard = ({ title, value }: { title: string, value: string }) => (
+const StatCard = ({ title, value }: { title: string, value: string | React.ReactNode }) => (
     <Card>
         <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
@@ -67,8 +67,10 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     
     // Defer state to client to avoid hydration mismatch
     const [pieces, setPieces] = useState<PieceWithSupplierName[]>([]);
+    const [isClient, setIsClient] = useState(false);
     useEffect(() => {
         setPieces(initialPieces);
+        setIsClient(true);
     }, [initialPieces]);
 
 
@@ -132,7 +134,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => formatDate(row.original.date, lang),
+          cell: ({ row }) => isClient ? formatDate(row.original.date, lang) : '...',
           filterFn: (row: Row<PieceWithSupplierName>, columnId: string, value: any) => {
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
@@ -172,7 +174,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
             if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang)}</div>;
+            return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
           },
         },
         {
@@ -180,7 +182,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang)}</div>;
+            return <div className="text-end font-mono text-green-600">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
           },
         },
         {
@@ -189,7 +191,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
              if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang)}</div>;
+            return <div className="text-end font-mono text-destructive">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
           },
         },
         {
@@ -216,7 +218,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           },
         },
       ];
-    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
+    }, [lang, dictionary, isClient, deletePieceAction, addPieceAction, updatePieceAction]);
 
   return (
     <>
@@ -226,14 +228,14 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
       />
 
         <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <StatCard title={dictionary.totalBilled} value={`${formatCurrencyWithLocale(totals.totalBilled, lang)}`} />
-            <StatCard title={dictionary.totalPaid} value={`${formatCurrencyWithLocale(totals.totalPaid, lang)}`} />
+            <StatCard title={dictionary.totalBilled} value={isClient ? formatCurrencyWithLocale(totals.totalBilled, lang) : '...'} />
+            <StatCard title={dictionary.totalPaid} value={isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'} />
             <Card className="bg-amber-50">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-amber-700">{dictionary.totalRemaining}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-2xl font-bold text-amber-900 font-mono">{formatCurrencyWithLocale(totals.totalRemaining, lang)}</p>
+                    <p className="text-2xl font-bold text-amber-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalRemaining, lang) : '...'}</p>
                 </CardContent>
             </Card>
         </div>
@@ -278,5 +280,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     </>
   );
 }
+
+    
 
     
