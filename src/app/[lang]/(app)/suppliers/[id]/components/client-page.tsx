@@ -78,7 +78,11 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
   
-  // Defer state to client to avoid hydration mismatch
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const [pieces, setPieces] = useState<Piece[]>([]);
   useEffect(() => {
     setPieces(initialPieces);
@@ -119,7 +123,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             <ArrowUpDown className="ms-2 h-4 w-4" />
           </Button>
         ),
-        cell: ({ row }) => formatDate(row.original.date, lang),
+        cell: ({ row }) => isClient ? formatDate(row.original.date, lang) : '...',
       },
       {
         accessorKey: 'type',
@@ -149,7 +153,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('total_piece'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang)}</div>;
+          return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
         },
       },
       {
@@ -157,7 +161,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         header: () => <div className="text-end">{dict.paid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('montant_paye'));
-          return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang)}</div>;
+          return <div className="text-end font-mono text-green-600">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
         },
       },
       {
@@ -166,7 +170,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('reste'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono text-destructive">{formatCurrencyWithLocale(amount, lang)}</div>;
+          return <div className="text-end font-mono text-destructive">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
         },
       },
       {
@@ -193,7 +197,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         },
       },
     ];
-  }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
+  }, [lang, dictionary, isClient, deletePieceAction, addPieceAction, updatePieceAction]);
 
 
   const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
@@ -224,9 +228,9 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
       </PageHeader>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <StatCard title={dictionary.stats.initialBalance} value={`${formatCurrencyWithLocale(supplier.solde_initial, lang)}`} icon={<BadgeCentIcon />} />
-        <StatCard title={dictionary.stats.totalInvoiced} value={`${formatCurrencyWithLocale(totalFromPieces, lang)}`} icon={<FileTextIcon />} />
-        <StatCard title={dictionary.stats.totalPaid} value={`${formatCurrencyWithLocale(paidFromPieces, lang)}`} icon={<BanknoteIcon />} />
+        <StatCard title={dictionary.stats.initialBalance} value={isClient ? formatCurrencyWithLocale(supplier.solde_initial, lang) : '...'} icon={<BadgeCentIcon />} />
+        <StatCard title={dictionary.stats.totalInvoiced} value={isClient ? formatCurrencyWithLocale(totalFromPieces, lang) : '...'} icon={<FileTextIcon />} />
+        <StatCard title={dictionary.stats.totalPaid} value={isClient ? formatCurrencyWithLocale(paidFromPieces, lang) : '...'} icon={<BanknoteIcon />} />
         <Card className="bg-blue-50">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-primary flex justify-between items-center">
@@ -234,7 +238,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{formatCurrencyWithLocale(totalDebt, lang)}</p>
+                <p className={`text-2xl font-bold font-mono ${totalDebt > 0 ? 'text-rose-600' : 'text-green-600'}`}>{isClient ? formatCurrencyWithLocale(totalDebt, lang) : '...'}</p>
                 <CardDescription>{dictionary.stats.debtDescription}</CardDescription>
             </CardContent>
         </Card>
@@ -328,3 +332,5 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
     </>
   );
 }
+
+    
