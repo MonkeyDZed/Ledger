@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
 import { PlusCircle, FileDown, Sparkles } from 'lucide-react';
@@ -45,6 +45,12 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     data?: SupplierWithDebt;
   }>({ type: null });
 
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
   const params = useParams();
@@ -70,7 +76,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     if(result.success) {
         toast({
             title: dictionary.form.toast.deleteSuccess.title,
-            description: `${dictionary.form.toast.deleteSuccess.description} ${dialogState.data.name}`,
+            description: `${'dictionary.form.toast.deleteSuccess.description'} ${dialogState.data.name}`,
         });
     } else {
         toast({
@@ -130,7 +136,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         ),
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue('solde_initial'));
-            return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang)}</div>
+            return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>
         },
       },
       {
@@ -138,7 +144,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         header: () => <div className="text-end font-mono">{dict.totalInvoiced}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalInvoiced'));
-          return <div className="text-end font-mono">{formatCurrencyWithLocale(amount, lang)}</div>;
+          return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
         },
       },
       {
@@ -146,7 +152,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         header: () => <div className="text-end font-mono">{dict.totalPaid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('totalPaid'));
-          return <div className="text-end font-mono text-green-600">{formatCurrencyWithLocale(amount, lang)}</div>;
+          return <div className="text-end font-mono text-green-600">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
         },
       },
       {
@@ -168,7 +174,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
           const amount = parseFloat(row.getValue('totalDebt'));
           return <div className="text-end font-mono">
             <Badge variant={amount > 0 ? "destructive" : "default"} className={amount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'}>
-                {formatCurrencyWithLocale(amount, lang)}
+                {isClient ? formatCurrencyWithLocale(amount, lang) : '...'}
             </Badge>
           </div>;
         },
@@ -204,7 +210,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         },
       },
     ];
-  }, [lang, dictionary]);
+  }, [lang, dictionary, isClient]);
 
   return (
     <>
@@ -229,7 +235,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 <div className="text-slate-500"><BalanceIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-slate-900 font-mono">{formatCurrencyWithLocale(totals.totalInitialBalance, lang)}</div>
+                <div className="text-2xl font-bold text-slate-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalInitialBalance, lang) : '...'}</div>
             </CardContent>
         </Card>
         <Card className="bg-blue-50 border-blue-200">
@@ -238,7 +244,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 <div className="text-blue-700"><ReceiptIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-blue-900 font-mono">{formatCurrencyWithLocale(totals.totalInvoiced, lang)}</div>
+                <div className="text-2xl font-bold text-blue-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalInvoiced, lang) : '...'}</div>
             </CardContent>
         </Card>
         <Card className="bg-green-50 border-green-200">
@@ -247,7 +253,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 <div className="text-green-700"><CreditCardIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-green-900 font-mono">{formatCurrencyWithLocale(totals.totalPaid, lang)}</div>
+                <div className="text-2xl font-bold text-green-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'}</div>
             </CardContent>
         </Card>
         <Card className="bg-rose-50 border-rose-200">
@@ -256,7 +262,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 <div className="text-rose-700"><AlertCircleIcon /></div>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold text-rose-900 font-mono">{formatCurrencyWithLocale(totals.totalDebt, lang)}</div>
+                <div className="text-2xl font-bold text-rose-900 font-mono">{isClient ? formatCurrencyWithLocale(totals.totalDebt, lang) : '...'}</div>
             </CardContent>
         </Card>
       </div>
