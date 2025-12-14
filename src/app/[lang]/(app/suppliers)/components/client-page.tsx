@@ -2,11 +2,11 @@
 
 import { useRef, useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
+import { PlusCircle, FileDown, Sparkles } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import type { Supplier } from '@/lib/types';
+import type { Supplier, Piece } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
@@ -21,16 +21,20 @@ import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PageHeader } from '@/components/page-header';
 import { cn } from '@/lib/utils';
+import { ChevronsUpDown } from 'lucide-react';
+
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 
 interface ClientPageProps {
-  suppliers: SupplierWithDebt[];
+  suppliers: Supplier[];
+  pieces: Piece[];
   dictionary: any;
   deleteSupplierAction: typeof deleteSupplier;
   addSupplierAction: typeof addSupplier;
   updateSupplierAction: typeof updateSupplier;
 }
+
 
 const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
 const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
@@ -49,7 +53,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
   </Card>
 );
 
-export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
+export function ClientPage({ suppliers, pieces, dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
   const [dialogState, setDialogState] = useState<{ type: 'new' | 'edit' | 'delete' | null; data?: SupplierWithDebt }>({ type: null });
   const [isMounted, setIsMounted] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
@@ -61,14 +65,25 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
 
   useEffect(() => setIsMounted(true), []);
 
-  const totals = useMemo(() => {
-    return {
-      totalInitialBalance: suppliers.reduce((sum, s) => sum + s.solde_initial, 0),
-      totalInvoiced: suppliers.reduce((sum, s) => sum + s.totalInvoiced, 0),
-      totalPaid: suppliers.reduce((sum, s) => sum + s.totalPaid, 0),
-      totalDebt: suppliers.reduce((sum, s) => sum + s.totalDebt, 0),
+  const { suppliersWithDebt, totals } = useMemo(() => {
+    const calculatedSuppliers = suppliers.map(supplier => {
+        const supplierPieces = pieces.filter(p => p.supplier_id === supplier.id);
+        const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+        const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+        const balanceFromPieces = totalInvoiced - totalPaid;
+        const totalDebt = supplier.solde_initial + balanceFromPieces;
+        return { ...supplier, totalDebt, totalInvoiced, totalPaid };
+    });
+
+    const calculatedTotals = {
+      totalInitialBalance: calculatedSuppliers.reduce((sum, s) => sum + s.solde_initial, 0),
+      totalInvoiced: calculatedSuppliers.reduce((sum, s) => sum + s.totalInvoiced, 0),
+      totalPaid: calculatedSuppliers.reduce((sum, s) => sum + s.totalPaid, 0),
+      totalDebt: calculatedSuppliers.reduce((sum, s) => sum + s.totalDebt, 0),
     };
-  }, [suppliers]);
+
+    return { suppliersWithDebt: calculatedSuppliers, totals: calculatedTotals };
+  }, [suppliers, pieces]);
 
   const openDialog = (type: 'new' | 'edit' | 'delete', data?: SupplierWithDebt) => setDialogState({ type, data });
   const closeDialogs = () => setDialogState({ type: null });
@@ -96,7 +111,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
       { accessorKey: 'totalDebt', header: ({ column }) => <div className="text-end"><Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>{dict.totalDebt}<ArrowUpDown className="ms-2 h-4 w-4"/></Button></div>, cell: ({ row }) => { const amount = parseFloat(row.getValue('totalDebt')); return <div className="text-end font-mono"><Badge variant={amount>0?"destructive":"default"} className={amount>0?'bg-amber-100 text-amber-800':'bg-green-100 text-green-800'} suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</Badge></div>; } },
       { id: 'actions', cell: ({ row }) => { const supplier=row.original; return <div className="text-end"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><span className="sr-only">{dictionary.table.openMenu}</span><MoreHorizontal className="h-4 w-4"/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>{dictionary.table.actions}</DropdownMenuLabel><DropdownMenuItem onClick={()=>navigator.clipboard.writeText(supplier.id)}>{dictionary.table.copyId}</DropdownMenuItem><DropdownMenuSeparator/><Link href={`/${lang}/suppliers/${supplier.id}`}><DropdownMenuItem>{dictionary.table.viewDetails}</DropdownMenuItem></Link><DropdownMenuItem onClick={()=>openDialog('edit',supplier)}>{dictionary.table.edit}</DropdownMenuItem><DropdownMenuItem onClick={()=>openDialog('delete',supplier)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">{dictionary.table.delete}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>; } }
     ];
-  }, [lang, dictionary]);
+  }, [lang, dictionary, suppliersWithDebt]);
 
   const headerActions = (
     <div className="flex items-center gap-2">
@@ -138,7 +153,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
   return (
     <>
       {headerContent}
-      <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
+      <DataTable columns={columns} data={suppliersWithDebt} dictionary={dictionary.table}/>
 
       <Dialog open={dialogState.type==='new'||dialogState.type==='edit'} onOpenChange={closeDialogs}>
         <DialogContent className="sm:max-w-[625px]">

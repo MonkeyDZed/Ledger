@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRef, useState, useMemo, useEffect } from 'react';
@@ -41,7 +40,6 @@ const CsvIcon = () => (
 interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
-  recentSuppliers: any[];
   dictionary: any;
   formDictionary: any;
   pieceFormDictionary: any;
@@ -52,7 +50,7 @@ interface DashboardClientPageProps {
   updateSupplierAction: typeof updateSupplier;
 }
 
-export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
+export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
@@ -67,19 +65,43 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
     supplierFormRef.current?.autoFill();
   }
 
-  const { grandTotalDebt, totalPaid, totalToPay, totalPieces, totalSuppliers } = useMemo(() => {
+  const { grandTotalDebt, totalPaid, totalToPay, totalPieces, totalSuppliers, recentSuppliers } = useMemo(() => {
     const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
     const totalInvoiced = pieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
     const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
     const grandTotalDebt = totalInitialBalance + totalInvoiced - totalPaid;
-    const totalToPay = grandTotalDebt < 0 ? 0 : grandTotalDebt; 
+    const totalToPay = grandTotalDebt < 0 ? 0 : grandTotalDebt;
+
+    const supplierDataWithCalculations = suppliers.map((supplier) => {
+      const supplierPieces = pieces.filter((p: Piece) => p.supplier_id === supplier.id);
+      const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+      const totalPaidOnPieces = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+      const balanceFromPieces = totalInvoiced - totalPaidOnPieces;
+      const totalDebt = supplier.solde_initial + balanceFromPieces;
+
+      const mostRecentPiece = supplierPieces.length > 0
+        ? supplierPieces.reduce((latest, current) => new Date(latest.date) > new Date(current.date) ? latest : current)
+        : null;
+
+      return {
+        ...supplier,
+        totalDebt,
+        totalFromPieces: totalInvoiced,
+        mostRecentPieceDate: mostRecentPiece ? mostRecentPiece.date : '1970-01-01T00:00:00.000Z'
+      };
+    });
+    
+    const recentSuppliers = [...supplierDataWithCalculations]
+          .sort((a, b) => new Date(b.mostRecentPieceDate).getTime() - new Date(a.mostRecentPieceDate).getTime())
+          .slice(0, 10);
 
     return {
       grandTotalDebt,
       totalPaid,
       totalToPay,
       totalPieces: pieces.filter(p => p.type !== 'VERSEMENT').length,
-      totalSuppliers: suppliers.length
+      totalSuppliers: suppliers.length,
+      recentSuppliers,
     }
   }, [suppliers, pieces]);
   
@@ -312,7 +334,3 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
     </>
   );
 }
-
-    
-
-    

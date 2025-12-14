@@ -236,24 +236,17 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
       <>
         {isMounted ? (
             <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
-                <CollapsibleTrigger asChild>
-                    <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
-                        <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
-                        <div className='flex flex-1 items-baseline justify-between'>
-                            <div className="flex items-baseline gap-4">
-                                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{supplier.name}</h1>
-                                {!isHeaderOpen && (
-                                    <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
-                                        <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totalDebt, lang)}</span></span>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                                {headerActions}
-                            </div>
+                <div className='flex items-baseline justify-between'>
+                    <CollapsibleTrigger asChild>
+                        <div className='flex w-fit cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
+                            <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{supplier.name}</h1>
                         </div>
+                    </CollapsibleTrigger>
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                        {headerActions}
                     </div>
-                </CollapsibleTrigger>
+                </div>
                 <CollapsibleContent className="space-y-2">
                     <p className="text-muted-foreground px-8 md:px-11">{`${dictionary.header.description} ${supplier.name}`}</p>
                     <div className="grid gap-2 md:grid-cols-4 mt-4 px-8 md:px-11">
