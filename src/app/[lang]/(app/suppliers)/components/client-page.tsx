@@ -1,9 +1,9 @@
+
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { PageHeader } from '@/components/page-header';
-import { PlusCircle, FileDown, Sparkles } from 'lucide-react';
+import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
@@ -19,6 +19,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/page-header';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
@@ -43,6 +46,13 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
   }>({ type: null });
+
+  const [isMounted, setIsMounted] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -202,60 +212,98 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     ];
   }, [lang, dictionary, deleteSupplierAction]);
 
+  const headerContent = (
+      <>
+        {isMounted ? (
+            <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2 mb-4">
+              <CollapsibleTrigger asChild>
+                  <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100'>
+                      <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                      <div className='flex flex-1 items-baseline justify-between'>
+                          <div className="flex items-baseline gap-4">
+                              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
+                              {!isOpen && (
+                                  <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
+                                      <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
+                                      <span className="h-4 border-l"></span>
+                                      <span>Créance: <span className="font-bold text-gray-700" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
+                                  </div>
+                              )}
+                          </div>
+                          <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                              <Button variant="outline">
+                                  <FileDown className="me-2 h-4 w-4" />
+                                  {dictionary.export}
+                              </Button>
+                              <Button onClick={() => openDialog('new')}>
+                                  <PlusCircle className="me-2 h-4 w-4" />
+                                  {dictionary.newSupplier}
+                              </Button>
+                          </div>
+                      </div>
+                  </div>
+              </CollapsibleTrigger>
+            
+            <CollapsibleContent>
+                <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
+                <div className="grid gap-2 md:grid-cols-4 mt-4 px-8 md:px-11">
+                    <Card className="bg-slate-100 border-slate-200">
+                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                            <CardTitle className="text-xs font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
+                            <div className="text-slate-500"><BalanceIcon /></div>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold text-slate-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalInitialBalance, lang)}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-blue-50 border-blue-200">
+                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                            <CardTitle className="text-xs font-medium text-blue-800">{dictionary.table.totalInvoiced}</CardTitle>
+                            <div className="text-blue-700"><ReceiptIcon /></div>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold text-blue-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalInvoiced, lang)}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-green-50 border-green-200">
+                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                            <CardTitle className="text-xs font-medium text-green-800">{dictionary.table.totalPaid}</CardTitle>
+                            <div className="text-green-700"><CreditCardIcon /></div>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold text-green-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</div>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-rose-50 border-rose-200">
+                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+                            <CardTitle className="text-xs font-medium text-rose-800">{dictionary.table.totalDebt}</CardTitle>
+                            <div className="text-rose-700"><AlertCircleIcon /></div>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                            <div className="text-xl font-bold text-rose-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalDebt, lang)}</div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </CollapsibleContent>
+            </Collapsible>
+        ) : (
+            <PageHeader title={dictionary.title}>
+                 <Button variant="outline">
+                    <FileDown className="me-2 h-4 w-4" />
+                    {dictionary.export}
+                </Button>
+                <Button onClick={() => openDialog('new')}>
+                    <PlusCircle className="me-2 h-4 w-4" />
+                    {dictionary.newSupplier}
+                </Button>
+            </PageHeader>
+        )}
+      </>
+  );
+
   return (
     <>
-      <PageHeader
-        title={dictionary.title}
-        description={dictionary.description}
-      >
-        <Button variant="outline">
-          <FileDown className="me-2 h-4 w-4" />
-          {dictionary.export}
-        </Button>
-        <Button onClick={() => openDialog('new')}>
-          <PlusCircle className="me-2 h-4 w-4" />
-          {dictionary.newSupplier}
-        </Button>
-      </PageHeader>
-      
-      <div className="grid gap-2 md:grid-cols-4 mb-4">
-        <Card className="bg-slate-100 border-slate-200">
-            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                <CardTitle className="text-xs font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
-                <div className="text-slate-500"><BalanceIcon /></div>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-                <div className="text-xl font-bold text-slate-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalInitialBalance, lang)}</div>
-            </CardContent>
-        </Card>
-        <Card className="bg-blue-50 border-blue-200">
-            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                <CardTitle className="text-xs font-medium text-blue-800">{dictionary.table.totalInvoiced}</CardTitle>
-                <div className="text-blue-700"><ReceiptIcon /></div>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-                <div className="text-xl font-bold text-blue-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalInvoiced, lang)}</div>
-            </CardContent>
-        </Card>
-        <Card className="bg-green-50 border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                <CardTitle className="text-xs font-medium text-green-800">{dictionary.table.totalPaid}</CardTitle>
-                <div className="text-green-700"><CreditCardIcon /></div>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-                <div className="text-xl font-bold text-green-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</div>
-            </CardContent>
-        </Card>
-        <Card className="bg-rose-50 border-rose-200">
-            <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                <CardTitle className="text-xs font-medium text-rose-800">{dictionary.table.totalDebt}</CardTitle>
-                <div className="text-rose-700"><AlertCircleIcon /></div>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-                <div className="text-xl font-bold text-rose-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalDebt, lang)}</div>
-            </CardContent>
-        </Card>
-      </div>
+      {headerContent}
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
 
@@ -305,3 +353,5 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
+
+    

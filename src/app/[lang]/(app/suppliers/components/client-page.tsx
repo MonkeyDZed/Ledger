@@ -20,7 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/page-header';
 
 
@@ -47,8 +46,9 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     data?: SupplierWithDebt;
   }>({ type: null });
 
-  const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -213,36 +213,35 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
 
   const headerContent = (
       <>
-        <div className="mb-4">
         {isMounted ? (
-            <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="space-y-4">
-            <CollapsibleTrigger asChild>
-                <div className='flex items-center justify-between w-full p-2 -m-2 rounded-lg cursor-pointer hover:bg-slate-100'>
-                <div className="flex items-center gap-2">
-                    <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:rotate-180" />
-                    <div className='flex items-baseline gap-4'>
-                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
-                    {!isHeaderOpen && (
-                        <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
-                        <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
-                        <span className="h-4 border-l"></span>
-                        <span>Créance: <span className="font-bold text-gray-700" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
-                        </div>
-                    )}
-                    </div>
-                </div>
-                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    <Button variant="outline">
-                        <FileDown className="me-2 h-4 w-4" />
-                        {dictionary.export}
-                    </Button>
-                    <Button onClick={() => openDialog('new')}>
-                        <PlusCircle className="me-2 h-4 w-4" />
-                        {dictionary.newSupplier}
-                    </Button>
-                </div>
-                </div>
-            </CollapsibleTrigger>
+            <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2 mb-4">
+              <CollapsibleTrigger asChild>
+                  <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100'>
+                      <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                      <div className='flex flex-1 items-baseline justify-between'>
+                          <div className="flex items-baseline gap-4">
+                              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
+                              {!isOpen && (
+                                  <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
+                                      <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
+                                      <span className="h-4 border-l"></span>
+                                      <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
+                                  </div>
+                              )}
+                          </div>
+                          <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                              <Button variant="outline">
+                                  <FileDown className="me-2 h-4 w-4" />
+                                  {dictionary.export}
+                              </Button>
+                              <Button onClick={() => openDialog('new')}>
+                                  <PlusCircle className="me-2 h-4 w-4" />
+                                  {dictionary.newSupplier}
+                              </Button>
+                          </div>
+                      </div>
+                  </div>
+              </CollapsibleTrigger>
             
             <CollapsibleContent>
                 <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
@@ -298,7 +297,6 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 </Button>
             </PageHeader>
         )}
-        </div>
       </>
   );
 
