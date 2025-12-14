@@ -173,16 +173,6 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
             return value.includes(row.getValue(id))
           },
         },
-         {
-          accessorKey: 'description',
-          header: dict.description,
-          cell: ({ row }) => {
-            return <div className="flex items-center">
-                <PaymentMethodIcon method={row.original.payment_method} />
-                <span>{row.original.description}</span>
-            </div>
-          }
-        },
         {
           accessorKey: 'total_piece',
           header: () => <div className="text-end">{dict.total}</div>,

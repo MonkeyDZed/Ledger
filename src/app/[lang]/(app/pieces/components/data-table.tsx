@@ -62,8 +62,6 @@ interface DataTableProps<TData, TValue> {
   dictionary: DataTableDictionary;
 }
 
-const defaultDateRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
-
 export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   columns,
   data,
@@ -72,10 +70,15 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'date', desc: true },
   ]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
-    { id: 'date', value: defaultDateRange }
-  ]);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(defaultDateRange);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  useEffect(() => {
+    // Set default date range on client side to avoid hydration errors
+    const defaultRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
+    setDateRange(defaultRange);
+    setColumnFilters([{ id: 'date', value: defaultRange }]);
+  }, []);
 
   const table = useReactTable({
     data,
@@ -116,7 +119,8 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
 
   const isChecked = (range?: { from: Date, to: Date }) => {
     if (!dateRange || !range) return !dateRange && !range;
-    return isEqual(dateRange.from!, range.from) && isEqual(dateRange.to!, range.to);
+    if (!dateRange.from || !dateRange.to) return false;
+    return isEqual(dateRange.from, range.from) && isEqual(dateRange.to, range.to);
   }
 
   return (
