@@ -3,7 +3,7 @@
 
 import { useRef, useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, FileDown, ChevronsUpDown, Sparkles } from 'lucide-react';
+import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
@@ -21,6 +21,7 @@ import { formatCurrencyWithLocale } from '@/lib/formatters';
 import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PageHeader } from '@/components/page-header';
+import { cn } from '@/lib/utils';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
@@ -33,6 +34,18 @@ interface ClientPageProps {
   updateSupplierAction: typeof updateSupplier;
 }
 
+
+const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
+    <Card className={cn("p-4", cardClassName)}>
+        <CardHeader className="flex flex-row items-center justify-between py-0 px-0 pb-2">
+            <CardTitle className={`text-xs font-medium ${titleClassName}`}>{title}</CardTitle>
+            <div className={iconWrapperClassName}>{icon}</div>
+        </CardHeader>
+        <CardContent className="p-0">
+            <div className={`text-xl font-bold font-mono ${valueClassName}`} suppressHydrationWarning>{value}</div>
+        </CardContent>
+    </Card>
+);
 
 const BalanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 2v20"/><path d="m6 10 3-3 3 3"/><path d="m18 14-3 3-3-3"/></svg>;
 const ReceiptIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>;
@@ -246,42 +259,42 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
             <CollapsibleContent className="space-y-2">
                 <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
                 <div className="grid gap-2 md:grid-cols-4 mt-4 px-8 md:px-11">
-                    <Card className="bg-slate-100 border-slate-200">
-                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                            <CardTitle className="text-xs font-medium text-slate-600">{dictionary.table.initialBalance}</CardTitle>
-                            <div className="text-slate-500"><BalanceIcon /></div>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                            <div className="text-xl font-bold text-slate-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalInitialBalance, lang)}</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-blue-50 border-blue-200">
-                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                            <CardTitle className="text-xs font-medium text-blue-800">{dictionary.table.totalInvoiced}</CardTitle>
-                            <div className="text-blue-700"><ReceiptIcon /></div>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                            <div className="text-xl font-bold text-blue-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalInvoiced, lang)}</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-green-50 border-green-200">
-                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                            <CardTitle className="text-xs font-medium text-green-800">{dictionary.table.totalPaid}</CardTitle>
-                            <div className="text-green-700"><CreditCardIcon /></div>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                            <div className="text-xl font-bold text-green-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-rose-50 border-rose-200">
-                        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
-                            <CardTitle className="text-xs font-medium text-rose-800">{dictionary.table.totalDebt}</CardTitle>
-                            <div className="text-rose-700"><AlertCircleIcon /></div>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                            <div className="text-xl font-bold text-rose-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalDebt, lang)}</div>
-                        </CardContent>
-                    </Card>
+                    <StatCard 
+                        title={dictionary.table.initialBalance} 
+                        value={formatCurrencyWithLocale(totals.totalInitialBalance, lang)}
+                        icon={<BalanceIcon />}
+                        cardClassName="bg-slate-100 border-slate-200"
+                        titleClassName="text-slate-600"
+                        valueClassName="text-slate-900"
+                        iconWrapperClassName="text-slate-500"
+                    />
+                    <StatCard 
+                        title={dictionary.table.totalInvoiced} 
+                        value={formatCurrencyWithLocale(totals.totalInvoiced, lang)}
+                        icon={<ReceiptIcon />}
+                        cardClassName="bg-blue-50 border-blue-200"
+                        titleClassName="text-blue-800"
+                        valueClassName="text-blue-900"
+                        iconWrapperClassName="text-blue-700"
+                    />
+                    <StatCard 
+                        title={dictionary.table.totalPaid} 
+                        value={formatCurrencyWithLocale(totals.totalPaid, lang)}
+                        icon={<CreditCardIcon />}
+                        cardClassName="bg-green-50 border-green-200"
+                        titleClassName="text-green-800"
+                        valueClassName="text-green-900"
+                        iconWrapperClassName="text-green-700"
+                    />
+                    <StatCard 
+                        title={dictionary.table.totalDebt} 
+                        value={formatCurrencyWithLocale(totals.totalDebt, lang)}
+                        icon={<AlertCircleIcon />}
+                        cardClassName="bg-rose-50 border-rose-200"
+                        titleClassName="text-rose-800"
+                        valueClassName="text-rose-900"
+                        iconWrapperClassName="text-rose-700"
+                    />
                 </div>
             </CollapsibleContent>
             </Collapsible>
@@ -355,5 +368,3 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
-
-    
