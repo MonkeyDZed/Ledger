@@ -206,7 +206,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         },
       },
     ];
-  }, [lang, dictionary, isClient, deleteSupplierAction]);
+  }, [lang, dictionary, deleteSupplierAction]);
 
   return (
     <>

@@ -162,6 +162,7 @@
             "editDescription": "Mettez à jour les détails de la pièce.",
             "addPaymentTitle": "Ajouter un nouveau versement",
             "addPaymentDescription": "Saisissez les détails du paiement au fournisseur.",
+            "surplusDescription": "Excédent de paiement sur pièce précédente",
             "dateLabel": "Date de la pièce",
             "paymentDateLabel": "Date du versement",
             "datePlaceholder": "Choisir une date",

@@ -70,17 +70,13 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
         data?: PieceWithSupplierName;
     }>({ type: null });
     
-    // Defer state to client to avoid hydration mismatch
-    const [pieces, setPieces] = useState<PieceWithSupplierName[]>([]);
     const [isClient, setIsClient] = useState(false);
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
 
     useEffect(() => {
-        setPieces(initialPieces);
         setIsClient(true);
-    }, [initialPieces]);
-
+    }, []);
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
@@ -107,15 +103,14 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     };
 
     const totals = useMemo(() => {
-        const totalBilled = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
-        const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
+        const totalBilled = initialPieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
+        const totalPaid = initialPieces.reduce((sum, p) => sum + p.montant_paye, 0);
         
-        // Correct calculation for total remaining debt across all suppliers
         const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
         const totalRemaining = (totalInitialBalance + totalBilled) - totalPaid;
 
         return { totalBilled, totalPaid, totalRemaining };
-    }, [pieces, suppliers]);
+    }, [initialPieces, suppliers]);
 
     const columns = useMemo((): ColumnDef<PieceWithSupplierName>[] => {
       const dict = dictionary.table;
@@ -142,7 +137,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => <span suppressHydrationWarning>{formatDate(row.original.date, lang)}</span>,
+          cell: ({ row }) => <span>{(row.original.date as string).split('T')[0]}</span>,
           filterFn: (row: Row<PieceWithSupplierName>, columnId: string, value: any) => {
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
@@ -267,7 +262,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
         </div>
 
-      <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
+      <DataTable columns={columns} data={initialPieces} dictionary={dictionary.table} />
 
       {/* Edit/Delete Dialogs */}
       <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>

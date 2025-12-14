@@ -56,7 +56,7 @@ interface PieceFormProps {
   updatePieceAction: typeof updatePiece;
 }
 
-export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType: initialFormType, addPieceAction, updatePieceAction }: PieceFormProps) {
+export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formType, addPieceAction, updatePieceAction }: PieceFormProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const params = useParams();
@@ -73,7 +73,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
       description: pieceToEdit.description ?? '',
       payment_method: pieceToEdit.payment_method ?? undefined,
   } : {
-      type: initialFormType === 'VERSEMENT' ? 'VERSEMENT' : 'FACTURE',
+      type: formType === 'VERSEMENT' ? 'VERSEMENT' : 'FACTURE',
       date: new Date(),
       numero_piece: '',
       total_piece: 0,
@@ -87,6 +87,12 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     mode: 'onChange',
     defaultValues,
   });
+  
+  // Re-initialize form when pieceToEdit or formType changes
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [pieceToEdit, formType, form.reset]);
+
 
   const watchedType = form.watch('type');
   const isVersement = watchedType === 'VERSEMENT';
@@ -102,7 +108,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     startTransition(async () => {
       const action = isEditMode
         ? updatePieceAction(pieceToEdit!.id, supplierId, data)
-        : addPieceAction({ ...data, supplier_id: supplierId });
+        : addPieceAction({ ...data, supplier_id: supplierId, lang: lang });
       
       const result = await action;
 
@@ -163,7 +169,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
             />
 
         <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <FormField
                 control={form.control}
                 name="date"

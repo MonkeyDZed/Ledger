@@ -77,16 +77,6 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
   
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const [pieces, setPieces] = useState<Piece[]>([]);
-  useEffect(() => {
-    setPieces(initialPieces);
-  }, [initialPieces]);
-
   const openDialog = (type: 'new-piece' | 'new-versement' | 'edit' | 'delete', data?: Piece) => {
     setDialogState({ type, data });
   };
@@ -203,11 +193,11 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         },
       },
     ];
-  }, [lang, dictionary, isClient, deletePieceAction, addPieceAction, updatePieceAction]);
+  }, [lang, dictionary, addPieceAction, updatePieceAction, deletePieceAction]);
 
 
-  const totalFromPieces = pieces.reduce((sum, p) => sum + p.total_piece, 0);
-  const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
+  const totalFromPieces = initialPieces.reduce((sum, p) => sum + p.total_piece, 0);
+  const paidFromPieces = initialPieces.reduce((sum, p) => sum + p.montant_paye, 0);
   const balanceFromPieces = totalFromPieces - paidFromPieces;
   const totalDebt = supplier.solde_initial + balanceFromPieces;
 
@@ -278,7 +268,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
 
       <DataTable 
         columns={columns}
-        data={pieces} 
+        data={initialPieces} 
         dictionary={dictionary.piecesTable} 
       />
       

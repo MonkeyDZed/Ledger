@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { addPieceToDb, updatePieceInDb, deletePieceFromDb, executeTransaction } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { randomUUID } from 'crypto';
+import { getDictionary } from '@/lib/dictionaries';
+import { Locale } from '@/i18n.config';
 
 // This is a server-action-safe schema. It will not be imported by any client components.
 const PieceSchema = z.object({
@@ -19,10 +21,11 @@ const PieceSchema = z.object({
         z.literal('').transform(() => undefined),
         z.null().transform(() => undefined),
     ]).optional(),
-    supplier_id: z.string().min(1, "Le fournisseur est obligatoire."), // Supplier ID is now mandatory
+    supplier_id: z.string().min(1, "Le fournisseur est obligatoire."),
+    lang: z.custom<Locale>(),
 });
 
-type PieceFormValues = Omit<z.infer<typeof PieceSchema>, 'supplier_id'>;
+type PieceFormValues = Omit<z.infer<typeof PieceSchema>, 'supplier_id' | 'lang'>;
 
 export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{success: boolean, message?: string}> {
     const validation = PieceSchema.safeParse(data);
@@ -32,7 +35,10 @@ export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{suc
     }
     
     try {
-        const { type, total_piece = 0, montant_paye = 0 } = validation.data;
+        const { type, total_piece = 0, montant_paye = 0, lang } = validation.data;
+        const dictionary = await getDictionary(lang);
+        const surplusDescription = dictionary.supplierDetailPage.form.surplusDescription || 'Excédent de paiement';
+
 
         // Si le paiement est supérieur au total de la pièce (uniquement pour Facture/BL)
         if (type !== 'VERSEMENT' && montant_paye > total_piece) {
@@ -54,7 +60,7 @@ export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{suc
                 numero_piece: '',
                 total_piece: 0,
                 montant_paye: surplus,
-                description: "Excédent de paiement",
+                description: surplusDescription,
                 payment_method: validation.data.payment_method,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -89,7 +95,7 @@ export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{suc
 }
 
 export async function updatePiece(id: string, supplier_id: string, data: PieceFormValues): Promise<{success: boolean, message?: string}> {
-    const validation = PieceSchema.omit({ supplier_id: true }).safeParse(data);
+    const validation = PieceSchema.omit({ supplier_id: true, lang: true }).safeParse(data);
     if (!validation.success) {
         return { success: false, message: 'Invalid data provided.' };
     }

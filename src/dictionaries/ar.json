@@ -162,6 +162,7 @@
             "editDescription": "تحديث تفاصيل المستند.",
             "addPaymentTitle": "إضافة دفعة جديدة",
             "addPaymentDescription": "أدخل تفاصيل الدفعة للمورد.",
+            "surplusDescription": "فائض الدفع من مستند سابق",
             "dateLabel": "تاريخ المستند",
             "paymentDateLabel": "تاريخ الدفعة",
             "datePlaceholder": "اختر تاريخًا",
