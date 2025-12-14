@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -296,3 +296,5 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
     </>
   );
 }
+
+    

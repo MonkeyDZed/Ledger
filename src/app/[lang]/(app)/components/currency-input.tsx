@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -5,17 +6,15 @@ import { cn } from '@/lib/utils';
 import React, { forwardRef } from 'react';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
-// Formate le nombre avec un espace comme séparateur de milliers
 function formatNumber(value: number): string {
-    if (value === 0 || isNaN(value)) {
+    if (!value || isNaN(value)) {
         return '';
     }
     return new Intl.NumberFormat('fr-FR').format(value);
 }
 
-// Nettoie l'input pour ne garder que les chiffres
 function parseInput(value: string): string {
-  return value.replace(/[^\d]/g, '');
+  return value.replace(/\D/g, '');
 }
 
 interface CurrencyInputProps {
@@ -41,14 +40,14 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           type="text"
           inputMode="numeric"
           className={cn(
-            'text-end font-mono',
+            'text-end font-mono focus:placeholder:text-transparent',
             className
           )}
           value={formatNumber(field.value || 0)}
           onChange={handleChange}
           onBlur={field.onBlur}
           autoComplete="off"
-          suppressHydrationWarning // Clé de la résolution
+          suppressHydrationWarning
         />
       </div>
     );
@@ -56,3 +55,5 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 );
 
 CurrencyInput.displayName = 'CurrencyInput';
+
+    
