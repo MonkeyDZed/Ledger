@@ -4,7 +4,7 @@
 import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece, Supplier } from '@/lib/types';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
             <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
         <CardContent className="p-0">
-            <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
+            <div className={`text-xl font-bold font-mono ${valueClassName}`} suppressHydrationWarning>{value}</div>
         </CardContent>
     </Card>
 );
@@ -63,20 +63,15 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces: initialPieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
+export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
         data?: PieceWithSupplierName;
     }>({ type: null });
     
-    const [isClient, setIsClient] = useState(false);
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
@@ -103,14 +98,15 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
     };
 
     const totals = useMemo(() => {
-        const totalBilled = initialPieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
-        const totalPaid = initialPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+        const totalBilled = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
+        const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
         
+        // Correct calculation for total remaining debt across all suppliers
         const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
         const totalRemaining = (totalInitialBalance + totalBilled) - totalPaid;
 
         return { totalBilled, totalPaid, totalRemaining };
-    }, [initialPieces, suppliers]);
+    }, [pieces, suppliers]);
 
     const columns = useMemo((): ColumnDef<PieceWithSupplierName>[] => {
       const dict = dictionary.table;
@@ -137,13 +133,20 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => <span>{(row.original.date as string).split('T')[0]}</span>,
+          cell: ({ row }) => <span suppressHydrationWarning>{formatDate(row.original.date, lang)}</span>,
           filterFn: (row: Row<PieceWithSupplierName>, columnId: string, value: any) => {
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
              if (!from) return true;
-             if (!to) return date >= from;
-             return date >= from && date <= to;
+             // If to is not provided, check from start of 'from' day
+             if (!to) {
+                const fromDate = new Date(from);
+                fromDate.setHours(0,0,0,0);
+                return date >= fromDate;
+             }
+             const toDate = new Date(to);
+             toDate.setHours(23,59,59,999);
+             return date >= from && date <= toDate;
           },
         },
         {
@@ -218,7 +221,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           },
         },
       ];
-    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
+    }, [lang, dictionary]);
 
   return (
     <>
@@ -233,9 +236,9 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
       </PageHeader>
 
         <div className="grid gap-2 md:grid-cols-3 mb-4">
-            <StatCard 
+             <StatCard 
                 title={dictionary.totalBilled} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
+                value={formatCurrencyWithLocale(totals.totalBilled, lang)}
                 icon={<Receipt className="h-5 w-5"/>}
                 cardClassName="bg-blue-50 border-blue-200"
                 titleClassName="text-blue-800"
@@ -244,7 +247,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
              <StatCard 
                 title={dictionary.totalPaid} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
+                value={formatCurrencyWithLocale(totals.totalPaid, lang)}
                 icon={<CreditCard className="h-5 w-5"/>}
                 cardClassName="bg-green-50 border-green-200"
                 titleClassName="text-green-800"
@@ -253,7 +256,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
              <StatCard 
                 title={dictionary.totalRemaining} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
+                value={formatCurrencyWithLocale(totals.totalRemaining, lang)}
                 icon={<AlertCircle className="h-5 w-5"/>}
                 cardClassName="bg-rose-50 border-rose-200"
                 titleClassName="text-rose-800"
@@ -262,7 +265,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
         </div>
 
-      <DataTable columns={columns} data={initialPieces} dictionary={dictionary.table} />
+      <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
 
       {/* Edit/Delete Dialogs */}
       <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>
@@ -300,12 +303,11 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
         </AlertDialogContent>
       </AlertDialog>
       
-       {isClient && <>
-        <NewPieceDialog
+      <NewPieceDialog
           isOpen={isNewPieceOpen}
           onOpenChange={setIsNewPieceOpen}
           suppliers={suppliers}
-          pieces={initialPieces}
+          pieces={pieces}
           dictionary={dashboardDictionary}
           pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
@@ -315,15 +317,12 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           isOpen={isNewVersementOpen}
           onOpenChange={setIsNewVersementOpen}
           suppliers={suppliers}
-          pieces={initialPieces}
+          pieces={pieces}
           dictionary={dashboardDictionary}
           pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
           updatePieceAction={updatePieceAction}
         />
-       </>}
     </>
   );
 }
-
-    

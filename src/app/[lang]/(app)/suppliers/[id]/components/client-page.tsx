@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
@@ -22,7 +22,7 @@ import { SupplierForm, type SupplierFormRef } from '../../../components/supplier
 import { cn } from '@/lib/utils';
 import { formatCurrencyWithLocale, formatDate } from '@/lib/formatters';
 import type { addPiece, updatePiece, deletePiece } from '../actions';
-import type { updateSupplier, addSupplier } from '../../actions';
+import type { updateSupplier } from '../../actions';
 
 
 const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
@@ -32,7 +32,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
             <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
         <CardContent className="p-0">
-            <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
+            <div className={`text-xl font-bold font-mono ${valueClassName}`} suppressHydrationWarning>{value}</div>
         </CardContent>
     </Card>
 );
@@ -64,7 +64,7 @@ interface ClientPageProps {
   updateSupplierAction: typeof updateSupplier;
 }
 
-export function ClientPage({ supplier, pieces: initialPieces, dictionary, supplierFormDictionary, addPieceAction, updatePieceAction, deletePieceAction, updateSupplierAction }: ClientPageProps) {
+export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary, addPieceAction, updatePieceAction, deletePieceAction, updateSupplierAction }: ClientPageProps) {
   const { toast } = useToast();
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
@@ -196,8 +196,8 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
   }, [lang, dictionary, addPieceAction, updatePieceAction, deletePieceAction]);
 
 
-  const totalFromPieces = initialPieces.reduce((sum, p) => sum + p.total_piece, 0);
-  const paidFromPieces = initialPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+  const totalFromPieces = pieces.reduce((sum, p) => p.total_piece, 0);
+  const paidFromPieces = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
   const balanceFromPieces = totalFromPieces - paidFromPieces;
   const totalDebt = supplier.solde_initial + balanceFromPieces;
 
@@ -230,7 +230,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
        <div className="grid gap-2 md:grid-cols-4 mb-4">
         <StatCard 
             title={dictionary.stats.initialBalance} 
-            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(supplier.solde_initial, lang)}</span>}
+            value={formatCurrencyWithLocale(supplier.solde_initial, lang)}
             icon={<BadgeCentIcon />}
             cardClassName="bg-slate-100 border-slate-200"
             titleClassName="text-slate-600"
@@ -239,7 +239,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         />
         <StatCard 
             title={dictionary.stats.totalInvoiced} 
-            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totalFromPieces, lang)}</span>}
+            value={formatCurrencyWithLocale(totalFromPieces, lang)}
             icon={<FileTextIcon />}
             cardClassName="bg-blue-50 border-blue-200"
             titleClassName="text-blue-800"
@@ -248,7 +248,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         />
         <StatCard 
             title={dictionary.stats.totalPaid} 
-            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(paidFromPieces, lang)}</span>}
+            value={formatCurrencyWithLocale(paidFromPieces, lang)}
             icon={<BanknoteIcon />}
             cardClassName="bg-green-50 border-green-200"
             titleClassName="text-green-800"
@@ -257,7 +257,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         />
         <StatCard 
             title={dictionary.stats.totalDebt} 
-            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totalDebt, lang)}</span>}
+            value={formatCurrencyWithLocale(totalDebt, lang)}
             icon={<AlertCircleIcon />}
             cardClassName="bg-rose-50 border-rose-200"
             titleClassName="text-rose-800"
@@ -268,7 +268,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
 
       <DataTable 
         columns={columns}
-        data={initialPieces} 
+        data={pieces} 
         dictionary={dictionary.piecesTable} 
       />
       
@@ -358,5 +358,3 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
     </>
   );
 }
-
-    

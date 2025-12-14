@@ -13,10 +13,9 @@ interface FinancialOverviewChartProps {
     data: { paid: number; toPay: number };
     paidLabel: string;
     toPayLabel: string;
-    currencyLabel: string;
 }
 
-export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLabel }: FinancialOverviewChartProps) {
+export function FinancialOverviewChart({ data, paidLabel, toPayLabel }: FinancialOverviewChartProps) {
   const params = useParams();
   const lang = params.lang as 'fr' | 'ar';
   

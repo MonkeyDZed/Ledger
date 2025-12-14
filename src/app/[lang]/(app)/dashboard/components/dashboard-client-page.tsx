@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import type { Supplier, Piece } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins, Download } from 'lucide-react';
+import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import { NewVersementDialog } from './new-versement-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
@@ -41,6 +41,7 @@ const CsvIcon = () => (
 interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
+  recentSuppliers: any[];
   dictionary: any;
   formDictionary: any;
   pieceFormDictionary: any;
@@ -51,45 +52,15 @@ interface DashboardClientPageProps {
   updateSupplierAction: typeof updateSupplier;
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
-  const [isClient, setIsClient] = useState(false);
+export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const handleAutoFill = () => {
     supplierFormRef.current?.autoFill();
   }
-
-  const supplierDataWithCalculations = useMemo(() => suppliers.map((supplier) => {
-    const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
-    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
-    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
-    const balanceFromPieces = totalInvoiced - totalPaid;
-    const totalDebt = supplier.solde_initial + balanceFromPieces;
-
-    const mostRecentPiece = supplierPieces.length > 0
-      ? supplierPieces.reduce((latest, current) => new Date(latest.date) > new Date(current.date) ? latest : current)
-      : null;
-
-    return {
-      ...supplier,
-      totalDebt,
-      totalFromPieces: totalInvoiced,
-      mostRecentPieceDate: mostRecentPiece ? mostRecentPiece.date : '1970-01-01T00:00:00.000Z'
-    };
-  }), [suppliers, pieces]);
-  
-  const recentSuppliers = useMemo(() => {
-    return [...supplierDataWithCalculations]
-        .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
-        .slice(0, 10);
-  }, [supplierDataWithCalculations]);
 
   const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
   const totalInvoiced = pieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
@@ -242,7 +213,6 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                           data={{ paid: totalPaid, toPay: totalToPay }} 
                           paidLabel={dictionary.paid}
                           toPayLabel={dictionary.toPay}
-                          currencyLabel={dictionary.currency}
                         />
 
                         <div className="space-y-4 mt-6">
@@ -302,7 +272,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
            />
         </DialogContent>
       </Dialog>
-     {isClient && <>
+
       <NewPieceDialog
         isOpen={isNewPieceOpen}
         onOpenChange={setIsNewPieceOpen}
@@ -323,9 +293,6 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         addPieceAction={addPieceAction}
         updatePieceAction={updatePieceAction}
        />
-       </>}
     </>
   );
 }
-
-    
