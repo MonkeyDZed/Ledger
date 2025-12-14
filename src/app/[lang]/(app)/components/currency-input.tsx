@@ -1,9 +1,8 @@
-
 'use client';
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 interface CurrencyInputProps {
@@ -28,31 +27,43 @@ const parseLocaleNumber = (stringNumber: string, locale: string = 'fr-FR'): numb
 
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ field, onValueChange, className, placeholder = "0,00" }, ref) => {
+  ({ field, onValueChange, className, placeholder: initialPlaceholder = "0,00" }, ref) => {
     
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      const numValue = parseLocaleNumber(e.target.value);
+      // Allow empty string to be treated as 0
+      const valueToParse = e.target.value === '' ? '0' : e.target.value;
+      const numValue = parseLocaleNumber(valueToParse);
       onValueChange(numValue);
-      field.onBlur(); // Important pour la validation de react-hook-form
+      field.onBlur(); // Important for react-hook-form validation
     };
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const rawValue = e.target.value;
+        // Allow decimal and comma, filter out other non-numeric characters except for a leading minus
+        const sanitizedValue = rawValue.replace(/[^0-9,.-]/g, '');
+        
+        // Directly update the form state with the string value for immediate feedback
+        field.onChange(sanitizedValue);
+    }
+
+    const valueToDisplay = (value: any) => {
+        if (value === null || value === undefined || value === '') return '';
+        // Format to a string with a dot, then replace with a comma for display
+        return String(value).replace('.', ',');
+    }
 
     return (
       <div className="relative">
         <Input
           {...field}
           ref={ref}
-          type="number"
-          step="0.01"
-          className={cn('text-end font-mono', className)}
+          type="text" // Change to text to avoid incrementer arrows
+          inputMode="decimal" // Better for mobile keyboards
+          className={cn('text-end font-mono placeholder:text-muted-foreground focus:placeholder:text-transparent', className)}
           onBlur={handleBlur}
-          placeholder={placeholder}
-          // La valeur est directement celle du formulaire (un nombre)
-          value={field.value === undefined || field.value === null ? '' : field.value}
-          onChange={(e) => {
-             // Permet la saisie directe, la validation se fait au "onBlur"
-             const value = e.target.value === '' ? null : e.target.valueAsNumber;
-             field.onChange(value);
-          }}
+          placeholder={initialPlaceholder}
+          value={valueToDisplay(field.value)}
+          onChange={handleChange}
         />
       </div>
     );

@@ -3,6 +3,9 @@
 
 import * as React from "react"
 import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip } from "recharts"
+import { formatCurrencyWithLocale } from "@/lib/formatters";
+import { useParams } from 'next/navigation';
+
 
 const COLORS = ["hsl(var(--chart-2))", "hsl(var(--chart-4))"];
 
@@ -14,32 +17,14 @@ interface FinancialOverviewChartProps {
 }
 
 export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLabel }: FinancialOverviewChartProps) {
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Defer formatting to the client-side render to prevent hydration mismatch.
-  const formatCurrencySimple = (amount: number | undefined | null, fractionDigits = 2) => {
-    const numAmount = (amount === null || amount === undefined || isNaN(amount)) ? 0 : amount;
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'decimal',
-      minimumFractionDigits: fractionDigits,
-      maximumFractionDigits: fractionDigits,
-    }).format(numAmount);
-  };
+  const params = useParams();
+  const lang = params.lang as 'fr' | 'ar';
   
-  if (!isClient) {
-    return <div className="w-full h-[250px] flex items-center justify-center"><p>Chargement du graphique...</p></div>;
-  }
-
   const chartData = [
     { name: paidLabel, value: data.paid },
     { name: toPayLabel, value: data.toPay },
   ];
   const total = data.paid + data.toPay;
-  const formattedTotal = formatCurrencySimple(total, 0);
 
   return (
     <div className="w-full h-[250px] relative">
@@ -51,7 +36,7 @@ export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLa
               borderColor: "hsl(var(--border))",
               borderRadius: "var(--radius)",
             }}
-            formatter={(value) => `${formatCurrencySimple(value as number)} ${currencyLabel}`}
+            formatter={(value) => `${formatCurrencyWithLocale(value as number, lang)}`}
           />
           <Pie
             data={chartData}
@@ -73,10 +58,9 @@ export function FinancialOverviewChart({ data, paidLabel, toPayLabel, currencyLa
       </ResponsiveContainer>
       <div className="absolute inset-0 flex items-center justify-center flex-col text-center">
         <span className="text-sm text-muted-foreground">TOTAL</span>
-        <div className="text-2xl font-bold font-mono text-gray-800 break-all px-4">
-          {formattedTotal}
+        <div className="text-2xl font-bold font-mono text-gray-800 break-all px-4" suppressHydrationWarning>
+          {formatCurrencyWithLocale(total, lang)}
         </div>
-        <div className="text-sm font-mono text-muted-foreground font-bold mt-1">{currencyLabel}</div>
       </div>
     </div>
   )
