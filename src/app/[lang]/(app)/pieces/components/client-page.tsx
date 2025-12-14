@@ -1,14 +1,13 @@
 
 'use client';
 
-import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece, Supplier } from '@/lib/types';
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,6 +20,7 @@ import { cn } from '@/lib/utils';
 import type { addPiece, updatePiece, deletePiece } from '../../suppliers/[id]/actions';
 import { NewPieceDialog } from '../../dashboard/components/new-piece-dialog';
 import { NewVersementDialog } from '../../dashboard/components/new-versement-dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 
 type PieceWithSupplierName = Piece & { supplierName: string; };
@@ -72,7 +72,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
-
+    
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
     };
@@ -225,45 +225,58 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
 
   return (
     <>
-      <PageHeader
-        title={dictionary.title}
-        description={dictionary.description}
-      >
-        <Button onClick={() => setIsNewPieceOpen(true)}>
-          <PlusCircle className="me-2 h-4 w-4" />
-          {dashboardDictionary.newPiece}
-        </Button>
-      </PageHeader>
-
-        <div className="grid gap-2 md:grid-cols-3 mb-4">
-             <StatCard 
-                title={dictionary.totalBilled} 
-                value={formatCurrencyWithLocale(totals.totalBilled, lang)}
-                icon={<Receipt className="h-5 w-5"/>}
-                cardClassName="bg-blue-50 border-blue-200"
-                titleClassName="text-blue-800"
-                valueClassName="text-blue-900"
-                iconWrapperClassName="text-blue-700"
-             />
-             <StatCard 
-                title={dictionary.totalPaid} 
-                value={formatCurrencyWithLocale(totals.totalPaid, lang)}
-                icon={<CreditCard className="h-5 w-5"/>}
-                cardClassName="bg-green-50 border-green-200"
-                titleClassName="text-green-800"
-                valueClassName="text-green-900"
-                iconWrapperClassName="text-green-700"
-             />
-             <StatCard 
-                title={dictionary.totalRemaining} 
-                value={formatCurrencyWithLocale(totals.totalRemaining, lang)}
-                icon={<AlertCircle className="h-5 w-5"/>}
-                cardClassName="bg-rose-50 border-rose-200"
-                titleClassName="text-rose-800"
-                valueClassName="text-rose-900"
-                iconWrapperClassName="text-rose-700"
-             />
+      <Collapsible defaultOpen className="space-y-4 mb-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-9 p-0 data-[state=open]:rotate-90">
+                <ChevronsUpDown className="h-4 w-4" />
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </CollapsibleTrigger>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
+          </div>
+          <div className="flex items-center gap-2 ms-auto">
+            <Button onClick={() => setIsNewPieceOpen(true)}>
+              <PlusCircle className="me-2 h-4 w-4" />
+              {dashboardDictionary.newPiece}
+            </Button>
+          </div>
         </div>
+
+        <CollapsibleContent className="space-y-4">
+            <p className="text-muted-foreground px-11">{dictionary.description}</p>
+            <div className="grid gap-2 md:grid-cols-3">
+                <StatCard 
+                    title={dictionary.totalBilled} 
+                    value={formatCurrencyWithLocale(totals.totalBilled, lang)}
+                    icon={<Receipt className="h-5 w-5"/>}
+                    cardClassName="bg-blue-50 border-blue-200"
+                    titleClassName="text-blue-800"
+                    valueClassName="text-blue-900"
+                    iconWrapperClassName="text-blue-700"
+                 />
+                 <StatCard 
+                    title={dictionary.totalPaid} 
+                    value={formatCurrencyWithLocale(totals.totalPaid, lang)}
+                    icon={<CreditCard className="h-5 w-5"/>}
+                    cardClassName="bg-green-50 border-green-200"
+                    titleClassName="text-green-800"
+                    valueClassName="text-green-900"
+                    iconWrapperClassName="text-green-700"
+                 />
+                 <StatCard 
+                    title={dictionary.totalRemaining} 
+                    value={formatCurrencyWithLocale(totals.totalRemaining, lang)}
+                    icon={<AlertCircle className="h-5 w-5"/>}
+                    cardClassName="bg-rose-50 border-rose-200"
+                    titleClassName="text-rose-800"
+                    valueClassName="text-rose-900"
+                    iconWrapperClassName="text-rose-700"
+                 />
+            </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
 
@@ -304,27 +317,25 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
       </AlertDialog>
       
       <NewPieceDialog
-          isOpen={isNewPieceOpen}
-          onOpenChange={setIsNewPieceOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary.form}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
-        <NewVersementDialog
-          isOpen={isNewVersementOpen}
-          onOpenChange={setIsNewVersementOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary.form}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
+        isOpen={isNewPieceOpen}
+        onOpenChange={setIsNewPieceOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+        dictionary={dashboardDictionary}
+        pieceFormDictionary={pieceFormDictionary.form}
+        addPieceAction={addPieceAction}
+        updatePieceAction={updatePieceAction}
+      />
+      <NewVersementDialog
+        isOpen={isNewVersementOpen}
+        onOpenChange={setIsNewVersementOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+        dictionary={dashboardDictionary}
+        pieceFormDictionary={pieceFormDictionary.form}
+        addPieceAction={addPieceAction}
+        updatePieceAction={updatePieceAction}
+      />
     </>
   );
 }
-
-    

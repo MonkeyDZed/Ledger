@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
@@ -44,6 +43,13 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
   }>({ type: null });
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const [isOpen, setIsOpen] = useState(true);
 
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -205,7 +211,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
 
   return (
     <>
-      <Collapsible defaultOpen className="space-y-4 mb-4">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4 mb-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
                 <CollapsibleTrigger asChild>
@@ -227,6 +233,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 </Button>
             </div>
         </div>
+        {isMounted && (
         <CollapsibleContent className="space-y-4">
             <p className="text-muted-foreground px-11">{dictionary.description}</p>
             <div className="grid gap-2 md:grid-cols-4">
@@ -268,6 +275,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 </Card>
             </div>
         </CollapsibleContent>
+        )}
       </Collapsible>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>

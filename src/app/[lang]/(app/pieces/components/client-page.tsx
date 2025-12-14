@@ -1,7 +1,5 @@
-
 'use client';
 
-import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece, Supplier } from '@/lib/types';
 import { useMemo, useState, useEffect } from 'react';
@@ -74,6 +72,13 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
     
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+      setIsMounted(true);
+    }, []);
+
+    const [isOpen, setIsOpen] = useState(true);
+
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
     };
@@ -226,7 +231,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
 
   return (
     <>
-      <Collapsible defaultOpen className="space-y-4 mb-4">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4 mb-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <CollapsibleTrigger asChild>
@@ -245,6 +250,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
           </div>
         </div>
 
+        {isMounted && (
         <CollapsibleContent className="space-y-4">
             <p className="text-muted-foreground px-11">{dictionary.description}</p>
             <div className="grid gap-2 md:grid-cols-3">
@@ -277,6 +283,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
                  />
             </div>
         </CollapsibleContent>
+        )}
       </Collapsible>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
