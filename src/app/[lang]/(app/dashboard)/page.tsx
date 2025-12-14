@@ -54,3 +54,5 @@ export default async function DashboardPage({ params }: { params: { lang: Locale
     updateSupplierAction={updateSupplier}
   />;
 }
+
+    
