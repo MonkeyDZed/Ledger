@@ -34,7 +34,6 @@ interface ClientPageProps {
   updateSupplierAction: typeof updateSupplier;
 }
 
-
 const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
     <Card className={cn("p-4", cardClassName)}>
         <CardHeader className="flex flex-row items-center justify-between py-0 px-0 pb-2">
