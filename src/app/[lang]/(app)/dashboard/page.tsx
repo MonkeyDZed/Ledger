@@ -6,7 +6,6 @@ import { DashboardClientPage } from './components/dashboard-client-page';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
 import { Piece } from '@/lib/types';
-import React from 'react';
 
 // This is a Server Component, responsible for fetching data.
 export default async function DashboardPage({ params }: { params: { lang: Locale } }) {

@@ -133,12 +133,12 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
           className="max-w-sm"
         />
         <Select
-            value={(table.getColumn('type')?.getFilterValue() as string[])?.join(',') ?? 'all'}
+            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
             onValueChange={(value) => {
                 if (value === 'all') {
                     table.getColumn('type')?.setFilterValue(undefined);
                 } else {
-                    table.getColumn('type')?.setFilterValue(value.split(','));
+                    table.getColumn('type')?.setFilterValue(value);
                 }
             }}
         >
@@ -147,7 +147,8 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="all">{dictionary.typeAll || 'Toutes'}</SelectItem>
-                <SelectItem value="FACTURE,BL">{dictionary.typeInvoice} / {dictionary.typeBl}</SelectItem>
+                <SelectItem value="FACTURE">{dictionary.typeInvoice || 'Facture'}</SelectItem>
+                <SelectItem value="BL">{dictionary.typeBl || 'BL'}</SelectItem>
                 <SelectItem value="VERSEMENT">{dictionary.typeVersement || 'Versement'}</SelectItem>
             </SelectContent>
         </Select>
