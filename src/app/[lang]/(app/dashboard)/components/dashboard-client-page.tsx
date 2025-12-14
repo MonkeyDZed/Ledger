@@ -187,8 +187,8 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
                                           <TableCell className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>
                                             {formatCurrencyWithLocale(supplier.totalFromPieces, lang)}
                                           </TableCell>
-                                          <TableCell>
-                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`} suppressHydrationWarning>
+                                          <TableCell suppressHydrationWarning>
+                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`}>
                                               {formatCurrencyWithLocale(supplier.totalDebt, lang)}
                                             </Badge>
                                           </TableCell>

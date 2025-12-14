@@ -286,7 +286,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
             </CollapsibleContent>
             </Collapsible>
         ) : (
-            <div className="mb-4">
+             <div className="mb-4">
                 <PageHeader title={dictionary.title}>
                     <Button variant="outline">
                         <FileDown className="me-2 h-4 w-4" />
@@ -352,4 +352,5 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
+
 
