@@ -18,10 +18,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
 import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { PageHeader } from '@/components/page-header';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
-
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 
@@ -100,55 +98,90 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     ];
   }, [lang, dictionary]);
 
-  const headerActions = (
-    <div className="flex items-center gap-2">
-      <Button variant="outline"><FileDown className="me-2 h-4 w-4"/>{dictionary.export}</Button>
-      <Button onClick={()=>openDialog('new')}><PlusCircle className="me-2 h-4 w-4"/>{dictionary.newSupplier}</Button>
-    </div>
-  );
-
   const headerContent = (
-      <>
-        {isMounted ? (
-            <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
-              <CollapsibleTrigger asChild>
-                <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
-                  <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
-                  <div className='flex flex-1 items-baseline justify-between'>
-                    <div className="flex items-baseline gap-4">
-                      <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
-                      {!isHeaderOpen && (
-                        <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
-                          <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
-                          <span className="h-4 border-l"></span>
-                          <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                        {headerActions}
-                    </div>
-                  </div>
+    <div className="mb-4">
+      <div className="flex items-center justify-between">
+        <div
+          className="flex flex-1 items-center gap-2 cursor-pointer p-2 -m-2 rounded-lg hover:bg-slate-100/80 transition-colors"
+          onClick={() => setIsHeaderOpen((prev) => !prev)}
+        >
+          <ChevronsUpDown
+            className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
+              isHeaderOpen ? "-rotate-180" : ""
+            }`}
+          />
+          <div className="flex flex-1 items-baseline gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
+              {dictionary.title}
+            </h1>
+             {!isHeaderOpen && isMounted && (
+                <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
+                    <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
+                    <span className="h-4 border-l"></span>
+                    <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
                 </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2">
-                <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
-                <div className="grid gap-2 md:grid-cols-4 mt-4 px-8 md:px-11">
-                  <StatCard title={dictionary.table.initialBalance} value={formatCurrencyWithLocale(totals.totalInitialBalance, lang)} icon={<BalanceIcon />} cardClassName="bg-slate-100 border-slate-200" titleClassName="text-slate-600" valueClassName="text-slate-900" iconWrapperClassName="text-slate-500"/>
-                  <StatCard title={dictionary.table.totalInvoiced} value={formatCurrencyWithLocale(totals.totalInvoiced, lang)} icon={<ReceiptIcon />} cardClassName="bg-blue-50 border-blue-200" titleClassName="text-blue-800" valueClassName="text-blue-900" iconWrapperClassName="text-blue-700"/>
-                  <StatCard title={dictionary.table.totalPaid} value={formatCurrencyWithLocale(totals.totalPaid, lang)} icon={<CreditCardIcon />} cardClassName="bg-green-50 border-green-200" titleClassName="text-green-800" valueClassName="text-green-900" iconWrapperClassName="text-green-700"/>
-                  <StatCard title={dictionary.table.totalDebt} value={formatCurrencyWithLocale(totals.totalDebt, lang)} icon={<AlertCircleIcon />} cardClassName="bg-rose-50 border-rose-200" titleClassName="text-rose-800" valueClassName="text-rose-900" iconWrapperClassName="text-rose-700"/>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-        ) : (
-          <div className="mb-4">
-            <PageHeader title={dictionary.title}>
-                {headerActions}
-            </PageHeader>
+            )}
           </div>
-        )}
-      </>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline">
+            <FileDown className="me-2 h-4 w-4" />
+            {dictionary.export}
+          </Button>
+          <Button onClick={() => openDialog("new")}>
+            <PlusCircle className="me-2 h-4 w-4" />
+            {dictionary.newSupplier}
+          </Button>
+        </div>
+      </div>
+
+      {isMounted && <Collapsible open={isHeaderOpen} className="mt-2 space-y-2">
+        <CollapsibleContent>
+            <div className="px-8 md:px-11">
+                <p className="text-muted-foreground">{dictionary.description}</p>
+                <div className="grid gap-2 md:grid-cols-4 mt-4">
+                <StatCard
+                    title={dictionary.table.initialBalance}
+                    value={formatCurrencyWithLocale(totals.totalInitialBalance, lang)}
+                    icon={<BalanceIcon />}
+                    cardClassName="bg-slate-100 border-slate-200"
+                    titleClassName="text-slate-600"
+                    valueClassName="text-slate-900"
+                    iconWrapperClassName="text-slate-500"
+                />
+                <StatCard
+                    title={dictionary.table.totalInvoiced}
+                    value={formatCurrencyWithLocale(totals.totalInvoiced, lang)}
+                    icon={<ReceiptIcon />}
+                    cardClassName="bg-blue-50 border-blue-200"
+                    titleClassName="text-blue-800"
+                    valueClassName="text-blue-900"
+                    iconWrapperClassName="text-blue-700"
+                />
+                <StatCard
+                    title={dictionary.table.totalPaid}
+                    value={formatCurrencyWithLocale(totals.totalPaid, lang)}
+                    icon={<CreditCardIcon />}
+                    cardClassName="bg-green-50 border-green-200"
+                    titleClassName="text-green-800"
+                    valueClassName="text-green-900"
+                    iconWrapperClassName="text-green-700"
+                />
+                <StatCard
+                    title={dictionary.table.totalDebt}
+                    value={formatCurrencyWithLocale(totals.totalDebt, lang)}
+                    icon={<AlertCircleIcon />}
+                    cardClassName="bg-rose-50 border-rose-200"
+                    titleClassName="text-rose-800"
+                    valueClassName="text-rose-900"
+                    iconWrapperClassName="text-rose-700"
+                />
+                </div>
+            </div>
+        </CollapsibleContent>
+      </Collapsible>}
+    </div>
   );
 
   return (
@@ -156,31 +189,33 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
       {headerContent}
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
 
-      <Dialog open={dialogState.type==='new'||dialogState.type==='edit'} onOpenChange={closeDialogs}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <div className="flex justify-between items-center">
-              <DialogTitle>{dialogState.type==='edit'?dictionary.form.editTitle:dictionary.form.addTitle}</DialogTitle>
-              {(dialogState.type==='new'||dialogState.type==='edit')&&<Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2"><Sparkles className="h-4 w-4"/> {dictionary.form.autoFill}</Button>}
-            </div>
-            <DialogDescription>{dialogState.type==='edit'?dictionary.form.editDescription:dictionary.form.addDescription}</DialogDescription>
-          </DialogHeader>
-          <SupplierForm ref={supplierFormRef} onClose={closeDialogs} dictionary={dictionary.form} supplierToEdit={dialogState.data} addSupplierAction={addSupplierAction} updateSupplierAction={updateSupplierAction}/>
-        </DialogContent>
-      </Dialog>
+      {isMounted && <>
+        <Dialog open={dialogState.type==='new'||dialogState.type==='edit'} onOpenChange={closeDialogs}>
+          <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+              <div className="flex justify-between items-center">
+                <DialogTitle>{dialogState.type==='edit'?dictionary.form.editTitle:dictionary.form.addTitle}</DialogTitle>
+                {(dialogState.type==='new'||dialogState.type==='edit')&&<Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2"><Sparkles className="h-4 w-4"/> {dictionary.form.autoFill}</Button>}
+              </div>
+              <DialogDescription>{dialogState.type==='edit'?dictionary.form.editDescription:dictionary.form.addDescription}</DialogDescription>
+            </DialogHeader>
+            <SupplierForm ref={supplierFormRef} onClose={closeDialogs} dictionary={dictionary.form} supplierToEdit={dialogState.data} addSupplierAction={addSupplierAction} updateSupplierAction={updateSupplierAction}/>
+          </DialogContent>
+        </Dialog>
 
-      <AlertDialog open={dialogState.type==='delete'} onOpenChange={closeDialogs}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{dictionary.deleteDialog.title}</AlertDialogTitle>
-            <AlertDialogDescription>{dictionary.deleteDialog.description1} <strong>{dialogState.data?.name}</strong>. {dictionary.deleteDialog.description2}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDialogs}>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{dictionary.deleteDialog.confirm}</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={dialogState.type==='delete'} onOpenChange={closeDialogs}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{dictionary.deleteDialog.title}</AlertDialogTitle>
+              <AlertDialogDescription>{dictionary.deleteDialog.description1} <strong>{dialogState.data?.name}</strong>. {dictionary.deleteDialog.description2}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={closeDialogs}>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{dictionary.deleteDialog.confirm}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>}
     </>
   );
 }

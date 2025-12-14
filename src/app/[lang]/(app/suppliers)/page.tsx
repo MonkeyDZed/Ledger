@@ -4,6 +4,8 @@ import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import { addSupplier, updateSupplier, deleteSupplier } from './actions';
+import { Piece } from '@/lib/types';
+
 
 export default async function SuppliersPage({ params }: { params: { lang: Locale }}) {
   const { lang } = params;
@@ -11,9 +13,17 @@ export default async function SuppliersPage({ params }: { params: { lang: Locale
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
   
+  const suppliersWithDebt = suppliers.map(supplier => {
+    const supplierPieces = pieces.filter((p: Piece) => p.supplier_id === supplier.id);
+    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const balanceFromPieces = totalInvoiced - totalPaid;
+    const totalDebt = supplier.solde_initial + balanceFromPieces;
+    return { ...supplier, totalDebt, totalInvoiced, totalPaid };
+  });
+
   return <ClientPage 
-    suppliers={suppliers}
-    pieces={pieces}
+    suppliers={suppliersWithDebt} 
     dictionary={dictionary.suppliersPage} 
     addSupplierAction={addSupplier}
     updateSupplierAction={updateSupplier}
