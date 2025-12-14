@@ -76,10 +76,6 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
 
   useEffect(() => {
     setIsMounted(true);
-    // Set default date range on client side to avoid hydration errors
-    const defaultRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
-    setDateRange(defaultRange);
-    setColumnFilters(prev => [...prev.filter(f => f.id !== 'date'), { id: 'date', value: defaultRange }]);
   }, []);
 
   const table = useReactTable({
@@ -133,12 +129,12 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
           className="max-w-sm"
         />
         <Select
-            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
+            value={(table.getColumn('type')?.getFilterValue() as string[])?.join(',') ?? 'all'}
             onValueChange={(value) => {
                 if (value === 'all') {
                     table.getColumn('type')?.setFilterValue(undefined);
                 } else {
-                    table.getColumn('type')?.setFilterValue(value);
+                    table.getColumn('type')?.setFilterValue(value.split(','));
                 }
             }}
         >

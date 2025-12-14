@@ -1,3 +1,4 @@
+
 # Notes de Débogage : Implémentation de l'En-tête Rétractable
 
 **Date :** 14/12/2025
