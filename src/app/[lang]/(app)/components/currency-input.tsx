@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 interface CurrencyInputProps {
