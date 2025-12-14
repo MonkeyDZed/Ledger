@@ -51,7 +51,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
     </Card>
 );
 
-export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
+export function ClientPage({ suppliers = [], dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
@@ -102,10 +102,15 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
   };
   
   const totals = useMemo(() => {
-      const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
-      const totalInvoiced = suppliers.reduce((sum, s) => sum + s.totalInvoiced, 0);
-      const totalPaid = suppliers.reduce((sum, s) => sum + s.totalPaid, 0);
-      const totalDebt = suppliers.reduce((sum, s) => sum + s.totalDebt, 0);
+      // Sécurité : si pas de fournisseurs, on renvoie des zéros pour éviter le crash
+      if (!suppliers || !Array.isArray(suppliers)) {
+        return { totalInitialBalance: 0, totalInvoiced: 0, totalPaid: 0, totalDebt: 0 };
+      }
+
+      const totalInitialBalance = suppliers.reduce((sum, s) => sum + (s.solde_initial || 0), 0);
+      const totalInvoiced = suppliers.reduce((sum, s) => sum + (s.totalInvoiced || 0), 0);
+      const totalPaid = suppliers.reduce((sum, s) => sum + (s.totalPaid || 0), 0);
+      const totalDebt = suppliers.reduce((sum, s) => sum + (s.totalDebt || 0), 0);
       return { totalInitialBalance, totalInvoiced, totalPaid, totalDebt };
   }, [suppliers]);
 
@@ -313,23 +318,26 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
           </CollapsibleContent>
         </Collapsible>
       ) : (
-        <div className="mb-4">
-          <PageHeader title={dictionary.title}>
-              <div className="flex items-center gap-2">
-                <Button variant="outline">
-                  <FileDown className="me-2 h-4 w-4" />
-                  {dictionary.export}
-                </Button>
-                <Button onClick={() => openDialog("new")}>
-                  <PlusCircle className="me-2 h-4 w-4" />
-                  {dictionary.newSupplier}
-                </Button>
-              </div>
-          </PageHeader>
+      <div className="mb-4">
+        <div className="flex items-center justify-between">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
+              {dictionary.title}
+            </h1>
+            <div className="flex items-center gap-2">
+              <Button variant="outline">
+                <FileDown className="me-2 h-4 w-4" />
+                {dictionary.export}
+              </Button>
+              <Button onClick={() => openDialog("new")}>
+                <PlusCircle className="me-2 h-4 w-4" />
+                {dictionary.newSupplier}
+              </Button>
+            </div>
         </div>
-      )}
-    </>
-  );
+      </div>
+    )}
+  </>
+);
 
   return (
     <>
