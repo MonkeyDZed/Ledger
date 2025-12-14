@@ -42,27 +42,37 @@ Pour éviter les erreurs d'hydratation de Next.js, qui surviennent lorsque le DO
     *   **Avant le montage (`!isMounted`) :** Un composant `<PageHeader>` statique et simplifié est rendu. Il ne contient pas le composant `Collapsible`, évitant ainsi toute divergence de structure DOM lors de l'hydratation.
     *   **Après le montage (`isMounted`) :** Le composant `Collapsible` complet est rendu, avec son `CollapsibleTrigger` et son `CollapsibleContent`.
 
-3.  **Structure JSX (simplifiée) :**
+3.  **Structure JSX (simplifiée) de référence pour `headerContent`:**
 
     ```tsx
     const headerContent = (
       <>
         {isMounted ? (
-          <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
+          <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
             <CollapsibleTrigger asChild>
-              <div className='flex w-full cursor-pointer ...'>
-                <ChevronsUpDown />
-                {/* ... Titre et boutons ... */}
+              <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
+                <ChevronsUpDown className="h-5 w-5 text-gray-400 ..."/>
+                <div className='flex flex-1 items-baseline justify-between'>
+                  <div className="flex items-baseline gap-4">
+                    <h1 className="text-2xl ...">{dictionary.title}</h1>
+                    {!isHeaderOpen && (
+                      {/* ... Mini-stats ... */}
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                    {/* ... Boutons d'action ... */}
+                  </div>
+                </div>
               </div>
             </CollapsibleTrigger>
-            <CollapsibleContent>
-              {/* ... Cartes de statistiques avec formatage de devise ... */}
+            <CollapsibleContent className="space-y-2">
+              {/* ... Contenu déplié (description + StatCards) ... */}
             </CollapsibleContent>
           </Collapsible>
         ) : (
           <div className="mb-4">
             <PageHeader title={dictionary.title}>
-                {/* ... Boutons d'action ... */}
+              {/* ... Boutons d'action ... */}
             </PageHeader>
           </div>
         )}
@@ -70,7 +80,7 @@ Pour éviter les erreurs d'hydratation de Next.js, qui surviennent lorsque le DO
     );
     ```
 
-Cette approche a résolu de manière fiable les erreurs `Incorrect locale information provided` sur cette page, car le composant interactif complexe est ajouté proprement après l'hydratation.
+Cette approche a résolu de manière fiable les erreurs d'hydratation et garantit un comportement UX correct sur la page des pièces.
 
 ---
 
@@ -85,19 +95,35 @@ Toutes les tentatives pour répliquer la fonctionnalité ci-dessus sur la page d
 Les premières tentatives d'implémentation du `Collapsible` sans la stratégie `isMounted` ont systématiquement échoué.
 
 *   **Cause :** L'en-tête contient des cartes de statistiques (`StatCard`) qui affichent des valeurs monétaires formatées via `formatCurrencyWithLocale`. Le formatage des nombres dépend de l'API `Intl` du navigateur. Le HTML généré par le serveur (Node.js) et celui généré par le client (navigateur) pour ces montants n'étaient pas identiques, provoquant l'erreur d'hydratation.
-*   **Tentatives de correction :** L'ajout de `suppressHydrationWarning` sur les éléments de texte a fonctionné pour du contenu simple, mais dès que la structure du DOM était affectée par l'état du `Collapsible` (ouvert/fermé), l'erreur revenait, indiquant un problème structurel plus profond.
 
-### Problème B : Interface Utilisateur Défectueuse
+### Problème B : Interface Utilisateur Défectueuse (le bug actuel)
 
 Les tentatives ultérieures de copier/coller la logique `isMounted` de la page "Pièces" vers "Fournisseurs" ont résolu l'erreur d'hydratation mais ont introduit des bugs d'interface.
 
-*   **Symptômes :** Le plus souvent, le déclencheur du `Collapsible` (`CollapsibleTrigger`), en particulier l'icône chevron (`ChevronsUpDown`), ne s'affichait pas, ou la barre de titre n'était pas cliquable. L'en-tête devenait statique et la fonctionnalité de "collapse" était visuellement et fonctionnellement absente.
+*   **Symptômes :** Le plus souvent, le déclencheur du `Collapsible` (`CollapsibleTrigger`), en particulier l'icône chevron (`ChevronsUpDown`), ne s'affiche pas, ou la barre de titre n'est pas cliquable. L'en-tête devient statique et la fonctionnalité de "collapse" est visuellement et fonctionnellement absente.
 *   **Cause probable :** Erreur lors de l'adaptation du JSX. Il est probable qu'un `div` a été mal placé, que le `CollapsibleTrigger` n'a pas été correctement assigné (`asChild`), ou qu'une erreur de props/className a rendu les éléments invisibles ou non interactifs. Malgré plusieurs tentatives, cette structure n'a pas pu être répliquée correctement.
 
 ---
 
-## 4. Demande d'Assistance
+## 4. Analyse Post-Mortem de la Dernière Tentative (14/12/2025)
 
-Nous sommes dans une boucle où la correction d'un problème (hydratation) en crée un autre (UI), et vice-versa. L'objectif est simple : faire en sorte que `src/app/[lang]/(app/suppliers)/components/client-page.tsx` utilise **exactement la même structure et la même logique** que `src/app/[lang]/(app/pieces)/components/client-page.tsx` pour son en-tête.
+Lors de la dernière modification, l'objectif était d'appliquer la "structure canonique" de la page `/pieces`.
+
+*   **État initial du fichier `suppliers/client-page.tsx` :** Le fichier contenait une structure JSX défectueuse pour l'en-tête, où le `CollapsibleTrigger` et le `CollapsibleContent` n'étaient pas correctement imbriqués ou étaient rendus conditionnellement de manière incorrecte, provoquant la disparition de l'icône chevron et du comportement de "collapse". Il y avait aussi une confusion dans les variables d'état (`isOpen` vs `isHeaderOpen`).
+
+*   **Changement effectué :** J'ai tenté de remplacer l'en-tête défectueux par la structure `isMounted` de la page `/pieces`. J'ai créé une variable `headerActions` pour contenir les boutons, et je l'ai insérée dans le JSX. J'ai aussi unifié l'état sur `isHeaderOpen`.
+
+*   **Analyse de l'échec :** Le bouton ne s'affiche toujours pas. Cela signifie que, **malgré mes efforts**, j'ai encore dû introduire une divergence structurelle subtile. Les causes possibles sont :
+    1.  Le `div` qui reçoit le `asChild` du `CollapsibleTrigger` n'est pas le bon, ou sa structure interne diffère.
+    2.  Les `props` passées (notamment `onClick` sur les boutons d'action pour arrêter la propagation) ne sont pas gérées de la même manière, ce qui casse la logique de Radix.
+    3.  Une `className` de Tailwind CSS (peut-être `flex`, `items-center`, `justify-between`) a été mal appliquée, rendant les éléments invisibles ou non cliquables.
+
+**Conclusion :** Je n'arrive pas à isoler la micro-divergence. Une comparaison `diff` ligne par ligne des deux blocs `headerContent` (celui des pièces et ma dernière tentative pour les fournisseurs) par un œil humain est maintenant nécessaire pour repérer la différence que l'IA ne voit pas.
+
+---
+
+## 5. Demande d'Assistance
+
+Nous sommes dans une impasse. L'objectif reste simple : faire en sorte que `src/app/[lang]/(app/suppliers)/components/client-page.tsx` utilise **exactement la même structure et la même logique** que `src/app/[lang]/(app/pieces)/components/client-page.tsx` pour son en-tête.
 
 Une analyse croisée des deux fichiers devrait permettre de repérer la divergence structurelle ou logique qui empêche le bon fonctionnement sur la page des fournisseurs.

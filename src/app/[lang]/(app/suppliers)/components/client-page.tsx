@@ -222,10 +222,10 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         },
       },
     ];
-  }, [lang, dictionary, deleteSupplierAction]);
+  }, [lang, dictionary]);
 
   const headerActions = (
-    <>
+    <div className="flex items-center gap-2">
       <Button variant="outline">
         <FileDown className="me-2 h-4 w-4" />
         {dictionary.export}
@@ -234,10 +234,10 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         <PlusCircle className="me-2 h-4 w-4" />
         {dictionary.newSupplier}
       </Button>
-    </>
+    </div>
   );
 
-  return (
+  const headerContent = (
     <>
       {isMounted ? (
         <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
@@ -255,7 +255,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                <div onClick={e => e.stopPropagation()}>
                   {headerActions}
                 </div>
               </div>
@@ -310,6 +310,12 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
           </PageHeader>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <>
+      {headerContent}
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
 
