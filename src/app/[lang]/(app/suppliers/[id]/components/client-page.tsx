@@ -4,18 +4,18 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/page-header';
-import { PlusCircle, ArrowLeft, FileEdit, HandCoins, Info, ChevronsUpDown, Banknote, FileText as FileTextIcon, Landmark } from 'lucide-react';
+import { PlusCircle, ArrowLeft, FileEdit, HandCoins, Info, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PieceForm } from '../../../components/piece-form';
 import type { Supplier, Piece } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useParams } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { MoreHorizontal, ArrowUpDown, Banknote as BanknoteIcon, Hand, FileText as FileTextIcon, Landmark } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SupplierForm, type SupplierFormRef } from '../../../components/supplier-form';
 import { cn } from '@/lib/utils';
@@ -46,7 +46,7 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
         case 'espece': return <Hand {...props} />;
         case 'cheque': return <FileTextIcon {...props} />;
         case 'virement': return <Landmark {...props} />;
-        case 'traite': return <Banknote {...props} />;
+        case 'traite': return <BanknoteIcon {...props} />;
         default: return null;
     }
 }
@@ -64,8 +64,6 @@ interface ClientPageProps {
 
 export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionary, addPieceAction, updatePieceAction, deletePieceAction, updateSupplierAction }: ClientPageProps) {
   const { toast } = useToast();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -74,18 +72,21 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
     data?: Piece;
   }>({ type: null });
 
+  const [isMounted, setIsMounted] = useState(false);
+  const [isHeaderOpen, setIsHeaderOpen] = useState(true);
+
+  const params = useParams();
+  const lang = params.lang as 'fr' | 'ar';
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const params = useParams();
-  const lang = params.lang as 'fr' | 'ar';
-  
   const openDialog = (type: 'new-piece' | 'new-versement' | 'edit' | 'delete', data?: Piece) => {
     setDialogState({ type, data });
   };
   const closeDialogs = () => setDialogState({ type: null });
-  
+
   const handleDelete = async () => {
     if (dialogState.type !== 'delete' || !dialogState.data) return;
     
@@ -277,7 +278,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
                       <StatCard 
                           title={dictionary.stats.totalPaid} 
                           value={formatCurrencyWithLocale(paidFromPieces, lang)}
-                          icon={<Banknote />}
+                          icon={<BanknoteIcon />}
                           cardClassName="bg-green-50 border-green-200"
                           titleClassName="text-green-800"
                           valueClassName="text-green-900"
@@ -296,7 +297,7 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
                 </CollapsibleContent>
             </Collapsible>
         ) : (
-            <PageHeader title={supplier.name} description={`${dictionary.header.description} ${supplier.name}`}>
+            <PageHeader title={supplier.name}>
                 {headerActions}
             </PageHeader>
         )}
@@ -313,89 +314,90 @@ export function ClientPage({ supplier, pieces, dictionary, supplierFormDictionar
         dictionary={dictionary.piecesTable} 
       />
       
-      <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-             <DialogTitle>{dictionary.info.title}</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
-              <div><strong>{dictionary.info.wilaya}:</strong> {supplier.wilaya || 'N/A'}</div>
-              <div><strong>{dictionary.info.phone}:</strong> {supplier.phone || 'N/A'}</div>
-              <div><strong>{dictionary.info.nif}:</strong> <span className="font-mono">{supplier.nif || 'N/A'}</span></div>
-              <div><strong>{dictionary.info.bank}:</strong> <span className="font-mono">{supplier.bank_info || 'N/A'}</span></div>
-              <div className="md:col-span-2"><strong>{dictionary.info.notes}:</strong> {supplier.notes || 'N/A'}</div>
-          </div>
-           <div className="flex justify-end pt-4">
-            <Button variant="outline" onClick={() => { setIsInfoOpen(false); setIsEditSupplierOpen(true); }}>
-                <FileEdit className="me-2 h-4 w-4" />
-                {dictionary.info.editButton}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-       <Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <DialogTitle>{
-                dialogState.type === 'edit' ? dictionary.form.editTitle 
-                : dialogState.type === 'new-versement' ? dictionary.form.addPaymentTitle
-                : dictionary.form.addTitle
-            }</DialogTitle>
-            <DialogDescription>
-              {
-                dialogState.type === 'edit' ? dictionary.form.editDescription 
-                : dialogState.type === 'new-versement' ? dictionary.form.addPaymentDescription
-                : dictionary.form.addDescription
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <PieceForm 
-            supplierId={supplier.id} 
-            pieceToEdit={dialogState.data}
-            onClose={closeDialogs} 
-            dictionary={dictionary.form}
-            formType={dialogState.type === 'new-versement' ? 'VERSEMENT' : dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
-            addPieceAction={addPieceAction}
-            updatePieceAction={updatePieceAction}
-          />
-        </DialogContent>
-      </Dialog>
-      
-       <Dialog open={isEditSupplierOpen} onOpenChange={setIsEditSupplierOpen}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <DialogTitle>{supplierFormDictionary.editTitle}</DialogTitle>
-            <DialogDescription>
-              {supplierFormDictionary.editDescription}
-            </DialogDescription>
-          </DialogHeader>
-          <SupplierForm 
-            ref={supplierFormRef} 
-            onClose={() => setIsEditSupplierOpen(false)} 
-            dictionary={supplierFormDictionary}
-            supplierToEdit={supplier}
-            addSupplierAction={() => { throw new Error("addSupplier not available here"); }}
-            updateSupplierAction={updateSupplierAction}
-          />
-        </DialogContent>
-      </Dialog>
+      {isMounted && <>
+        <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+            <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+                <DialogTitle>{dictionary.info.title}</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
+                <div><strong>{dictionary.info.wilaya}:</strong> {supplier.wilaya || 'N/A'}</div>
+                <div><strong>{dictionary.info.phone}:</strong> {supplier.phone || 'N/A'}</div>
+                <div><strong>{dictionary.info.nif}:</strong> <span className="font-mono">{supplier.nif || 'N/A'}</span></div>
+                <div><strong>{dictionary.info.bank}:</strong> <span className="font-mono">{supplier.bank_info || 'N/A'}</span></div>
+                <div className="md:col-span-2"><strong>{dictionary.info.notes}:</strong> {supplier.notes || 'N/A'}</div>
+            </div>
+            <div className="flex justify-end pt-4">
+                <Button variant="outline" onClick={() => { setIsInfoOpen(false); setIsEditSupplierOpen(true); }}>
+                    <FileEdit className="me-2 h-4 w-4" />
+                    {dictionary.info.editButton}
+                </Button>
+            </div>
+            </DialogContent>
+        </Dialog>
+        
+        <Dialog open={['new-piece', 'new-versement', 'edit'].includes(dialogState.type || '')} onOpenChange={closeDialogs}>
+            <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+                <DialogTitle>{
+                    dialogState.type === 'edit' ? dictionary.form.editTitle 
+                    : dialogState.type === 'new-versement' ? dictionary.form.addPaymentTitle
+                    : dictionary.form.addTitle
+                }</DialogTitle>
+                <DialogDescription>
+                {
+                    dialogState.type === 'edit' ? dictionary.form.editDescription 
+                    : dialogState.type === 'new-versement' ? dictionary.form.addPaymentDescription
+                    : dictionary.form.addDescription
+                }
+                </DialogDescription>
+            </DialogHeader>
+            <PieceForm 
+                supplierId={supplier.id} 
+                pieceToEdit={dialogState.data}
+                onClose={closeDialogs} 
+                dictionary={dictionary.form}
+                formType={dialogState.type === 'new-versement' ? 'VERSEMENT' : dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
+                addPieceAction={addPieceAction}
+                updatePieceAction={updatePieceAction}
+            />
+            </DialogContent>
+        </Dialog>
+        
+        <Dialog open={isEditSupplierOpen} onOpenChange={setIsEditSupplierOpen}>
+            <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+                <DialogTitle>{supplierFormDictionary.editTitle}</DialogTitle>
+                <DialogDescription>
+                {supplierFormDictionary.editDescription}
+                </DialogDescription>
+            </DialogHeader>
+            <SupplierForm 
+                ref={supplierFormRef} 
+                onClose={() => setIsEditSupplierOpen(false)} 
+                dictionary={supplierFormDictionary}
+                supplierToEdit={supplier}
+                addSupplierAction={() => { throw new Error("addSupplier not available here"); }}
+                updateSupplierAction={updateSupplierAction}
+            />
+            </DialogContent>
+        </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>{dictionary.deleteDialog.title}</AlertDialogTitle>
-                <AlertDialogDescription>
-                    {dictionary.deleteDialog.description}
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel onClick={closeDialogs}>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{dictionary.deleteDialog.confirm}</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{dictionary.deleteDialog.title}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {dictionary.deleteDialog.description}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={closeDialogs}>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{dictionary.deleteDialog.confirm}</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+      </>}
     </>
   );
 }
