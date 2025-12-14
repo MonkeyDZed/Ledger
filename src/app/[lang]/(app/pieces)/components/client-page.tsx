@@ -310,7 +310,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
 
       {isMounted && (
         <>
-          {/* Edit/Delete Dialogs */}
           <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>
             <DialogContent className="sm:max-w-[625px]">
               <DialogHeader>
@@ -371,5 +370,3 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     </>
   );
 }
-
-    
