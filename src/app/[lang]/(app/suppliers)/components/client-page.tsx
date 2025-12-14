@@ -319,7 +319,7 @@ export function ClientPage({ suppliers = [], dictionary, deleteSupplierAction, a
         </Collapsible>
       ) : (
       <div className="mb-4">
-        <div className="flex items-center justify-between">
+        <div className='flex flex-1 items-baseline justify-between p-2 -m-2'>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
               {dictionary.title}
             </h1>
@@ -390,3 +390,4 @@ export function ClientPage({ suppliers = [], dictionary, deleteSupplierAction, a
     </>
   );
 }
+
