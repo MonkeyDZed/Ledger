@@ -1,9 +1,8 @@
-
 'use client';
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 interface CurrencyInputProps {
@@ -12,45 +11,44 @@ interface CurrencyInputProps {
   className?: string;
 }
 
-const parseLocaleNumber = (stringNumber: string, locale: string = 'fr-FR'): number => {
-    const thousandSeparator = Intl.NumberFormat(locale).format(11111).replace(/1/g, '');
-    const decimalSeparator = Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
+// Nettoie l'input pour ne garder que les chiffres
+function parseInput(value: string): string {
+  return value.replace(/[^\d]/g, '');
+}
 
-    const parsed = parseFloat(
-        stringNumber
-            .replace(new RegExp('\\' + thousandSeparator, 'g'), '')
-            .replace(new RegExp('\\' + decimalSeparator), '.')
-    );
-
-    return isNaN(parsed) ? 0 : parsed;
-};
+// Formate le nombre avec un espace comme séparateur de milliers
+function formatNumber(value: number): string {
+  // Si la valeur est 0, on retourne une chaîne vide pour un champ "vide"
+  if (value === 0) {
+    return '';
+  }
+  return new Intl.NumberFormat('fr-FR').format(value);
+}
 
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ field, onValueChange, className }, ref) => {
     
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      // Allow empty string to be treated as 0
-      const valueToParse = e.target.value === '' ? '0' : e.target.value;
-      const numValue = parseLocaleNumber(valueToParse);
-      onValueChange(numValue);
-      field.onBlur(); // Important for react-hook-form validation
-    };
-    
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const rawValue = e.target.value;
-        // Allow decimal and comma, filter out other non-numeric characters except for a leading minus
-        const sanitizedValue = rawValue.replace(/[^0-9,.-]/g, '');
-        
-        // Directly update the form state with the string value for immediate feedback
-        field.onChange(sanitizedValue);
-    }
+    // `displayValue` est ce que l'utilisateur voit (ex: "1 250 000")
+    // Il est synchronisé avec la valeur du formulaire
+    const [displayValue, setDisplayValue] = useState(formatNumber(field.value || 0));
 
-    const valueToDisplay = (value: any) => {
-        if (value === null || value === undefined || value === '' || value === 0) return '';
-        // Format to a string with a dot, then replace with a comma for display
-        return String(value).replace('.', ',');
-    }
+    // Synchroniser avec les changements externes du formulaire (ex: reset, autofill)
+    useEffect(() => {
+        const numberValue = typeof field.value === 'number' ? field.value : 0;
+        setDisplayValue(formatNumber(numberValue));
+    }, [field.value]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const cleanValue = parseInput(e.target.value);
+      const numberValue = cleanValue === '' ? 0 : Number(cleanValue);
+
+      // Met à jour la valeur numérique brute pour react-hook-form
+      onValueChange(numberValue);
+      
+      // Met à jour la valeur formatée pour l'affichage
+      setDisplayValue(formatNumber(numberValue));
+    };
 
     return (
       <div className="relative">
@@ -58,12 +56,14 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           {...field}
           ref={ref}
           type="text"
-          inputMode="decimal"
-          className={cn('text-end font-mono', className)}
-          onBlur={handleBlur}
-          value={valueToDisplay(field.value)}
+          inputMode="numeric"
+          className={cn('text-end font-mono placeholder:text-transparent focus:placeholder:text-transparent', className)}
+          value={displayValue}
           onChange={handleChange}
+          onBlur={field.onBlur}
+          autoComplete="off"
         />
+        <span className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none">DZD</span>
       </div>
     );
   }
