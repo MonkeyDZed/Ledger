@@ -10,7 +10,6 @@ interface CurrencyInputProps {
   field: ControllerRenderProps<FieldValues, any>;
   onValueChange: (value: number) => void;
   className?: string;
-  placeholder?: string;
 }
 
 const parseLocaleNumber = (stringNumber: string, locale: string = 'fr-FR'): number => {
@@ -28,7 +27,7 @@ const parseLocaleNumber = (stringNumber: string, locale: string = 'fr-FR'): numb
 
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ field, onValueChange, className, placeholder: initialPlaceholder = "0,00" }, ref) => {
+  ({ field, onValueChange, className }, ref) => {
     
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       // Allow empty string to be treated as 0
@@ -48,7 +47,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     }
 
     const valueToDisplay = (value: any) => {
-        if (value === null || value === undefined || value === '') return '';
+        if (value === null || value === undefined || value === '' || value === 0) return '';
         // Format to a string with a dot, then replace with a comma for display
         return String(value).replace('.', ',');
     }
@@ -60,9 +59,8 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           ref={ref}
           type="text"
           inputMode="decimal"
-          className={cn('text-end font-mono placeholder:text-muted-foreground focus:placeholder:text-transparent', className)}
+          className={cn('text-end font-mono', className)}
           onBlur={handleBlur}
-          placeholder={initialPlaceholder}
           value={valueToDisplay(field.value)}
           onChange={handleChange}
         />

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { PageHeader } from '@/components/page-header';
@@ -144,8 +145,15 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
              if (!from) return true;
-             if (!to) return date >= from;
-             return date >= from && date <= to;
+             // If to is not provided, check from start of 'from' day
+             if (!to) {
+                const fromDate = new Date(from);
+                fromDate.setHours(0,0,0,0);
+                return date >= fromDate;
+             }
+             const toDate = new Date(to);
+             toDate.setHours(23,59,59,999);
+             return date >= from && date <= toDate;
           },
         },
         {
@@ -220,7 +228,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
           },
         },
       ];
-    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
+    }, [lang, dictionary]);
 
   return (
     <>
