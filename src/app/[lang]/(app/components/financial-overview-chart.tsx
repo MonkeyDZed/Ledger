@@ -65,3 +65,5 @@ export function FinancialOverviewChart({ data, paidLabel, toPayLabel }: Financia
     </div>
   )
 }
+
+    

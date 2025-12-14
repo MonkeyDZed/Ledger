@@ -72,6 +72,15 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    // Set default date range on client side to avoid hydration errors
+    const defaultRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
+    setDateRange(defaultRange);
+    setColumnFilters(prev => [...prev.filter(f => f.id !== 'date'), { id: 'date', value: defaultRange }]);
+  }, []);
 
   const table = useReactTable({
     data,
@@ -152,9 +161,9 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuCheckboxItem checked={!dateRange} onSelect={() => applyDateFilter(undefined)}>{dictionary.dateFilter.all}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={isChecked({ from: new Date(new Date().setHours(0,0,0,0)), to: new Date(new Date().setHours(23,59,59,999)) })} onSelect={() => applyDateFilter({ from: new Date(new Date().setHours(0,0,0,0)), to: new Date(new Date().setHours(23,59,59,999)) })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={isChecked({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })} onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem checked={isChecked({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })} onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem disabled={!isMounted} checked={isMounted && isChecked({ from: new Date(new Date().setHours(0,0,0,0)), to: new Date(new Date().setHours(23,59,59,999)) })} onSelect={() => applyDateFilter({ from: new Date(new Date().setHours(0,0,0,0)), to: new Date(new Date().setHours(23,59,59,999)) })}>{dictionary.dateFilter.today}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem disabled={!isMounted} checked={isMounted && isChecked({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })} onSelect={() => applyDateFilter({ from: subDays(new Date(), 1), to: subDays(new Date(), 1) })}>{dictionary.dateFilter.yesterday}</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem disabled={!isMounted} checked={isMounted && isChecked({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })} onSelect={() => applyDateFilter({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })}>{dictionary.dateFilter.thisMonth}</DropdownMenuCheckboxItem>
                  <DropdownMenuSeparator />
                 <Popover>
                     <PopoverTrigger asChild>

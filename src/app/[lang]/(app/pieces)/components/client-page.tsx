@@ -308,64 +308,68 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
       
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
 
-      {/* Edit/Delete Dialogs */}
-      <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <DialogTitle>{pieceFormDictionary.form.editTitle}</DialogTitle>
-            <DialogDescription>
-              {pieceFormDictionary.form.editDescription}
-            </DialogDescription>
-          </DialogHeader>
-          <PieceForm 
-            supplierId={dialogState.data?.supplier_id || ''} 
-            pieceToEdit={dialogState.data}
-            onClose={closeDialogs} 
-            dictionary={pieceFormDictionary.form}
-            formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
+      {isMounted && (
+        <>
+          {/* Edit/Delete Dialogs */}
+          <Dialog open={dialogState.type === 'edit'} onOpenChange={closeDialogs}>
+            <DialogContent className="sm:max-w-[625px]">
+              <DialogHeader>
+                <DialogTitle>{pieceFormDictionary.form.editTitle}</DialogTitle>
+                <DialogDescription>
+                  {pieceFormDictionary.form.editDescription}
+                </DialogDescription>
+              </DialogHeader>
+              <PieceForm 
+                supplierId={dialogState.data?.supplier_id || ''} 
+                pieceToEdit={dialogState.data}
+                onClose={closeDialogs} 
+                dictionary={pieceFormDictionary.form}
+                formType={dialogState.data?.type === 'VERSEMENT' ? 'VERSEMENT' : 'PIECE'}
+                addPieceAction={addPieceAction}
+                updatePieceAction={updatePieceAction}
+              />
+            </DialogContent>
+          </Dialog>
+
+          <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{pieceFormDictionary.deleteDialog.title}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {pieceFormDictionary.deleteDialog.description}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.deleteDialog.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.deleteDialog.confirm}</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          
+          <NewPieceDialog
+            isOpen={isNewPieceOpen}
+            onOpenChange={setIsNewPieceOpen}
+            suppliers={suppliers}
+            pieces={pieces}
+            dictionary={dashboardDictionary}
+            pieceFormDictionary={pieceFormDictionary.form}
             addPieceAction={addPieceAction}
             updatePieceAction={updatePieceAction}
           />
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>{pieceFormDictionary.deleteDialog.title}</AlertDialogTitle>
-                <AlertDialogDescription>
-                    {pieceFormDictionary.deleteDialog.description}
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel onClick={closeDialogs}>{pieceFormDictionary.deleteDialog.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{pieceFormDictionary.deleteDialog.confirm}</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      
-      {isMounted && <>
-        <NewPieceDialog
-          isOpen={isNewPieceOpen}
-          onOpenChange={setIsNewPieceOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary.form}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
-        <NewVersementDialog
-          isOpen={isNewVersementOpen}
-          onOpenChange={setIsNewVersementOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary.form}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
-       </>}
+          <NewVersementDialog
+            isOpen={isNewVersementOpen}
+            onOpenChange={setIsNewVersementOpen}
+            suppliers={suppliers}
+            pieces={pieces}
+            dictionary={dashboardDictionary}
+            pieceFormDictionary={pieceFormDictionary.form}
+            addPieceAction={addPieceAction}
+            updatePieceAction={updatePieceAction}
+          />
+        </>
+      )}
     </>
   );
 }
+
+    

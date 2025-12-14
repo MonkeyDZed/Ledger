@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins, Download } from 'lucide-react';
+import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import { NewVersementDialog } from './new-versement-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
@@ -58,7 +58,7 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
-
+  
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -256,50 +256,56 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
             </div>
         </div>
     </div>
-    <Dialog open={isNewSupplierOpen} onOpenChange={setIsNewSupplierOpen}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <div className="flex justify-between items-center">
-                <DialogTitle>{formDictionary.addTitle}</DialogTitle>
-                <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
-                    <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
-                </Button>
-            </div>
-            <CardDescription>
-              {formDictionary.addDescription}
-            </CardDescription>
-          </DialogHeader>
-          <SupplierForm 
-            ref={supplierFormRef} 
-            onClose={() => setIsNewSupplierOpen(false)} 
-            dictionary={formDictionary} 
-            addSupplierAction={addSupplierAction}
-            updateSupplierAction={updateSupplierAction}
-           />
-        </DialogContent>
-      </Dialog>
-     {isMounted && <>
-      <NewPieceDialog
-        isOpen={isNewPieceOpen}
-        onOpenChange={setIsNewPieceOpen}
-        suppliers={suppliers}
-        pieces={pieces}
-        dictionary={dictionary}
-        pieceFormDictionary={pieceFormDictionary}
-        addPieceAction={addPieceAction}
-        updatePieceAction={updatePieceAction}
-      />
-      <NewVersementDialog
-        isOpen={isNewVersementOpen}
-        onOpenChange={setIsNewVersementOpen}
-        suppliers={suppliers}
-        pieces={pieces}
-        dictionary={dictionary}
-        pieceFormDictionary={pieceFormDictionary}
-        addPieceAction={addPieceAction}
-        updatePieceAction={updatePieceAction}
-       />
-       </>}
+    
+    {isMounted && (
+      <>
+        <Dialog open={isNewSupplierOpen} onOpenChange={setIsNewSupplierOpen}>
+          <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+              <div className="flex justify-between items-center">
+                  <DialogTitle>{formDictionary.addTitle}</DialogTitle>
+                  <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
+                      <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
+                  </Button>
+              </div>
+              <CardDescription>
+                {formDictionary.addDescription}
+              </CardDescription>
+            </DialogHeader>
+            <SupplierForm 
+              ref={supplierFormRef} 
+              onClose={() => setIsNewSupplierOpen(false)} 
+              dictionary={formDictionary} 
+              addSupplierAction={addSupplierAction}
+              updateSupplierAction={updateSupplierAction}
+             />
+          </DialogContent>
+        </Dialog>
+
+        <NewPieceDialog
+          isOpen={isNewPieceOpen}
+          onOpenChange={setIsNewPieceOpen}
+          suppliers={suppliers}
+          pieces={pieces}
+          dictionary={dictionary}
+          pieceFormDictionary={pieceFormDictionary}
+          addPieceAction={addPieceAction}
+          updatePieceAction={updatePieceAction}
+        />
+        <NewVersementDialog
+          isOpen={isNewVersementOpen}
+          onOpenChange={setIsNewVersementOpen}
+          suppliers={suppliers}
+          pieces={pieces}
+          dictionary={dictionary}
+          pieceFormDictionary={pieceFormDictionary}
+          addPieceAction={addPieceAction}
+          updatePieceAction={updatePieceAction}
+         />
+      </>
+    )}
     </>
   );
 }
+
+    

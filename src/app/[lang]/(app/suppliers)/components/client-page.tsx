@@ -286,7 +286,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
             </CollapsibleContent>
             </Collapsible>
         ) : (
-             <div className="mb-4">
+            <div className="mb-4">
                 <PageHeader title={dictionary.title}>
                     <Button variant="outline">
                         <FileDown className="me-2 h-4 w-4" />
@@ -308,49 +308,52 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <div className="flex justify-between items-center">
-                <DialogTitle>{dialogState.type === 'edit' ? dictionary.form.editTitle : dictionary.form.addTitle}</DialogTitle>
-                 <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
-                    <Sparkles className="h-4 w-4" /> {dictionary.form.autoFill}
-                </Button>
-            </div>
-            <DialogDescription>
-              {dialogState.type === 'edit' ? dictionary.form.editDescription : dictionary.form.addDescription}
-            </DialogDescription>
-          </DialogHeader>
-          <SupplierForm 
-            ref={supplierFormRef} 
-            onClose={closeDialogs} 
-            dictionary={dictionary.form}
-            supplierToEdit={dialogState.data}
-            addSupplierAction={addSupplierAction}
-            updateSupplierAction={updateSupplierAction}
-          />
-        </DialogContent>
-      </Dialog>
-      
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>{dictionary.deleteDialog.title}</AlertDialogTitle>
-                <AlertDialogDescription>
-                    {dictionary.deleteDialog.description1} <strong>{dialogState.data?.name}</strong>. {dictionary.deleteDialog.description2}
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel onClick={closeDialogs}>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{dictionary.deleteDialog.confirm}</AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
+      {isMounted && (
+          <>
+            {/* Add/Edit Dialog */}
+            <Dialog open={dialogState.type === 'new' || dialogState.type === 'edit'} onOpenChange={closeDialogs}>
+              <DialogContent className="sm:max-w-[625px]">
+                <DialogHeader>
+                  <div className="flex justify-between items-center">
+                      <DialogTitle>{dialogState.type === 'edit' ? dictionary.form.editTitle : dictionary.form.addTitle}</DialogTitle>
+                       <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
+                          <Sparkles className="h-4 w-4" /> {dictionary.form.autoFill}
+                      </Button>
+                  </div>
+                  <DialogDescription>
+                    {dialogState.type === 'edit' ? dictionary.form.editDescription : dictionary.form.addDescription}
+                  </DialogDescription>
+                </DialogHeader>
+                <SupplierForm 
+                  ref={supplierFormRef} 
+                  onClose={closeDialogs} 
+                  dictionary={dictionary.form}
+                  supplierToEdit={dialogState.data}
+                  addSupplierAction={addSupplierAction}
+                  updateSupplierAction={updateSupplierAction}
+                />
+              </DialogContent>
+            </Dialog>
+            
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={dialogState.type === 'delete'} onOpenChange={closeDialogs}>
+              <AlertDialogContent>
+                  <AlertDialogHeader>
+                      <AlertDialogTitle>{dictionary.deleteDialog.title}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                          {dictionary.deleteDialog.description1} <strong>{dialogState.data?.name}</strong>. {dictionary.deleteDialog.description2}
+                      </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                      <AlertDialogCancel onClick={closeDialogs}>{dictionary.deleteDialog.cancel}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">{dictionary.deleteDialog.confirm}</AlertDialogAction>
+                  </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+        </>
+      )}
     </>
   );
 }
 
-
+    
