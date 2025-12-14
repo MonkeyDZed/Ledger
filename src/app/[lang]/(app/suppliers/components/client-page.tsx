@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
@@ -40,15 +40,10 @@ const AlertCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24"
 
 
 export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
-  const [isClient, setIsClient] = useState(false);
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
   }>({ type: null });
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const { toast } = useToast();
   const supplierFormRef = useRef<SupplierFormRef>(null);
@@ -232,7 +227,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 </Button>
             </div>
         </div>
-        {isClient && <CollapsibleContent className="space-y-4">
+        <CollapsibleContent className="space-y-4">
             <p className="text-muted-foreground px-11">{dictionary.description}</p>
             <div className="grid gap-2 md:grid-cols-4">
                 <Card className="bg-slate-100 border-slate-200">
@@ -272,7 +267,7 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                     </CardContent>
                 </Card>
             </div>
-        </CollapsibleContent>}
+        </CollapsibleContent>
       </Collapsible>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
@@ -323,7 +318,3 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
-
-    
-
-    

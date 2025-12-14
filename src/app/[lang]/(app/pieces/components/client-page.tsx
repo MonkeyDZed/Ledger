@@ -45,7 +45,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
             <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
         <CardContent className="p-0">
-            <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
+            <div className={`text-xl font-bold font-mono ${valueClassName}`} suppressHydrationWarning>{value}</div>
         </CardContent>
     </Card>
 );
@@ -65,7 +65,6 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 
 
 export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
-    const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
@@ -75,10 +74,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
     
-    useEffect(() => {
-      setIsClient(true);
-    }, []);
-
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
     };
@@ -250,12 +245,12 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
           </div>
         </div>
 
-        {isClient && <CollapsibleContent className="space-y-4">
+        <CollapsibleContent className="space-y-4">
             <p className="text-muted-foreground px-11">{dictionary.description}</p>
             <div className="grid gap-2 md:grid-cols-3">
                 <StatCard 
                     title={dictionary.totalBilled} 
-                    value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
+                    value={formatCurrencyWithLocale(totals.totalBilled, lang)}
                     icon={<Receipt className="h-5 w-5"/>}
                     cardClassName="bg-blue-50 border-blue-200"
                     titleClassName="text-blue-800"
@@ -264,7 +259,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
                  />
                  <StatCard 
                     title={dictionary.totalPaid} 
-                    value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
+                    value={formatCurrencyWithLocale(totals.totalPaid, lang)}
                     icon={<CreditCard className="h-5 w-5"/>}
                     cardClassName="bg-green-50 border-green-200"
                     titleClassName="text-green-800"
@@ -273,7 +268,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
                  />
                  <StatCard 
                     title={dictionary.totalRemaining} 
-                    value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
+                    value={formatCurrencyWithLocale(totals.totalRemaining, lang)}
                     icon={<AlertCircle className="h-5 w-5"/>}
                     cardClassName="bg-rose-50 border-rose-200"
                     titleClassName="text-rose-800"
@@ -281,7 +276,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
                     iconWrapperClassName="text-rose-700"
                  />
             </div>
-        </CollapsibleContent>}
+        </CollapsibleContent>
       </Collapsible>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
@@ -322,30 +317,26 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
         </AlertDialogContent>
       </AlertDialog>
       
-        <NewPieceDialog
-          isOpen={isNewPieceOpen}
-          onOpenChange={setIsNewPieceOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary.form}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
-        <NewVersementDialog
-          isOpen={isNewVersementOpen}
-          onOpenChange={setIsNewVersementOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dashboardDictionary}
-          pieceFormDictionary={pieceFormDictionary.form}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
+      <NewPieceDialog
+        isOpen={isNewPieceOpen}
+        onOpenChange={setIsNewPieceOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+        dictionary={dashboardDictionary}
+        pieceFormDictionary={pieceFormDictionary.form}
+        addPieceAction={addPieceAction}
+        updatePieceAction={updatePieceAction}
+      />
+      <NewVersementDialog
+        isOpen={isNewVersementOpen}
+        onOpenChange={setIsNewVersementOpen}
+        suppliers={suppliers}
+        pieces={pieces}
+        dictionary={dashboardDictionary}
+        pieceFormDictionary={pieceFormDictionary.form}
+        addPieceAction={addPieceAction}
+        updatePieceAction={updatePieceAction}
+      />
     </>
   );
 }
-
-    
-
-    
