@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins } from 'lucide-react';
+import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins, Download } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import { NewVersementDialog } from './new-versement-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
@@ -53,12 +53,12 @@ interface DashboardClientPageProps {
 }
 
 export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
-  const [isMounted, setIsMounted] = useState(false);
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
-  
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -67,15 +67,21 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
     supplierFormRef.current?.autoFill();
   }
 
-  const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
-  const totalInvoiced = pieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
-  const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
-  const grandTotalDebt = totalInitialBalance + totalInvoiced - totalPaid;
-  
-  const totalPieces = pieces.filter(p => p.type !== 'VERSEMENT').length;
-  const totalSuppliers = suppliers.length;
+  const { grandTotalDebt, totalPaid, totalToPay, totalPieces, totalSuppliers } = useMemo(() => {
+    const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
+    const totalInvoiced = pieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+    const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const grandTotalDebt = totalInitialBalance + totalInvoiced - totalPaid;
+    const totalToPay = grandTotalDebt < 0 ? 0 : grandTotalDebt; 
 
-  const totalToPay = grandTotalDebt < 0 ? 0 : grandTotalDebt; 
+    return {
+      grandTotalDebt,
+      totalPaid,
+      totalToPay,
+      totalPieces: pieces.filter(p => p.type !== 'VERSEMENT').length,
+      totalSuppliers: suppliers.length
+    }
+  }, [suppliers, pieces]);
   
   const grandTotal = totalPaid + totalToPay;
 
@@ -256,52 +262,51 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
             </div>
         </div>
     </div>
-    
     {isMounted && (
       <>
         <Dialog open={isNewSupplierOpen} onOpenChange={setIsNewSupplierOpen}>
-          <DialogContent className="sm:max-w-[625px]">
-            <DialogHeader>
-              <div className="flex justify-between items-center">
-                  <DialogTitle>{formDictionary.addTitle}</DialogTitle>
-                  <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
-                      <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
-                  </Button>
-              </div>
-              <CardDescription>
-                {formDictionary.addDescription}
-              </CardDescription>
-            </DialogHeader>
-            <SupplierForm 
-              ref={supplierFormRef} 
-              onClose={() => setIsNewSupplierOpen(false)} 
-              dictionary={formDictionary} 
-              addSupplierAction={addSupplierAction}
-              updateSupplierAction={updateSupplierAction}
-             />
-          </DialogContent>
-        </Dialog>
+            <DialogContent className="sm:max-w-[625px]">
+              <DialogHeader>
+                <div className="flex justify-between items-center">
+                    <DialogTitle>{formDictionary.addTitle}</DialogTitle>
+                    <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-2">
+                        <Sparkles className="h-4 w-4" /> {formDictionary.autoFill}
+                    </Button>
+                </div>
+                <CardDescription>
+                  {formDictionary.addDescription}
+                </CardDescription>
+              </DialogHeader>
+              <SupplierForm 
+                ref={supplierFormRef} 
+                onClose={() => setIsNewSupplierOpen(false)} 
+                dictionary={formDictionary} 
+                addSupplierAction={addSupplierAction}
+                updateSupplierAction={updateSupplierAction}
+               />
+            </DialogContent>
+          </Dialog>
 
-        <NewPieceDialog
-          isOpen={isNewPieceOpen}
-          onOpenChange={setIsNewPieceOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dictionary}
-          pieceFormDictionary={pieceFormDictionary}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-        />
-        <NewVersementDialog
-          isOpen={isNewVersementOpen}
-          onOpenChange={setIsNewVersementOpen}
-          suppliers={suppliers}
-          pieces={pieces}
-          dictionary={dictionary}
-          pieceFormDictionary={pieceFormDictionary}
-          addPieceAction={addPieceAction}
-          updatePieceAction={updatePieceAction}
-         />
+          <NewPieceDialog
+            isOpen={isNewPieceOpen}
+            onOpenChange={setIsNewPieceOpen}
+            suppliers={suppliers}
+            pieces={pieces}
+            dictionary={dictionary}
+            pieceFormDictionary={pieceFormDictionary}
+            addPieceAction={addPieceAction}
+            updatePieceAction={updatePieceAction}
+          />
+          <NewVersementDialog
+            isOpen={isNewVersementOpen}
+            onOpenChange={setIsNewVersementOpen}
+            suppliers={suppliers}
+            pieces={pieces}
+            dictionary={dictionary}
+            pieceFormDictionary={pieceFormDictionary}
+            addPieceAction={addPieceAction}
+            updatePieceAction={updatePieceAction}
+           />
       </>
     )}
     </>

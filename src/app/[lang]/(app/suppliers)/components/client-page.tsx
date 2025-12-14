@@ -246,13 +246,16 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
               <div className='flex flex-1 items-baseline justify-between'>
                 <div className="flex items-baseline gap-4">
                   <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
-                  {!isHeaderOpen && (
-                    <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
-                      <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
-                      <span className="h-4 border-l"></span>
-                      <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
-                    </div>
-                  )}
+                  <div
+                    className={cn(
+                      "hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono transition-opacity",
+                      isHeaderOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+                    )}
+                  >
+                    <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
+                    <span className="h-4 border-l"></span>
+                    <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
+                  </div>
                 </div>
                 <div onClick={e => e.stopPropagation()}>
                   {headerActions}
@@ -365,5 +368,3 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
-
-    
