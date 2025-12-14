@@ -13,6 +13,7 @@ interface FinancialOverviewChartProps {
     data: { paid: number; toPay: number };
     paidLabel: string;
     toPayLabel: string;
+    currencyLabel: string;
 }
 
 export function FinancialOverviewChart({ data, paidLabel, toPayLabel }: FinancialOverviewChartProps) {
