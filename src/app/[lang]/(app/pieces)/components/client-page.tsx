@@ -1,14 +1,13 @@
 
 'use client';
 
-import { PageHeader } from '@/components/page-header';
 import { DataTable } from './data-table';
 import type { Piece, Supplier } from '@/lib/types';
 import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,6 +20,8 @@ import { cn } from '@/lib/utils';
 import type { addPiece, updatePiece, deletePiece } from '../../suppliers/[id]/actions';
 import { NewPieceDialog } from '../../dashboard/components/new-piece-dialog';
 import { NewVersementDialog } from '../../dashboard/components/new-versement-dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { PageHeader } from '@/components/page-header';
 
 
 type PieceWithSupplierName = Piece & { supplierName: string; };
@@ -44,7 +45,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
             <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
         <CardContent className="p-0">
-            <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
+            <div className={`text-xl font-bold font-mono ${valueClassName}`} suppressHydrationWarning>{value}</div>
         </CardContent>
     </Card>
 );
@@ -70,15 +71,14 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
         data?: PieceWithSupplierName;
     }>({ type: null });
     
-    // Defer state to client to avoid hydration mismatch
-    const [isClient, setIsClient] = useState(false);
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
+    const [isHeaderOpen, setIsHeaderOpen] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        setIsClient(true);
+        setIsMounted(true);
     }, []);
-
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
@@ -108,7 +108,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
         const totalBilled = pieces.filter(p => p.type !== 'VERSEMENT').reduce((sum, p) => sum + p.total_piece, 0);
         const totalPaid = pieces.reduce((sum, p) => sum + p.montant_paye, 0);
         
-        // Correct calculation for total remaining debt across all suppliers
         const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
         const totalRemaining = (totalInitialBalance + totalBilled) - totalPaid;
 
@@ -145,7 +144,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
              if (!from) return true;
-             // If to is not provided, check from start of 'from' day
              if (!to) {
                 const fromDate = new Date(from);
                 fromDate.setHours(0,0,0,0);
@@ -230,48 +228,84 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
       ];
     }, [lang, dictionary]);
 
+    const headerContent = (
+      <>
+        {isMounted ? (
+          <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
+            <CollapsibleTrigger asChild>
+              <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
+                <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                <div className='flex flex-1 items-baseline justify-between'>
+                  <div className="flex items-baseline gap-4">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
+                    {!isHeaderOpen && (
+                      <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
+                        <span>{pieces.length} {dictionary.title.toLowerCase()}</span>
+                        <span className="h-4 border-l"></span>
+                        <span suppressHydrationWarning>Restant: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span></span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                    <Button onClick={() => setIsNewPieceOpen(true)}>
+                      <PlusCircle className="me-2 h-4 w-4" />
+                      {dashboardDictionary.newPiece}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleTrigger>
+
+            <CollapsibleContent className="space-y-2">
+              <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
+              <div className="grid gap-2 md:grid-cols-3 mt-4 px-8 md:px-11">
+                <StatCard 
+                  title={dictionary.totalBilled} 
+                  value={formatCurrencyWithLocale(totals.totalBilled, lang)}
+                  icon={<Receipt className="h-5 w-5"/>}
+                  cardClassName="bg-blue-50 border-blue-200"
+                  titleClassName="text-blue-800"
+                  valueClassName="text-blue-900"
+                  iconWrapperClassName="text-blue-700"
+                />
+                <StatCard 
+                  title={dictionary.totalPaid} 
+                  value={formatCurrencyWithLocale(totals.totalPaid, lang)}
+                  icon={<CreditCard className="h-5 w-5"/>}
+                  cardClassName="bg-green-50 border-green-200"
+                  titleClassName="text-green-800"
+                  valueClassName="text-green-900"
+                  iconWrapperClassName="text-green-700"
+                />
+                <StatCard 
+                  title={dictionary.totalRemaining} 
+                  value={formatCurrencyWithLocale(totals.totalRemaining, lang)}
+                  icon={<AlertCircle className="h-5 w-5"/>}
+                  cardClassName="bg-rose-50 border-rose-200"
+                  titleClassName="text-rose-800"
+                  valueClassName="text-rose-900"
+                  iconWrapperClassName="text-rose-700"
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <div className="mb-4">
+            <PageHeader title={dictionary.title}>
+                <Button onClick={() => setIsNewPieceOpen(true)}>
+                    <PlusCircle className="me-2 h-4 w-4" />
+                    {dashboardDictionary.newPiece}
+                </Button>
+            </PageHeader>
+          </div>
+        )}
+      </>
+    );
+
   return (
     <>
-      <PageHeader
-        title={dictionary.title}
-        description={dictionary.description}
-      >
-        <Button onClick={() => setIsNewPieceOpen(true)}>
-          <PlusCircle className="me-2 h-4 w-4" />
-          {dashboardDictionary.newPiece}
-        </Button>
-      </PageHeader>
-
-        <div className="grid gap-2 md:grid-cols-3 mb-4">
-            <StatCard 
-                title={dictionary.totalBilled} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
-                icon={<Receipt className="h-5 w-5"/>}
-                cardClassName="bg-blue-50 border-blue-200"
-                titleClassName="text-blue-800"
-                valueClassName="text-blue-900"
-                iconWrapperClassName="text-blue-700"
-             />
-             <StatCard 
-                title={dictionary.totalPaid} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
-                icon={<CreditCard className="h-5 w-5"/>}
-                cardClassName="bg-green-50 border-green-200"
-                titleClassName="text-green-800"
-                valueClassName="text-green-900"
-                iconWrapperClassName="text-green-700"
-             />
-             <StatCard 
-                title={dictionary.totalRemaining} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
-                icon={<AlertCircle className="h-5 w-5"/>}
-                cardClassName="bg-rose-50 border-rose-200"
-                titleClassName="text-rose-800"
-                valueClassName="text-rose-900"
-                iconWrapperClassName="text-rose-700"
-             />
-        </div>
-
+      {headerContent}
+      
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
 
       {/* Edit/Delete Dialogs */}
@@ -310,7 +344,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
         </AlertDialogContent>
       </AlertDialog>
       
-       {isClient && <>
+      {isMounted && <>
         <NewPieceDialog
           isOpen={isNewPieceOpen}
           onOpenChange={setIsNewPieceOpen}

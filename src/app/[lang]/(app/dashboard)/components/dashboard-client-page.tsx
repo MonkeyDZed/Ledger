@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRef, useState, useMemo, useEffect } from 'react';
@@ -52,14 +53,14 @@ interface DashboardClientPageProps {
 }
 
 export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
-  const [isClient, setIsClient] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
 
   useEffect(() => {
-    setIsClient(true);
+    setIsMounted(true);
   }, []);
 
   const handleAutoFill = () => {
@@ -277,7 +278,7 @@ export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictio
            />
         </DialogContent>
       </Dialog>
-     {isClient && <>
+     {isMounted && <>
       <NewPieceDialog
         isOpen={isNewPieceOpen}
         onOpenChange={setIsNewPieceOpen}
