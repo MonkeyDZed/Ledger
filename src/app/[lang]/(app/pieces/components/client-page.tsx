@@ -1,8 +1,9 @@
+
 'use client';
 
 import { DataTable } from './data-table';
 import type { Piece, Supplier } from '@/lib/types';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
@@ -72,11 +73,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
     
-    const [isMounted, setIsMounted] = useState(false);
-    useEffect(() => {
-      setIsMounted(true);
-    }, []);
-
     const [isOpen, setIsOpen] = useState(true);
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
@@ -250,7 +246,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
           </div>
         </div>
 
-        {isMounted && (
         <CollapsibleContent className="space-y-4">
             <p className="text-muted-foreground px-11">{dictionary.description}</p>
             <div className="grid gap-2 md:grid-cols-3">
@@ -283,7 +278,6 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
                  />
             </div>
         </CollapsibleContent>
-        )}
       </Collapsible>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />

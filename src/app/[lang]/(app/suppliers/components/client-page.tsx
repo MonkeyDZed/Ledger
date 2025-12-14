@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
@@ -43,11 +44,6 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
   }>({ type: null });
-
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const [isOpen, setIsOpen] = useState(true);
 
@@ -233,7 +229,6 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 </Button>
             </div>
         </div>
-        {isMounted && (
         <CollapsibleContent className="space-y-4">
             <p className="text-muted-foreground px-11">{dictionary.description}</p>
             <div className="grid gap-2 md:grid-cols-4">
@@ -275,7 +270,6 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
                 </Card>
             </div>
         </CollapsibleContent>
-        )}
       </Collapsible>
       
       <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
