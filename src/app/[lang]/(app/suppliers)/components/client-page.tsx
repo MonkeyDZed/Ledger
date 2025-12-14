@@ -366,3 +366,5 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     </>
   );
 }
+
+    
