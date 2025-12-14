@@ -2,8 +2,9 @@
 'use server';
 
 import { z } from 'zod';
-import { addPieceToDb, updatePieceInDb, deletePieceFromDb } from '@/lib/db';
+import { addPieceToDb, updatePieceInDb, deletePieceFromDb, executeTransaction } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { randomUUID } from 'crypto';
 
 // This is a server-action-safe schema. It will not be imported by any client components.
 const PieceSchema = z.object({
@@ -26,22 +27,52 @@ type PieceFormValues = Omit<z.infer<typeof PieceSchema>, 'supplier_id'>;
 export async function addPiece(data: z.infer<typeof PieceSchema>) : Promise<{success: boolean, message?: string}> {
     const validation = PieceSchema.safeParse(data);
     if (!validation.success) {
-        // This should not happen if client-side validation is working
         console.error("Validation Zod côté serveur échouée :", validation.error.flatten().fieldErrors);
         return { success: false, message: 'Invalid data provided.' };
     }
+    
     try {
-        // Ensure total_piece is 0 if it's not provided (especially for 'VERSEMENT')
-        const dataForDb = {
-            ...validation.data,
-            total_piece: validation.data.type === 'VERSEMENT' ? 0 : (validation.data.total_piece ?? 0),
-            montant_paye: validation.data.montant_paye ?? 0,
-            description: validation.data.description ?? '',
-            payment_method: validation.data.payment_method ?? null,
-            numero_piece: validation.data.numero_piece ?? '',
-        };
+        const { type, total_piece = 0, montant_paye = 0 } = validation.data;
 
-        await addPieceToDb(dataForDb);
+        // Si le paiement est supérieur au total de la pièce (uniquement pour Facture/BL)
+        if (type !== 'VERSEMENT' && montant_paye > total_piece) {
+            const surplus = montant_paye - total_piece;
+
+            // Données pour la pièce principale (Facture/BL)
+            const mainPieceData = {
+                ...validation.data,
+                total_piece: total_piece,
+                montant_paye: total_piece, // La pièce est soldée
+            };
+
+            // Données pour le versement excédentaire
+            const surplusVersementData = {
+                id: randomUUID(),
+                supplier_id: validation.data.supplier_id,
+                date: validation.data.date,
+                type: 'VERSEMENT' as const,
+                numero_piece: '',
+                total_piece: 0,
+                montant_paye: surplus,
+                description: "Excédent de paiement",
+                payment_method: validation.data.payment_method,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            };
+
+            // Exécuter les deux insertions dans une transaction
+            await executeTransaction(async (db) => {
+                await addPieceToDb(mainPieceData, db);
+                await addPieceToDb(surplusVersementData, db);
+            });
+
+        } else {
+            // Logique normale pour un paiement simple ou un versement
+             await addPieceToDb({
+                ...validation.data,
+                total_piece: validation.data.type === 'VERSEMENT' ? 0 : (validation.data.total_piece ?? 0),
+            });
+        }
         
         revalidatePath('/');
         revalidatePath('/[lang]/dashboard', 'page');

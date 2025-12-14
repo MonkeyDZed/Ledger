@@ -105,6 +105,19 @@ async function getDb() {
     return dbInstance;
 }
 
+export async function executeTransaction(callback: (db: Database) => Promise<void>) {
+    const db = await getDb();
+    try {
+        await db.exec('BEGIN TRANSACTION;');
+        await callback(db);
+        await db.exec('COMMIT;');
+    } catch (error) {
+        await db.exec('ROLLBACK;');
+        console.error("Transaction rolled back:", error);
+        throw error;
+    }
+}
+
 
 export async function getSuppliers(): Promise<Supplier[]> {
     const db = await getDb();
@@ -174,23 +187,24 @@ export async function getPiecesBySupplierId(supplierId: string): Promise<Piece[]
 }
 
 type NewPieceData = Omit<Piece, 'id' | 'created_at' | 'updated_at' | 'reste'>;
-export async function addPieceToDb(data: NewPieceData): Promise<Piece> {
-    const db = await getDb();
+export async function addPieceToDb(data: NewPieceData, dbInstance?: Database): Promise<Piece> {
+    const db = dbInstance || await getDb();
     const now = new Date().toISOString();
     
     const total_piece = data.type === 'VERSEMENT' ? 0 : data.total_piece;
     const reste = total_piece - data.montant_paye;
 
     const newPiece: Piece = {
-        id: randomUUID(),
+        id: data.id || randomUUID(),
         ...data,
         date: typeof data.date === 'string' ? data.date : new Date(data.date).toISOString(),
         total_piece,
         reste,
         description: data.description ?? '',
-        created_at: now,
-        updated_at: now,
+        created_at: data.created_at || now,
+        updated_at: data.updated_at || now,
     };
+
     await db.run(
         'INSERT INTO pieces (id, supplier_id, date, type, numero_piece, total_piece, montant_paye, reste, description, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         newPiece.id,

@@ -4,13 +4,12 @@ import { ClientPage } from './components/client-page';
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import { addSupplier, updateSupplier, deleteSupplier } from './actions';
-import React from 'react';
 
-export default function SuppliersPage({ params: paramsProp }: { params: { lang: Locale }}) {
-  const { lang } = React.use(paramsProp);
-  const dictionary = React.use(getDictionary(lang));
-  const suppliers = React.use(getSuppliers());
-  const pieces = React.use(getPieces());
+export default async function SuppliersPage({ params }: { params: { lang: Locale }}) {
+  const { lang } = params;
+  const dictionary = await getDictionary(lang);
+  const suppliers = await getSuppliers();
+  const pieces = await getPieces();
   
   const suppliersWithDebt = suppliers.map(supplier => {
     const supplierPieces = pieces.filter(p => p.supplier_id === supplier.id);

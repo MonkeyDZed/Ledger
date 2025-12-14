@@ -6,18 +6,16 @@ import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import { addPiece, updatePiece, deletePiece } from './actions';
 import { updateSupplier } from '../actions';
-import React from 'react';
 
-export default function SupplierDetailPage({ params: paramsProp }: { params: { id: string, lang: Locale } }) {
-  const params = React.use(paramsProp);
-  const dictionary = React.use(getDictionary(params.lang));
-  const supplier = React.use(getSupplierById(params.id));
+export default async function SupplierDetailPage({ params }: { params: { id: string, lang: Locale } }) {
+  const dictionary = await getDictionary(params.lang);
+  const supplier = await getSupplierById(params.id);
   
   if (!supplier) {
     notFound();
   }
 
-  const supplierPieces = React.use(getPiecesBySupplierId(supplier.id));
+  const supplierPieces = await getPiecesBySupplierId(supplier.id);
 
   return <ClientPage 
     supplier={supplier} 

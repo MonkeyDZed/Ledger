@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,13 +41,6 @@ const clientPieceFormSchema = z.object({
     return true;
 }, {
     message: "Le montant du versement doit être supérieur à 0.",
-    path: ["montant_paye"],
-}).refine((data) => {
-    if (data.type === 'VERSEMENT') return true;
-    if (data.total_piece === undefined || data.total_piece === null) return true;
-    return data.montant_paye <= data.total_piece;
-}, {
-    message: "Le montant payé ne peut pas dépasser le total de la pièce.",
     path: ["montant_paye"],
 });
 type PieceFormValues = z.infer<typeof clientPieceFormSchema>;
@@ -99,6 +91,13 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
   const watchedType = form.watch('type');
   const isVersement = watchedType === 'VERSEMENT';
 
+  useEffect(() => {
+    // When switching to VERSEMENT, reset total_piece
+    if (watchedType === 'VERSEMENT' && form.getValues('total_piece') !== 0) {
+        form.setValue('total_piece', 0, { shouldValidate: true });
+    }
+  }, [watchedType, form]);
+  
   function onSubmit(data: PieceFormValues) {
     startTransition(async () => {
       const action = isEditMode
@@ -123,14 +122,6 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     });
   }
   
-  const handleTypeChange = (value: 'FACTURE' | 'BL' | 'VERSEMENT') => {
-    form.setValue('type', value, { shouldValidate: true });
-    if (value === 'VERSEMENT') {
-        form.setValue('total_piece', 0, { shouldValidate: true });
-    }
-  }
-
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -142,7 +133,7 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
                 <FormLabel>{dictionary.typeLabel}</FormLabel>
                 <FormControl>
                     <RadioGroup
-                    onValueChange={(v) => handleTypeChange(v as any)}
+                    onValueChange={field.onChange}
                     value={field.value}
                     className="flex items-center space-x-4"
                     >
@@ -309,4 +300,3 @@ export function PieceForm({ supplierId, onClose, pieceToEdit, dictionary, formTy
     </Form>
   );
 }
-

@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { Inter as FontSans } from 'next/font/google';
 import { Locale } from '@/i18n.config';
-import React from 'react';
 
 export const metadata: Metadata = {
   title: 'Ledger',
@@ -23,12 +22,11 @@ export function generateStaticParams() {
 
 export default function RootLayout({
   children,
-  params: paramsProp
+  params
 }: Readonly<{
   children: React.ReactNode;
   params: { lang: Locale }
 }>) {
-  const params = React.use(paramsProp);
   const lang = params.lang;
   return (
     <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>

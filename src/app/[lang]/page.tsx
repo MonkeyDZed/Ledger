@@ -7,11 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getDictionary } from '@/lib/dictionaries';
 import { Locale } from '@/i18n.config';
 import Link from 'next/link';
-import React from 'react';
 
-export default function LoginPage({ params: paramsProp }: { params: { lang: Locale } }) {
-  const { lang } = React.use(paramsProp);
-  const dict = React.use(getDictionary(lang));
+export default async function LoginPage({ params }: { params: { lang: Locale } }) {
+  const { lang } = params;
+  const dict = await getDictionary(lang);
   const { loginPage } = dict;
 
   return (

@@ -6,9 +6,8 @@ import { ClientPage } from './client-page';
 import { clearDatabaseAction } from './actions';
 
 // This is a Server Component, responsible for fetching data.
-export default function SettingsPage({ params: paramsProp }: { params: { lang: Locale } }) {
-    const params = React.use(paramsProp);
-    const dictionary = React.use(getDictionary(params.lang));
+export default async function SettingsPage({ params }: { params: { lang: Locale } }) {
+    const dictionary = await getDictionary(params.lang);
   
     // The Server Component passes data to the Client Component as props.
     return (
