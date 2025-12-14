@@ -137,7 +137,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <CircleDollarSign className="h-4 w-4 text-amber-500" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold font-mono">{isClient ? formatCurrencyWithLocale(grandTotalDebt, lang) : '...'}</div>
+                    <div className="text-2xl font-bold font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(grandTotalDebt, lang)}</div>
                 </CardContent>
             </Card>
             <Card>
@@ -208,12 +208,12 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                                               </div>
                                           </TableCell>
                                           <TableCell className="text-sm text-gray-500">{supplier.wilaya}</TableCell>
-                                          <TableCell className="text-sm font-medium text-gray-900 font-mono">
-                                            {isClient ? formatCurrencyWithLocale(supplier.totalFromPieces, lang) : '...'}
+                                          <TableCell className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>
+                                            {formatCurrencyWithLocale(supplier.totalFromPieces, lang)}
                                           </TableCell>
                                           <TableCell>
-                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`}>
-                                              {isClient ? formatCurrencyWithLocale(supplier.totalDebt, lang) : '...'}
+                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`} suppressHydrationWarning>
+                                              {formatCurrencyWithLocale(supplier.totalDebt, lang)}
                                             </Badge>
                                           </TableCell>
                                           <TableCell>
@@ -249,7 +249,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 me-2"></span>{dictionary.paid}</span>
-                                    <span className="text-sm font-medium text-gray-900 font-mono">{isClient ? formatCurrencyWithLocale(totalPaid, lang) : '...'}</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totalPaid, lang)}</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-2 h-2 rounded-full" style={{ width: `${((totalPaid/grandTotal) || 0) * 100}%` }}></div>
@@ -259,7 +259,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 me-2"></span>{dictionary.toPay}</span>
-                                    <span className="text-sm font-medium text-gray-900 font-mono">{isClient ? formatCurrencyWithLocale(totalToPay, lang) : '...'}</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totalToPay, lang)}</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-4 h-2 rounded-full" style={{ width: `${((totalToPay/grandTotal) || 0) * 100}%` }}></div>
@@ -327,5 +327,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
+
+    
 
     

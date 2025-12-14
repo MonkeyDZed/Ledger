@@ -38,12 +38,12 @@ interface ClientPageProps {
 }
 
 const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClassName, iconWrapperClassName }: { title: string, value: string | React.ReactNode, icon: React.ReactNode, cardClassName?: string, titleClassName?: string, valueClassName?: string, iconWrapperClassName?: string }) => (
-    <Card className={cardClassName}>
-        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
+    <Card className={cn("p-4", cardClassName)}>
+        <CardHeader className="flex flex-row items-center justify-between py-0 px-0 pb-2">
             <CardTitle className={`text-xs font-medium ${titleClassName}`}>{title}</CardTitle>
             <div className={iconWrapperClassName}>{icon}</div>
         </CardHeader>
-        <CardContent className="p-4 pt-0">
+        <CardContent className="p-0">
             <div className={`text-xl font-bold font-mono ${valueClassName}`}>{value}</div>
         </CardContent>
     </Card>
@@ -142,7 +142,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => isClient ? formatDate(row.original.date, lang) : '...',
+          cell: ({ row }) => <span suppressHydrationWarning>{formatDate(row.original.date, lang)}</span>,
           filterFn: (row: Row<PieceWithSupplierName>, columnId: string, value: any) => {
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
@@ -150,6 +150,13 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              if (!to) return date >= from;
              return date >= from && date <= to;
           },
+        },
+        {
+          accessorKey: 'numero_piece',
+          header: dict.numeroPiece,
+          cell: ({ row }) => {
+              return <span className="font-mono">{row.original.numero_piece}</span>
+          }
         },
         {
           accessorKey: 'type',
@@ -166,23 +173,13 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
             return value.includes(row.getValue(id))
           },
         },
-         {
-          accessorKey: 'description',
-          header: dict.description,
-          cell: ({ row }) => {
-            return <div className="flex items-center">
-                <PaymentMethodIcon method={row.original.payment_method} />
-                <span>{row.original.description}</span>
-            </div>
-          }
-        },
         {
           accessorKey: 'total_piece',
           header: () => <div className="text-end">{dict.total}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
             if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+            return <div className="text-end font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -190,7 +187,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end font-mono text-green-600">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+            return <div className="text-end font-mono text-green-600" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -199,7 +196,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
              if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono text-destructive">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+            return <div className="text-end font-mono text-destructive" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -226,7 +223,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           },
         },
       ];
-    }, [lang, dictionary, isClient, deletePieceAction, addPieceAction, updatePieceAction]);
+    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
 
   return (
     <>
@@ -243,7 +240,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
         <div className="grid gap-2 md:grid-cols-3 mb-4">
             <StatCard 
                 title={dictionary.totalBilled} 
-                value={isClient ? formatCurrencyWithLocale(totals.totalBilled, lang) : '...'}
+                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
                 icon={<Receipt className="h-5 w-5"/>}
                 cardClassName="bg-blue-50 border-blue-200"
                 titleClassName="text-blue-800"
@@ -252,7 +249,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
              <StatCard 
                 title={dictionary.totalPaid} 
-                value={isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'}
+                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
                 icon={<CreditCard className="h-5 w-5"/>}
                 cardClassName="bg-green-50 border-green-200"
                 titleClassName="text-green-800"
@@ -261,7 +258,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
              <StatCard 
                 title={dictionary.totalRemaining} 
-                value={isClient ? formatCurrencyWithLocale(totals.totalRemaining, lang) : '...'}
+                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
                 icon={<AlertCircle className="h-5 w-5"/>}
                 cardClassName="bg-rose-50 border-rose-200"
                 titleClassName="text-rose-800"
@@ -313,7 +310,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           isOpen={isNewPieceOpen}
           onOpenChange={setIsNewPieceOpen}
           suppliers={suppliers}
-          pieces={pieces}
+          pieces={initialPieces}
           dictionary={dashboardDictionary}
           pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
@@ -323,7 +320,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           isOpen={isNewVersementOpen}
           onOpenChange={setIsNewVersementOpen}
           suppliers={suppliers}
-          pieces={pieces}
+          pieces={initialPieces}
           dictionary={dashboardDictionary}
           pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
@@ -335,8 +332,3 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
 }
 
     
-
-    
-
-    
-

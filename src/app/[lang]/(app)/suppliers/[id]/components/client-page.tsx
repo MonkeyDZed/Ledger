@@ -122,7 +122,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
             <ArrowUpDown className="ms-2 h-4 w-4" />
           </Button>
         ),
-        cell: ({ row }) => isClient ? formatDate(row.original.date, lang) : '...',
+        cell: ({ row }) => <span suppressHydrationWarning>{formatDate(row.original.date, lang)}</span>,
       },
       {
         accessorKey: 'numero_piece',
@@ -159,7 +159,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('total_piece'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+          return <div className="text-end font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
         },
       },
       {
@@ -167,7 +167,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         header: () => <div className="text-end">{dict.paid}</div>,
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('montant_paye'));
-          return <div className="text-end font-mono text-green-600">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+          return <div className="text-end font-mono text-green-600" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
         },
       },
       {
@@ -176,7 +176,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         cell: ({ row }) => {
           const amount = parseFloat(row.getValue('reste'));
           if (row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>;
-          return <div className="text-end font-mono text-destructive">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+          return <div className="text-end font-mono text-destructive" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
         },
       },
       {
@@ -240,7 +240,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
        <div className="grid gap-2 md:grid-cols-4 mb-4">
         <StatCard 
             title={dictionary.stats.initialBalance} 
-            value={isClient ? formatCurrencyWithLocale(supplier.solde_initial, lang) : '...'}
+            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(supplier.solde_initial, lang)}</span>}
             icon={<BadgeCentIcon />}
             cardClassName="bg-slate-100 border-slate-200"
             titleClassName="text-slate-600"
@@ -249,7 +249,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         />
         <StatCard 
             title={dictionary.stats.totalInvoiced} 
-            value={isClient ? formatCurrencyWithLocale(totalFromPieces, lang) : '...'}
+            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totalFromPieces, lang)}</span>}
             icon={<FileTextIcon />}
             cardClassName="bg-blue-50 border-blue-200"
             titleClassName="text-blue-800"
@@ -258,7 +258,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         />
         <StatCard 
             title={dictionary.stats.totalPaid} 
-            value={isClient ? formatCurrencyWithLocale(paidFromPieces, lang) : '...'}
+            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(paidFromPieces, lang)}</span>}
             icon={<BanknoteIcon />}
             cardClassName="bg-green-50 border-green-200"
             titleClassName="text-green-800"
@@ -267,7 +267,7 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
         />
         <StatCard 
             title={dictionary.stats.totalDebt} 
-            value={isClient ? formatCurrencyWithLocale(totalDebt, lang) : '...'}
+            value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totalDebt, lang)}</span>}
             icon={<AlertCircleIcon />}
             cardClassName="bg-rose-50 border-rose-200"
             titleClassName="text-rose-800"
@@ -368,3 +368,5 @@ export function ClientPage({ supplier, pieces: initialPieces, dictionary, suppli
     </>
   );
 }
+
+    
