@@ -5,7 +5,7 @@ import { Locale } from '@/i18n.config';
 import { DashboardClientPage } from './components/dashboard-client-page';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
-import { Piece } from '@/lib/types';
+import type { Piece } from '@/lib/types';
 
 // This is a Server Component, responsible for fetching data.
 export default async function DashboardPage({ params }: { params: { lang: Locale } }) {
@@ -34,7 +34,7 @@ export default async function DashboardPage({ params }: { params: { lang: Locale
   });
   
   const recentSuppliers = [...supplierDataWithCalculations]
-        .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
+        .sort((a, b) => new Date(b.mostRecentPieceDate).getTime() - new Date(a.mostRecentPieceDate).getTime())
         .slice(0, 10);
 
   const dashboardDict = {
@@ -78,3 +78,5 @@ export default async function DashboardPage({ params }: { params: { lang: Locale
     updateSupplierAction={updateSupplier}
   />;
 }
+
+    
