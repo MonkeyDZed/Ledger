@@ -41,6 +41,7 @@ const CsvIcon = () => (
 interface DashboardClientPageProps {
   suppliers: Supplier[];
   pieces: Piece[];
+  recentSuppliers: any[];
   dictionary: any;
   formDictionary: any;
   pieceFormDictionary: any;
@@ -51,45 +52,15 @@ interface DashboardClientPageProps {
   updateSupplierAction: typeof updateSupplier;
 }
 
-export function DashboardClientPage({ suppliers, pieces, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
-  const [isClient, setIsClient] = useState(false);
+export function DashboardClientPage({ suppliers, pieces, recentSuppliers, dictionary, formDictionary, pieceFormDictionary, lang, addPieceAction, updatePieceAction, addSupplierAction, updateSupplierAction }: DashboardClientPageProps) {
   const [isNewSupplierOpen, setIsNewSupplierOpen] = useState(false);
   const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
   const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
   const supplierFormRef = useRef<SupplierFormRef>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const handleAutoFill = () => {
     supplierFormRef.current?.autoFill();
   }
-
-  const supplierDataWithCalculations = useMemo(() => suppliers.map((supplier) => {
-    const supplierPieces = pieces.filter((p) => p.supplier_id === supplier.id);
-    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
-    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
-    const balanceFromPieces = totalInvoiced - totalPaid;
-    const totalDebt = supplier.solde_initial + balanceFromPieces;
-
-    const mostRecentPiece = supplierPieces.length > 0
-      ? supplierPieces.reduce((latest, current) => new Date(latest.date) > new Date(current.date) ? latest : current)
-      : null;
-
-    return {
-      ...supplier,
-      totalDebt,
-      totalFromPieces: totalInvoiced,
-      mostRecentPieceDate: mostRecentPiece ? mostRecentPiece.date : '1970-01-01T00:00:00.000Z'
-    };
-  }), [suppliers, pieces]);
-  
-  const recentSuppliers = useMemo(() => {
-    return [...supplierDataWithCalculations]
-        .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
-        .slice(0, 10);
-  }, [supplierDataWithCalculations]);
 
   const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
   const totalInvoiced = pieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
@@ -137,7 +108,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                     <CircleDollarSign className="h-4 w-4 text-amber-500" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold font-mono">{isClient ? formatCurrencyWithLocale(grandTotalDebt, lang) : '...'}</div>
+                    <div className="text-2xl font-bold font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(grandTotalDebt, lang)}</div>
                 </CardContent>
             </Card>
             <Card>
@@ -208,12 +179,12 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                                               </div>
                                           </TableCell>
                                           <TableCell className="text-sm text-gray-500">{supplier.wilaya}</TableCell>
-                                          <TableCell className="text-sm font-medium text-gray-900 font-mono">
-                                            {isClient ? formatCurrencyWithLocale(supplier.totalFromPieces, lang) : '...'}
+                                          <TableCell className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>
+                                            {formatCurrencyWithLocale(supplier.totalFromPieces, lang)}
                                           </TableCell>
                                           <TableCell>
-                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`}>
-                                              {isClient ? formatCurrencyWithLocale(supplier.totalDebt, lang) : '...'}
+                                            <Badge variant={supplier.totalDebt > 0 ? "destructive" : "default"} className={`${supplier.totalDebt > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'} font-mono`} suppressHydrationWarning>
+                                              {formatCurrencyWithLocale(supplier.totalDebt, lang)}
                                             </Badge>
                                           </TableCell>
                                           <TableCell>
@@ -249,7 +220,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-2 me-2"></span>{dictionary.paid}</span>
-                                    <span className="text-sm font-medium text-gray-900 font-mono">{isClient ? formatCurrencyWithLocale(totalPaid, lang) : '...'}</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totalPaid, lang)}</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-2 h-2 rounded-full" style={{ width: `${((totalPaid/grandTotal) || 0) * 100}%` }}></div>
@@ -259,7 +230,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
                             <div>
                                 <div className="flex justify-between mb-1">
                                     <span className="text-sm font-medium text-gray-700 flex items-center"><span className="w-2 h-2 rounded-full bg-chart-4 me-2"></span>{dictionary.toPay}</span>
-                                    <span className="text-sm font-medium text-gray-900 font-mono">{isClient ? formatCurrencyWithLocale(totalToPay, lang) : '...'}</span>
+                                    <span className="text-sm font-medium text-gray-900 font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(totalToPay, lang)}</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-chart-4 h-2 rounded-full" style={{ width: `${((totalToPay/grandTotal) || 0) * 100}%` }}></div>
@@ -302,7 +273,7 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
            />
         </DialogContent>
       </Dialog>
-     {isClient && <>
+
       <NewPieceDialog
         isOpen={isNewPieceOpen}
         onOpenChange={setIsNewPieceOpen}
@@ -323,7 +294,6 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
         addPieceAction={addPieceAction}
         updatePieceAction={updatePieceAction}
        />
-       </>}
     </>
   );
 }

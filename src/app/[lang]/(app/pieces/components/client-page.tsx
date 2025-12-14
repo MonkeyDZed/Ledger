@@ -63,24 +63,15 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 }
 
 
-export function ClientPage({ pieces: initialPieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
+export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
         data?: PieceWithSupplierName;
     }>({ type: null });
     
-    // Defer state to client to avoid hydration mismatch
-    const [pieces, setPieces] = useState<PieceWithSupplierName[]>([]);
-    const [isClient, setIsClient] = useState(false);
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
-
-    useEffect(() => {
-        setPieces(initialPieces);
-        setIsClient(true);
-    }, [initialPieces]);
-
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
@@ -142,7 +133,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
               <ArrowUpDown className="ms-2 h-4 w-4" />
             </Button>
           ),
-          cell: ({ row }) => isClient ? formatDate(row.original.date, lang) : '...',
+          cell: ({ row }) => <span suppressHydrationWarning>{formatDate(row.original.date, lang)}</span>,
           filterFn: (row: Row<PieceWithSupplierName>, columnId: string, value: any) => {
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
@@ -179,7 +170,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('total_piece'));
             if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+            return <div className="text-end font-mono" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -187,7 +178,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           header: () => <div className="text-end">{dict.paid}</div>,
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('montant_paye'));
-            return <div className="text-end font-mono text-green-600">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+            return <div className="text-end font-mono text-green-600" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -196,7 +187,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           cell: ({ row }) => {
             const amount = parseFloat(row.getValue('reste'));
              if(row.original.type === 'VERSEMENT') return <div className="text-end text-muted-foreground">-</div>
-            return <div className="text-end font-mono text-destructive">{isClient ? formatCurrencyWithLocale(amount, lang) : '...'}</div>;
+            return <div className="text-end font-mono text-destructive" suppressHydrationWarning>{formatCurrencyWithLocale(amount, lang)}</div>;
           },
         },
         {
@@ -223,7 +214,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           },
         },
       ];
-    }, [lang, dictionary, isClient, deletePieceAction, addPieceAction, updatePieceAction]);
+    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
 
   return (
     <>
@@ -240,7 +231,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
         <div className="grid gap-2 md:grid-cols-3 mb-4">
             <StatCard 
                 title={dictionary.totalBilled} 
-                value={isClient ? formatCurrencyWithLocale(totals.totalBilled, lang) : '...'}
+                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
                 icon={<Receipt className="h-5 w-5"/>}
                 cardClassName="bg-blue-50 border-blue-200"
                 titleClassName="text-blue-800"
@@ -249,7 +240,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
              <StatCard 
                 title={dictionary.totalPaid} 
-                value={isClient ? formatCurrencyWithLocale(totals.totalPaid, lang) : '...'}
+                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
                 icon={<CreditCard className="h-5 w-5"/>}
                 cardClassName="bg-green-50 border-green-200"
                 titleClassName="text-green-800"
@@ -258,7 +249,7 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
              />
              <StatCard 
                 title={dictionary.totalRemaining} 
-                value={isClient ? formatCurrencyWithLocale(totals.totalRemaining, lang) : '...'}
+                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
                 icon={<AlertCircle className="h-5 w-5"/>}
                 cardClassName="bg-rose-50 border-rose-200"
                 titleClassName="text-rose-800"
@@ -305,12 +296,11 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
         </AlertDialogContent>
       </AlertDialog>
       
-       {isClient && <>
         <NewPieceDialog
           isOpen={isNewPieceOpen}
           onOpenChange={setIsNewPieceOpen}
           suppliers={suppliers}
-          pieces={initialPieces}
+          pieces={pieces}
           dictionary={dashboardDictionary}
           pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
@@ -320,13 +310,12 @@ export function ClientPage({ pieces: initialPieces, suppliers, dictionary, piece
           isOpen={isNewVersementOpen}
           onOpenChange={setIsNewVersementOpen}
           suppliers={suppliers}
-          pieces={initialPieces}
+          pieces={pieces}
           dictionary={dashboardDictionary}
           pieceFormDictionary={pieceFormDictionary.form}
           addPieceAction={addPieceAction}
           updatePieceAction={updatePieceAction}
         />
-       </>}
     </>
   );
 }

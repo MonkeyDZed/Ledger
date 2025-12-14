@@ -73,13 +73,6 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-  useEffect(() => {
-    // Set default date range on client side to avoid hydration errors
-    const defaultRange: DateRange = { from: startOfMonth(new Date()), to: endOfMonth(new Date()) };
-    setDateRange(defaultRange);
-    setColumnFilters([{ id: 'date', value: defaultRange }]);
-  }, []);
-
   const table = useReactTable({
     data,
     columns,
@@ -102,7 +95,7 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
 
   useEffect(() => {
     const dateFilter = columnFilters.find(f => f.id === 'date');
-    if (!dateFilter) {
+    if (!dateFilter && dateRange !== undefined) {
         setDateRange(undefined);
     }
   }, [columnFilters]);
@@ -110,11 +103,7 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
 
   const applyDateFilter = (range: DateRange | undefined) => {
     setDateRange(range);
-    if (range) {
-        table.getColumn('date')?.setFilterValue(range);
-    } else {
-        table.getColumn('date')?.setFilterValue(undefined);
-    }
+    table.getColumn('date')?.setFilterValue(range);
   }
 
   const isChecked = (range?: { from: Date, to: Date }) => {
@@ -135,12 +124,12 @@ export function DataTable<TData extends { type: Piece['type'] }, TValue>({
           className="max-w-sm"
         />
         <Select
-            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
+            value={(table.getColumn('type')?.getFilterValue() as string[])?.join(',') ?? 'all'}
             onValueChange={(value) => {
                 if (value === 'all') {
                     table.getColumn('type')?.setFilterValue(undefined);
                 } else {
-                    table.getColumn('type')?.setFilterValue(value);
+                    table.getColumn('type')?.setFilterValue(value.split(','));
                 }
             }}
         >

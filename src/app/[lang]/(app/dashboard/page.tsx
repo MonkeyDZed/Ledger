@@ -5,6 +5,7 @@ import { Locale } from '@/i18n.config';
 import { DashboardClientPage } from './components/dashboard-client-page';
 import { addPiece, updatePiece } from '../suppliers/[id]/actions';
 import { addSupplier, updateSupplier } from '../suppliers/actions';
+import { Piece } from '@/lib/types';
 
 // This is a Server Component, responsible for fetching data.
 export default async function DashboardPage({ params }: { params: { lang: Locale } }) {
@@ -12,6 +13,29 @@ export default async function DashboardPage({ params }: { params: { lang: Locale
   const suppliers = await getSuppliers();
   const pieces = await getPieces();
   const dictionary = await getDictionary(lang);
+
+  const supplierDataWithCalculations = suppliers.map((supplier) => {
+    const supplierPieces = pieces.filter((p: Piece) => p.supplier_id === supplier.id);
+    const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+    const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+    const balanceFromPieces = totalInvoiced - totalPaid;
+    const totalDebt = supplier.solde_initial + balanceFromPieces;
+
+    const mostRecentPiece = supplierPieces.length > 0
+      ? supplierPieces.reduce((latest, current) => new Date(latest.date) > new Date(current.date) ? latest : current)
+      : null;
+
+    return {
+      ...supplier,
+      totalDebt,
+      totalFromPieces: totalInvoiced,
+      mostRecentPieceDate: mostRecentPiece ? mostRecentPiece.date : '1970-01-01T00:00:00.000Z'
+    };
+  });
+  
+  const recentSuppliers = [...supplierDataWithCalculations]
+        .sort((a, b) => b.mostRecentPieceDate.localeCompare(a.mostRecentPieceDate))
+        .slice(0, 10);
 
   const dashboardDict = {
     suppliers: dictionary.dashboard.suppliers,
@@ -42,7 +66,8 @@ export default async function DashboardPage({ params }: { params: { lang: Locale
   // The Server Component passes data to the Client Component as props.
   return <DashboardClientPage 
     suppliers={suppliers} 
-    pieces={pieces} 
+    pieces={pieces}
+    recentSuppliers={recentSuppliers}
     dictionary={dashboardDict} 
     formDictionary={dictionary.suppliersPage.form}
     pieceFormDictionary={dictionary.supplierDetailPage.form}

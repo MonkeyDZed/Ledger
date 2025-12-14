@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Input } from '@/components/ui/input';
@@ -57,8 +58,8 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         <Input
           {...field}
           ref={ref}
-          type="text" // Change to text to avoid incrementer arrows
-          inputMode="decimal" // Better for mobile keyboards
+          type="text"
+          inputMode="decimal"
           className={cn('text-end font-mono placeholder:text-muted-foreground focus:placeholder:text-transparent', className)}
           onBlur={handleBlur}
           placeholder={initialPlaceholder}
