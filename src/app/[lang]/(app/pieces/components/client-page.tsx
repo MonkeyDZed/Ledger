@@ -8,7 +8,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Banknote, Hand, FileText as FileTextIcon, Landmark, Receipt, CreditCard, AlertCircle, PlusCircle, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import type { addPiece, updatePiece, deletePiece } from '../../suppliers/[id]/actions';
 import { NewPieceDialog } from '../../dashboard/components/new-piece-dialog';
 import { NewVersementDialog } from '../../dashboard/components/new-versement-dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 
 type PieceWithSupplierName = Piece & { supplierName: string; };
@@ -64,6 +65,7 @@ const PaymentMethodIcon = ({ method }: { method?: Piece['payment_method'] }) => 
 
 
 export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary, dashboardDictionary, lang, addPieceAction, updatePieceAction, deletePieceAction }: ClientPageProps) {
+    const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
     const [dialogState, setDialogState] = useState<{
         type: 'edit' | 'delete' | null;
@@ -72,6 +74,10 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     
     const [isNewPieceOpen, setIsNewPieceOpen] = useState(false);
     const [isNewVersementOpen, setIsNewVersementOpen] = useState(false);
+    
+    useEffect(() => {
+      setIsClient(true);
+    }, []);
 
     const openDialog = (type: 'edit' | 'delete', data: PieceWithSupplierName) => {
         setDialogState({ type, data });
@@ -138,8 +144,15 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
              const date = new Date(row.getValue(columnId));
              const { from, to } = value;
              if (!from) return true;
-             if (!to) return date >= from;
-             return date >= from && date <= to;
+             // If to is not provided, check from start of 'from' day
+             if (!to) {
+                const fromDate = new Date(from);
+                fromDate.setHours(0,0,0,0);
+                return date >= fromDate;
+             }
+             const toDate = new Date(to);
+             toDate.setHours(23,59,59,999);
+             return date >= from && date <= toDate;
           },
         },
         {
@@ -214,49 +227,62 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
           },
         },
       ];
-    }, [lang, dictionary, deletePieceAction, addPieceAction, updatePieceAction]);
+    }, [lang, dictionary]);
 
   return (
     <>
-      <PageHeader
-        title={dictionary.title}
-        description={dictionary.description}
-      >
-        <Button onClick={() => setIsNewPieceOpen(true)}>
-          <PlusCircle className="me-2 h-4 w-4" />
-          {dashboardDictionary.newPiece}
-        </Button>
-      </PageHeader>
-
-        <div className="grid gap-2 md:grid-cols-3 mb-4">
-            <StatCard 
-                title={dictionary.totalBilled} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
-                icon={<Receipt className="h-5 w-5"/>}
-                cardClassName="bg-blue-50 border-blue-200"
-                titleClassName="text-blue-800"
-                valueClassName="text-blue-900"
-                iconWrapperClassName="text-blue-700"
-             />
-             <StatCard 
-                title={dictionary.totalPaid} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
-                icon={<CreditCard className="h-5 w-5"/>}
-                cardClassName="bg-green-50 border-green-200"
-                titleClassName="text-green-800"
-                valueClassName="text-green-900"
-                iconWrapperClassName="text-green-700"
-             />
-             <StatCard 
-                title={dictionary.totalRemaining} 
-                value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
-                icon={<AlertCircle className="h-5 w-5"/>}
-                cardClassName="bg-rose-50 border-rose-200"
-                titleClassName="text-rose-800"
-                valueClassName="text-rose-900"
-                iconWrapperClassName="text-rose-700"
-             />
+      <Collapsible defaultOpen className="space-y-4 mb-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-9 p-0 data-[state=open]:rotate-90">
+                <ChevronsUpDown className="h-4 w-4" />
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </CollapsibleTrigger>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
+          </div>
+          <div className="flex items-center gap-2 ms-auto">
+            <Button onClick={() => setIsNewPieceOpen(true)}>
+              <PlusCircle className="me-2 h-4 w-4" />
+              {dashboardDictionary.newPiece}
+            </Button>
+          </div>
         </div>
+
+        {isClient && <CollapsibleContent className="space-y-4">
+            <p className="text-muted-foreground px-11">{dictionary.description}</p>
+            <div className="grid gap-2 md:grid-cols-3">
+                <StatCard 
+                    title={dictionary.totalBilled} 
+                    value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalBilled, lang)}</span>}
+                    icon={<Receipt className="h-5 w-5"/>}
+                    cardClassName="bg-blue-50 border-blue-200"
+                    titleClassName="text-blue-800"
+                    valueClassName="text-blue-900"
+                    iconWrapperClassName="text-blue-700"
+                 />
+                 <StatCard 
+                    title={dictionary.totalPaid} 
+                    value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalPaid, lang)}</span>}
+                    icon={<CreditCard className="h-5 w-5"/>}
+                    cardClassName="bg-green-50 border-green-200"
+                    titleClassName="text-green-800"
+                    valueClassName="text-green-900"
+                    iconWrapperClassName="text-green-700"
+                 />
+                 <StatCard 
+                    title={dictionary.totalRemaining} 
+                    value={<span suppressHydrationWarning>{formatCurrencyWithLocale(totals.totalRemaining, lang)}</span>}
+                    icon={<AlertCircle className="h-5 w-5"/>}
+                    cardClassName="bg-rose-50 border-rose-200"
+                    titleClassName="text-rose-800"
+                    valueClassName="text-rose-900"
+                    iconWrapperClassName="text-rose-700"
+                 />
+            </div>
+        </CollapsibleContent>}
+      </Collapsible>
 
       <DataTable columns={columns} data={pieces} dictionary={dictionary.table} />
 
@@ -319,3 +345,7 @@ export function ClientPage({ pieces, suppliers, dictionary, pieceFormDictionary,
     </>
   );
 }
+
+    
+
+    
