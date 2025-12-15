@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRef, useState, useMemo, useEffect } from 'react';
@@ -11,7 +12,7 @@ import Link from 'next/link';
 import { FinancialOverviewChart } from '../../components/financial-overview-chart';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins, Download } from 'lucide-react';
+import { Sparkles, Users, FileText, CircleDollarSign, RefreshCw, UserPlus, FilePlus, HandCoins } from 'lucide-react';
 import { NewPieceDialog } from './new-piece-dialog';
 import { NewVersementDialog } from './new-versement-dialog';
 import { formatCurrencyWithLocale } from '@/lib/formatters';
@@ -335,5 +336,3 @@ export function DashboardClientPage({ suppliers, pieces, dictionary, formDiction
     </>
   );
 }
-
-    

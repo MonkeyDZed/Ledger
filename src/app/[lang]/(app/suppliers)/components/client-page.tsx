@@ -7,7 +7,7 @@ import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import type { Supplier } from '@/lib/types';
+import type { Supplier, Piece } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
@@ -319,7 +319,7 @@ export function ClientPage({ suppliers = [], dictionary, deleteSupplierAction, a
         </Collapsible>
       ) : (
       <div className="mb-4">
-        <div className='flex flex-1 items-baseline justify-between p-2 -m-2'>
+        <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
               {dictionary.title}
             </h1>
@@ -390,4 +390,3 @@ export function ClientPage({ suppliers = [], dictionary, deleteSupplierAction, a
     </>
   );
 }
-
