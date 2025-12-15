@@ -7,7 +7,7 @@ import { PlusCircle, FileDown, Sparkles, ChevronsUpDown } from 'lucide-react';
 import { DataTable } from './data-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { SupplierForm, type SupplierFormRef } from '../../components/supplier-form';
-import type { Supplier } from '@/lib/types';
+import type { Supplier, Piece } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'next/navigation';
@@ -21,12 +21,14 @@ import { formatCurrencyWithLocale } from '@/lib/formatters';
 import type { addSupplier, updateSupplier, deleteSupplier } from '../actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PageHeader } from '@/components/page-header';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 type SupplierWithDebt = Supplier & { totalDebt: number; totalInvoiced: number; totalPaid: number };
 
 interface ClientPageProps {
-  suppliers: SupplierWithDebt[];
+  suppliers: Supplier[];
+  pieces: Piece[];
   dictionary: any;
   deleteSupplierAction: typeof deleteSupplier;
   addSupplierAction: typeof addSupplier;
@@ -51,7 +53,7 @@ const StatCard = ({ title, value, icon, cardClassName, titleClassName, valueClas
     </Card>
 );
 
-export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
+export function ClientPage({ suppliers = [], pieces = [], dictionary, deleteSupplierAction, addSupplierAction, updateSupplierAction }: ClientPageProps) {
   const [dialogState, setDialogState] = useState<{
     type: 'new' | 'edit' | 'delete' | null;
     data?: SupplierWithDebt;
@@ -101,13 +103,26 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
     closeDialogs();
   };
   
-  const totals = useMemo(() => {
-      const totalInitialBalance = suppliers.reduce((sum, s) => sum + s.solde_initial, 0);
-      const totalInvoiced = suppliers.reduce((sum, s) => sum + s.totalInvoiced, 0);
-      const totalPaid = suppliers.reduce((sum, s) => sum + s.totalPaid, 0);
-      const totalDebt = suppliers.reduce((sum, s) => sum + s.totalDebt, 0);
-      return { totalInitialBalance, totalInvoiced, totalPaid, totalDebt };
-  }, [suppliers]);
+ const { suppliersWithDebt, totals } = useMemo(() => {
+    const calculatedSuppliers = suppliers.map(supplier => {
+        const supplierPieces = pieces.filter((p: Piece) => p.supplier_id === supplier.id);
+        const totalInvoiced = supplierPieces.reduce((sum, p) => p.type !== 'VERSEMENT' ? sum + p.total_piece : sum, 0);
+        const totalPaid = supplierPieces.reduce((sum, p) => sum + p.montant_paye, 0);
+        const balanceFromPieces = totalInvoiced - totalPaid;
+        const totalDebt = supplier.solde_initial + balanceFromPieces;
+        return { ...supplier, totalDebt, totalInvoiced, totalPaid };
+    });
+
+    const totalInitialBalance = calculatedSuppliers.reduce((sum, s) => sum + (s.solde_initial || 0), 0);
+    const totalInvoiced = calculatedSuppliers.reduce((sum, s) => sum + (s.totalInvoiced || 0), 0);
+    const totalPaid = calculatedSuppliers.reduce((sum, s) => sum + (s.totalPaid || 0), 0);
+    const totalDebt = calculatedSuppliers.reduce((sum, s) => sum + (s.totalDebt || 0), 0);
+
+    return {
+        suppliersWithDebt: calculatedSuppliers,
+        totals: { totalInitialBalance, totalInvoiced, totalPaid, totalDebt }
+    };
+}, [suppliers, pieces]);
 
   const columns = useMemo((): ColumnDef<SupplierWithDebt>[] => {
     const dict = dictionary.table;
@@ -220,101 +235,119 @@ export function ClientPage({ suppliers, dictionary, deleteSupplierAction, addSup
         },
       },
     ];
-  }, [lang, dictionary, suppliers]);
+  }, [lang, dictionary, suppliersWithDebt]);
 
-  const headerActions = (
-    <div className="flex items-center gap-2">
-        <Button variant="outline">
-            <FileDown className="me-2 h-4 w-4" />
-            {dictionary.export}
-        </Button>
-        <Button onClick={() => openDialog('new')}>
-            <PlusCircle className="me-2 h-4 w-4" />
-            {dictionary.newSupplier}
-        </Button>
-    </div>
-  );
+const headerActions = (
+  <div className="flex items-center gap-2">
+    <Button variant="outline">
+      <FileDown className="me-2 h-4 w-4" />
+      {dictionary.export}
+    </Button>
+    <Button onClick={() => openDialog("new")}>
+      <PlusCircle className="me-2 h-4 w-4" />
+      {dictionary.newSupplier}
+    </Button>
+  </div>
+);
 
-  const headerContent = (
+const headerContent = (
     <>
-      {isMounted ? (
-        <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
-          <CollapsibleTrigger asChild>
-            <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
-              <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
-              <div className='flex flex-1 items-baseline justify-between'>
-                <div className="flex items-baseline gap-4">
-                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
-                  {!isHeaderOpen && (
-                    <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
-                      <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
-                      <span className="h-4 border-l"></span>
-                      <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
+        {isMounted ? (
+            <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen} className="mb-4 space-y-2">
+                <CollapsibleTrigger asChild>
+                    <div className='flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 -m-2 hover:bg-slate-100/80 transition-colors'>
+                        <ChevronsUpDown className="h-5 w-5 text-gray-400 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                        <div className='flex flex-1 items-baseline justify-between'>
+                            <div className="flex items-baseline gap-4">
+                                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">{dictionary.title}</h1>
+                                {!isHeaderOpen && (
+                                    <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground font-mono">
+                                        <span>{suppliers.length} {dictionary.title.toLowerCase()}</span>
+                                        <span className="h-4 border-l"></span>
+                                        <span suppressHydrationWarning>Créance: <span className="font-bold text-gray-700">{formatCurrencyWithLocale(totals.totalDebt, lang)}</span></span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                                {headerActions}
+                            </div>
+                        </div>
                     </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="space-y-2">
+                    <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
+                    <div className="grid gap-2 md:grid-cols-4 mt-4 px-8 md:px-11">
+                        <StatCard
+                            title={dictionary.table.initialBalance}
+                            value={formatCurrencyWithLocale(totals.totalInitialBalance, lang)}
+                            icon={<BalanceIcon />}
+                            cardClassName="bg-slate-100 border-slate-200"
+                            titleClassName="text-slate-600"
+                            valueClassName="text-slate-900"
+                            iconWrapperClassName="text-slate-500"
+                        />
+                        <StatCard
+                            title={dictionary.table.totalInvoiced}
+                            value={formatCurrencyWithLocale(totals.totalInvoiced, lang)}
+                            icon={<ReceiptIcon />}
+                            cardClassName="bg-blue-50 border-blue-200"
+                            titleClassName="text-blue-800"
+                            valueClassName="text-blue-900"
+                            iconWrapperClassName="text-blue-700"
+                        />
+                        <StatCard
+                            title={dictionary.table.totalPaid}
+                            value={formatCurrencyWithLocale(totals.totalPaid, lang)}
+                            icon={<CreditCardIcon />}
+                            cardClassName="bg-green-50 border-green-200"
+                            titleClassName="text-green-800"
+                            valueClassName="text-green-900"
+                            iconWrapperClassName="text-green-700"
+                        />
+                        <StatCard
+                            title={dictionary.table.totalDebt}
+                            value={formatCurrencyWithLocale(totals.totalDebt, lang)}
+                            icon={<AlertCircleIcon />}
+                            cardClassName="bg-rose-50 border-rose-200"
+                            titleClassName="text-rose-800"
+                            valueClassName="text-rose-900"
+                            iconWrapperClassName="text-rose-700"
+                        />
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+        ) : (
+            <div className="mb-4">
+                <PageHeader title={dictionary.title}>
                     {headerActions}
-                </div>
-              </div>
+                </PageHeader>
             </div>
-          </CollapsibleTrigger>
-
-          <CollapsibleContent className="space-y-2">
-            <p className="text-muted-foreground px-8 md:px-11">{dictionary.description}</p>
-            <div className="grid gap-2 md:grid-cols-4 mt-4 px-8 md:px-11">
-                <StatCard
-                    title={dictionary.table.initialBalance}
-                    value={formatCurrencyWithLocale(totals.totalInitialBalance, lang)}
-                    icon={<BalanceIcon />}
-                    cardClassName="bg-slate-100 border-slate-200"
-                    titleClassName="text-slate-600"
-                    valueClassName="text-slate-900"
-                    iconWrapperClassName="text-slate-500"
-                />
-                <StatCard
-                    title={dictionary.table.totalInvoiced}
-                    value={formatCurrencyWithLocale(totals.totalInvoiced, lang)}
-                    icon={<ReceiptIcon />}
-                    cardClassName="bg-blue-50 border-blue-200"
-                    titleClassName="text-blue-800"
-                    valueClassName="text-blue-900"
-                    iconWrapperClassName="text-blue-700"
-                />
-                <StatCard
-                    title={dictionary.table.totalPaid}
-                    value={formatCurrencyWithLocale(totals.totalPaid, lang)}
-                    icon={<CreditCardIcon />}
-                    cardClassName="bg-green-50 border-green-200"
-                    titleClassName="text-green-800"
-                    valueClassName="text-green-900"
-                    iconWrapperClassName="text-green-700"
-                />
-                <StatCard
-                    title={dictionary.table.totalDebt}
-                    value={formatCurrencyWithLocale(totals.totalDebt, lang)}
-                    icon={<AlertCircleIcon />}
-                    cardClassName="bg-rose-50 border-rose-200"
-                    titleClassName="text-rose-800"
-                    valueClassName="text-rose-900"
-                    iconWrapperClassName="text-rose-700"
-                />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      ) : (
-        <PageHeader title={dictionary.title}>
-            {headerActions}
-        </PageHeader>
-      )}
+        )}
     </>
-  );
+);
+
 
   return (
     <>
       {headerContent}
       
-      <DataTable columns={columns} data={suppliers} dictionary={dictionary.table}/>
+      {isMounted ? (
+        <DataTable columns={columns} data={suppliersWithDebt} dictionary={dictionary.table}/>
+      ) : (
+        <Card>
+            <CardContent className="p-4">
+                <Skeleton className="h-10 w-1/3 mb-4" />
+                <div className="border-t">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full mt-1" />
+                    <Skeleton className="h-12 w-full mt-1" />
+                    <Skeleton className="h-12 w-full mt-1" />
+                    <Skeleton className="h-12 w-full mt-1" />
+                </div>
+            </CardContent>
+        </Card>
+      )}
 
       {isMounted && (
         <>
