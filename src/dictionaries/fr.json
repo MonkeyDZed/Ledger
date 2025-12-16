@@ -1,0 +1,376 @@
+
+{
+    "loginPage": {
+        "title": "Accès",
+        "description": "Entrez vos identifiants pour accéder à votre espace",
+        "usernameLabel": "Nom d'utilisateur",
+        "usernamePlaceholder": "votrenom",
+        "passwordLabel": "Mot de passe",
+        "forgotPasswordLink": "Mot de passe oublié?",
+        "loginButton": "Se connecter",
+        "illustrationAlt": "Illustration d'un grand livre comptable"
+    },
+    "dashboard": {
+        "suppliers": "Fournisseurs",
+        "pieces": "Pièces",
+        "totalDebts": "Créances totales",
+        "lastSync": "Dernière synchro",
+        "upToDate": "À jour",
+        "quickActions": "Actions Rapides",
+        "addSupplier": "Ajout Fournisseur",
+        "newPiece": "Nouvelle Pièce",
+        "newPayment": "Nouveau Versement",
+        "export": "Exporter",
+        "recentSuppliers": "Fournisseurs Récents",
+        "seeAll": "Voir tout",
+        "supplierName": "Nom",
+        "wilaya": "Wilaya",
+        "totalInvoiced": "Total Facturé",
+        "remaining": "Reste",
+        "action": "Action",
+        "nif": "NIF",
+        "financialOverview": "Vue Financière",
+        "paid": "Payé",
+        "toPay": "Reste à payer",
+        "exportPdf": "Exporter PDF",
+        "exportCsv": "Exporter CSV",
+        "currency": "DZD"
+    },
+    "suppliersPage": {
+        "title": "Fournisseurs",
+        "description": "Gérez la liste de vos fournisseurs et de leurs créances.",
+        "export": "Exporter",
+        "newSupplier": "Nouveau Fournisseur",
+        "currency": "DZD",
+        "table": {
+            "name": "Nom",
+            "phone": "Téléphone",
+            "initialBalance": "Solde Initial",
+            "totalInvoiced": "Total Facturé",
+            "totalPaid": "Payé",
+            "totalDebt": "Créance Totale",
+            "actions": "Actions",
+            "openMenu": "Ouvrir menu",
+            "copyId": "Copier ID",
+            "viewDetails": "Voir la situation",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "filterPlaceholder": "Filtrer par nom...",
+            "noResults": "Aucun résultat.",
+            "previous": "Précédent",
+            "next": "Suivant"
+        },
+        "form": {
+            "addTitle": "Ajouter un nouveau fournisseur",
+            "addDescription": "Remplissez les informations ci-dessous pour créer un nouveau fournisseur.",
+            "editTitle": "Modifier le fournisseur",
+            "editDescription": "Mettez à jour les informations du fournisseur.",
+            "autoFill": "Remplissage auto",
+            "nameLabel": "Nom du Fournisseur",
+            "namePlaceholder": "Ex: Tech Solutions Inc.",
+            "wilayaLabel": "Wilaya",
+            "wilayaPlaceholder": "Ex: Alger",
+            "phoneLabel": "Téléphone",
+            "phonePlaceholder": "Ex: 0555-123-456",
+            "nifLabel": "NIF",
+            "nifPlaceholder": "Numéro d'Identification Fiscale",
+            "bankInfoLabel": "Informations Bancaires",
+            "bankInfoPlaceholder": "RIB ou autre",
+            "initialBalanceLabel": "Solde Initial (DZD)",
+            "notesLabel": "Notes",
+            "notesPlaceholder": "Ajouter des notes sur le fournisseur...",
+            "cancelButton": "Annuler",
+            "saveButton": "Enregistrer",
+            "savingButton": "Enregistrement...",
+            "saveChangesButton": "Sauvegarder",
+            "toast": {
+                "success": {
+                    "title": "Fournisseur enregistré",
+                    "description": "Le fournisseur a été ajouté avec succès:"
+                },
+                "updateSuccess": {
+                    "title": "Fournisseur mis à jour",
+                    "description": "Le fournisseur a été mis à jour avec succès:"
+                },
+                "deleteSuccess": {
+                    "title": "Fournisseur supprimé",
+                    "description": "Le fournisseur a été supprimé avec succès:"
+                },
+                "error": {
+                    "title": "Erreur",
+                    "description": "Une erreur est survenue."
+                }
+            }
+        },
+        "deleteDialog": {
+            "title": "Êtes-vous sûr ?",
+            "description1": "Cette action est irréversible. Elle supprimera définitivement le fournisseur",
+            "description2": "et toutes les pièces associées de nos serveurs.",
+            "cancel": "Annuler",
+            "confirm": "Supprimer"
+        }
+    },
+    "supplierDetailPage": {
+        "header": {
+            "description": "Situation détaillée pour",
+            "backButton": "Retour à la liste",
+            "detailsButton": "Détails",
+            "newPieceButton": "Nouvelle Pièce",
+            "newPaymentButton": "Nouveau Versement"
+        },
+        "stats": {
+            "initialBalance": "Solde Initial",
+            "totalInvoiced": "Total Facturé",
+            "totalPaid": "Total Payé",
+            "totalDebt": "Créance Totale",
+            "debtDescription": "Solde initial + solde des pièces"
+        },
+        "info": {
+            "title": "Informations du Fournisseur",
+            "editButton": "Modifier",
+            "wilaya": "Wilaya",
+            "phone": "Téléphone",
+            "nif": "NIF",
+            "bank": "Banque",
+            "notes": "Notes"
+        },
+        "piecesTable": {
+            "title": "Historique des Pièces",
+            "date": "Date",
+            "type": "Type",
+            "numeroPiece": "N° Pièce",
+            "facture": "Facture",
+            "bl": "BL",
+            "versement": "Versement",
+            "description": "Description",
+            "total": "Total",
+            "paid": "Payé",
+            "remaining": "Reste",
+            "actions": "Actions",
+            "openMenu": "Ouvrir menu",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "noResults": "Aucune pièce trouvée.",
+            "previous": "Précédent",
+            "next": "Suivant"
+        },
+        "currency": "DZD",
+        "form": {
+            "addTitle": "Ajouter une nouvelle pièce",
+            "addDescription": "Saisissez les détails de la facture ou du bon de livraison.",
+            "editTitle": "Modifier la pièce",
+            "editDescription": "Mettez à jour les détails de la pièce.",
+            "addPaymentTitle": "Ajouter un nouveau versement",
+            "addPaymentDescription": "Saisissez les détails du paiement au fournisseur.",
+            "surplusDescription": "Excédent de paiement sur pièce précédente",
+            "dateLabel": "Date de la pièce",
+            "paymentDateLabel": "Date du versement",
+            "datePlaceholder": "Choisir une date",
+            "numeroPieceLabel": "N° de pièce",
+            "numeroPiecePlaceholder": "Ex: F2023-001",
+            "typeLabel": "Type de pièce",
+            "typeInvoice": "Facture",
+            "typeBl": "BL",
+            "typeVersement": "Versement",
+            "totalLabel": "Total Pièce (DZD)",
+            "paidLabel": "Montant Payé (DZD)",
+            "amountPaidLabel": "Montant du Versement (DZD)",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Description de la pièce...",
+            "paymentReasonLabel": "Motif du versement",
+            "paymentReasonPlaceholder": "Motif du versement (optionnel)...",
+            "paymentMethodLabel": "Moyen de paiement",
+            "paymentMethodPlaceholder": "Sélectionner un moyen",
+            "paymentMethods": {
+                "cash": "Espèce",
+                "check": "Chèque",
+                "transfer": "Virement",
+                "draft": "Traite"
+            },
+            "cancelButton": "Annuler",
+            "saveButton": "Enregistrer",
+            "savingButton": "Enregistrement...",
+            "saveChangesButton": "Sauvegarder",
+            "savingChangesButton": "Sauvegarde...",
+            "toast": {
+                "success": {
+                    "title": "Pièce enregistrée",
+                    "description": "La nouvelle pièce a été ajoutée avec succès."
+                },
+                "updateSuccess": {
+                    "title": "Pièce mise à jour",
+                    "description": "La pièce a été mise à jour avec succès."
+                },
+                 "deleteSuccess": {
+                    "title": "Pièce supprimée",
+                    "description": "La pièce a été supprimée avec succès."
+                },
+                "error": {
+                    "title": "Erreur",
+                    "description": "Une erreur est survenue."
+                }
+            }
+        },
+        "deleteDialog": {
+            "title": "Êtes-vous sûr ?",
+            "description": "Cette action est irréversible. Elle supprimera définitivement la pièce.",
+            "cancel": "Annuler",
+            "confirm": "Supprimer"
+        }
+    },
+    "piecesPage": {
+        "title": "Pièces",
+        "description": "Consultez et gérez toutes les pièces enregistrées.",
+        "totalBilled": "Total Facturé",
+        "totalPaid": "Total Payé",
+        "totalRemaining": "Total Restant",
+        "currency": "DZD",
+        "table": {
+            "supplier": "Fournisseur",
+            "date": "Date",
+            "numeroPiece": "N° Pièce",
+            "type": "Type",
+            "typeAll": "Toutes",
+            "typeInvoice": "Facture",
+            "typeBl": "BL",
+            "typeVersement": "Versement",
+            "facture": "Facture",
+            "bl": "BL",
+            "versement": "Versement",
+            "description": "Description",
+            "total": "Total",
+            "paid": "Payé",
+            "remaining": "Reste",
+            "actions": "Actions",
+            "openMenu": "Ouvrir menu",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "filterPlaceholder": "Filtrer par fournisseur...",
+            "noResults": "Aucun résultat.",
+            "previous": "Précédent",
+            "next": "Suivant",
+            "dateFilter": {
+                "title": "Filtrer par date",
+                "all": "Toutes les dates",
+                "today": "Aujourd'hui",
+                "yesterday": "Hier",
+                "thisMonth": "Ce mois-ci",
+                "custom": "Personnalisé...",
+                "apply": "Appliquer"
+            }
+        }
+    },
+    "reportsPage": {
+        "title": "Rapports Financiers",
+        "description": "Analyse détaillée de vos relations fournisseurs",
+        "exportPdf": "Exporter PDF",
+        "stats": {
+            "totalDebts": "Total Créances",
+            "totalDebtsSubtitle": "Dette totale",
+            "activeSuppliers": "Fournisseurs Actifs",
+            "activeSuppliersSubtitle": "Partenaires enregistrés",
+            "avgDebt": "Créance Moyenne",
+            "avgDebtSubtitle": "Par fournisseur",
+            "transactionsThisMonth": "Transactions ce Mois",
+            "transactionsThisMonthSubtitle": "Factures et paiements"
+        },
+        "reportTypes": {
+            "creances": {
+                "title": "État des Créances",
+                "desc": "Vue d'ensemble des dettes par fournisseur"
+            },
+            "transactions": {
+                "title": "Évolution Financière",
+                "desc": "Historique des entrées et sorties"
+            },
+            "paiements": {
+                "title": "Analyse des Paiements",
+                "desc": "Répartition par moyens de paiement"
+            }
+        },
+        "creancesReport": {
+            "title": "Créances par Fournisseur",
+            "tooltipCreance": "Créance",
+            "tooltipSupplier": "Fournisseur",
+            "detailTitle": "Détail des Créances",
+            "table": {
+                "supplier": "Fournisseur",
+                "wilaya": "Wilaya",
+                "initialBalance": "Solde Initial",
+                "totalInvoiced": "Total Facturé",
+                "totalPaid": "Total Payé",
+                "totalDebt": "Créance Totale",
+                "totals": "Totaux"
+            }
+        },
+        "transactionsReport": {
+            "period": "Période d'analyse:",
+            "thisMonth": "Ce mois-ci",
+            "last3Months": "3 derniers mois",
+            "last6Months": "6 derniers mois",
+            "thisYear": "Cette année",
+            "title": "Évolution Entrées vs Sorties",
+            "inflow": "Entrées (Factures/BL)",
+            "outflow": "Sorties (Paiements)",
+            "recentTitle": "Transactions Récentes",
+            "week": "Semaine"
+        },
+        "paymentsReport": {
+            "title": "Répartition par Moyen de Paiement",
+            "percentage": "Pourcentage",
+            "detailTitle": "Détail des Montants",
+            "ofTotal": "du total",
+            "totalPayments": "Total des Paiements"
+        },
+        "paymentMethods": {
+            "espece": "Espèce",
+            "cheque": "Chèque",
+            "virement": "Virement",
+            "traite": "Traite"
+        },
+        "pieceTypes": {
+            "facture": "Facture",
+            "bl": "BL",
+            "versement": "Versement"
+        }
+    },
+     "schemas": {
+        "supplier": {
+            "nameMin": "Le nom doit contenir au moins 2 caractères."
+        },
+        "piece": {
+            "dateRequired": "La date est requise.",
+            "typeRequired": "Le type est requis.",
+            "totalPositive": "Le total doit être positif.",
+            "paidPositive": "Le montant payé doit être positif.",
+            "paidExceedsTotal": "Le montant payé ne peut pas dépasser le total de la pièce."
+        }
+    },
+    "settingsPage": {
+        "title": "Paramètres",
+        "description": "Gérez les paramètres de l'application.",
+        "dangerZone": {
+            "title": "Zone de Danger",
+            "description": "Ces actions sont irréversibles et doivent être utilisées avec précaution.",
+            "content": "La suppression de toutes les données effacera l'intégralité des fournisseurs, pièces, et transactions de la base de données. Cette opération est définitive.",
+            "confirmation": "Soyez absolument certain avant de continuer.",
+            "button": "Supprimer toutes les données",
+            "dialog": {
+                "title": "Êtes-vous absolument sûr ?",
+                "description": "Cette action est irréversible. Toutes les données seront définitivement effacées. Voulez-vous vraiment continuer ?",
+                "cancel": "Annuler",
+                "confirm": "Oui, tout supprimer"
+            },
+            "toast": {
+                "success": {
+                    "title": "Données supprimées",
+                    "description": "Toutes les données ont été effacées avec succès."
+                },
+                "error": {
+                    "title": "Erreur de suppression",
+                    "description": "Une erreur est survenue lors de la suppression des données."
+                }
+            }
+        }
+    }
+}

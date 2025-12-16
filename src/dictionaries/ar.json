@@ -1,0 +1,376 @@
+
+{
+    "loginPage": {
+        "title": "تسجيل الدخول",
+        "description": "أدخل بياناتك للوصول إلى حسابك",
+        "usernameLabel": "اسم المستخدم",
+        "usernamePlaceholder": "اسمك",
+        "passwordLabel": "كلمة المرور",
+        "forgotPasswordLink": "هل نسيت كلمة المرور؟",
+        "loginButton": "تسجيل الدخول",
+        "illustrationAlt": "رسم توضيحي لدفتر الأستاذ"
+    },
+    "dashboard": {
+        "suppliers": "الموردون",
+        "pieces": "المستندات",
+        "totalDebts": "إجمالي الديون",
+        "lastSync": "آخر مزامنة",
+        "upToDate": "محدث",
+        "quickActions": "إجراءات سريعة",
+        "addSupplier": "إضافة مورد",
+        "newPiece": "مستند جديد",
+        "newPayment": "دفعة جديدة",
+        "export": "تصدير",
+        "recentSuppliers": "الموردون الجدد",
+        "seeAll": "عرض الكل",
+        "supplierName": "الاسم",
+        "wilaya": "الولاية",
+        "totalInvoiced": "إجمالي الفواتير",
+        "remaining": "المتبقي",
+        "action": "إجراء",
+        "nif": "الرقم التعريفي الجبائي",
+        "financialOverview": "نظرة مالية عامة",
+        "paid": "المدفوع",
+        "toPay": "المتبقي للدفع",
+        "exportPdf": "تصدير PDF",
+        "exportCsv": "تصدير CSV",
+        "currency": "دج"
+    },
+    "suppliersPage": {
+        "title": "الموردون",
+        "description": "إدارة قائمة الموردين وديونهم.",
+        "export": "تصدير",
+        "newSupplier": "مورد جديد",
+        "currency": "دج",
+        "table": {
+            "name": "الاسم",
+            "phone": "الهاتف",
+            "initialBalance": "الرصيد الأولي",
+            "totalInvoiced": "إجمالي الفواتير",
+            "totalPaid": "المدفوع",
+            "totalDebt": "إجمالي الدين",
+            "actions": "الإجراءات",
+            "openMenu": "فتح القائمة",
+            "copyId": "نسخ المعرف",
+            "viewDetails": "عرض التفاصيل",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "filterPlaceholder": "تصفية بالاسم...",
+            "noResults": "لا توجد نتائج.",
+            "previous": "السابق",
+            "next": "التالي"
+        },
+        "form": {
+            "addTitle": "إضافة مورد جديد",
+            "addDescription": "املأ المعلومات أدناه لإنشاء مورد جديد.",
+            "editTitle": "تعديل المورد",
+            "editDescription": "تحديث معلومات المورد.",
+            "autoFill": "ملء تلقائي",
+            "nameLabel": "اسم المورد",
+            "namePlaceholder": "مثال: شركة حلول تقنية",
+            "wilayaLabel": "الولاية",
+            "wilayaPlaceholder": "مثال: الجزائر",
+            "phoneLabel": "الهاتف",
+            "phonePlaceholder": "مثال: 0555-123-456",
+            "nifLabel": "الرقم التعريفي الجبائي",
+            "nifPlaceholder": "الرقم التعريفي الجبائي",
+            "bankInfoLabel": "المعلومات البنكية",
+            "bankInfoPlaceholder": "رقم الحساب البنكي أو غيره",
+            "initialBalanceLabel": "الرصيد الأولي (دج)",
+            "notesLabel": "ملاحظات",
+            "notesPlaceholder": "إضافة ملاحظات حول المورد...",
+            "cancelButton": "إلغاء",
+            "saveButton": "حفظ",
+            "savingButton": "جار الحفظ...",
+            "saveChangesButton": "حفظ التغييرات",
+            "toast": {
+                "success": {
+                    "title": "تم تسجيل المورد",
+                    "description": "تمت إضافة المورد بنجاح:"
+                },
+                "updateSuccess": {
+                    "title": "تم تحديث المورد",
+                    "description": "تم تحديث المورد بنجاح:"
+                },
+                "deleteSuccess": {
+                    "title": "تم حذف المورد",
+                    "description": "تم حذف المورد بنجاح:"
+                },
+                "error": {
+                    "title": "خطأ",
+                    "description": "حدث خطأ ما."
+                }
+            }
+        },
+        "deleteDialog": {
+            "title": "هل أنت متأكد؟",
+            "description1": "هذا الإجراء لا يمكن التراجع عنه. سيؤدي إلى حذف المورد بشكل دائم",
+            "description2": "وجميع المستندات المرتبطة به من خوادمنا.",
+            "cancel": "إلغاء",
+            "confirm": "حذف"
+        }
+    },
+    "supplierDetailPage": {
+        "header": {
+            "description": "الوضع التفصيلي لـ",
+            "backButton": "العودة إلى القائمة",
+            "detailsButton": "التفاصيل",
+            "newPieceButton": "مستند جديد",
+            "newPaymentButton": "دفعة جديدة"
+        },
+        "stats": {
+            "initialBalance": "الرصيد الأولي",
+            "totalInvoiced": "إجمالي الفواتير",
+            "totalPaid": "إجمالي المدفوعات",
+            "totalDebt": "إجمالي الدين",
+            "debtDescription": "الرصيد الأولي + رصيد المستندات"
+        },
+        "info": {
+            "title": "معلومات المورد",
+            "editButton": "تعديل",
+            "wilaya": "الولاية",
+            "phone": "الهاتف",
+            "nif": "الرقم التعريفي الجبائي",
+            "bank": "البنك",
+            "notes": "ملاحظات"
+        },
+        "piecesTable": {
+            "title": "سجل المستندات",
+            "date": "التاريخ",
+            "type": "النوع",
+            "numeroPiece": "رقم المستند",
+            "facture": "فاتورة",
+            "bl": "وصل تسليم",
+            "versement": "دفعة",
+            "description": "الوصف",
+            "total": "الإجمالي",
+            "paid": "المدفوع",
+            "remaining": "المتبقي",
+            "actions": "الإجراءات",
+            "openMenu": "فتح القائمة",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "noResults": "لم يتم العثور على أي مستندات.",
+            "previous": "السابق",
+            "next": "التالي"
+        },
+        "currency": "دج",
+        "form": {
+            "addTitle": "إضافة مستند جديد",
+            "addDescription": "أدخل تفاصيل الفاتورة أو وصل التسليم.",
+            "editTitle": "تعديل المستند",
+            "editDescription": "تحديث تفاصيل المستند.",
+            "addPaymentTitle": "إضافة دفعة جديدة",
+            "addPaymentDescription": "أدخل تفاصيل الدفعة للمورد.",
+            "surplusDescription": "فائض الدفع من مستند سابق",
+            "dateLabel": "تاريخ المستند",
+            "paymentDateLabel": "تاريخ الدفعة",
+            "datePlaceholder": "اختر تاريخًا",
+            "numeroPieceLabel": "رقم المستند",
+            "numeroPiecePlaceholder": "مثال: F2023-001",
+            "typeLabel": "نوع المستند",
+            "typeInvoice": "فاتورة",
+            "typeBl": "وصل تسليم",
+            "typeVersement": "دفعة",
+            "totalLabel": "إجمالي المستند (دج)",
+            "paidLabel": "المبلغ المدفوع (دج)",
+            "amountPaidLabel": "المبلغ المدفوع (دج)",
+            "descriptionLabel": "الوصف",
+            "descriptionPlaceholder": "وصف المستند...",
+            "paymentReasonLabel": "سبب الدفع",
+            "paymentReasonPlaceholder": "سبب الدفع (اختياري)...",
+            "paymentMethodLabel": "طريقة الدفع",
+            "paymentMethodPlaceholder": "اختر طريقة",
+            "paymentMethods": {
+                "cash": "نقداً",
+                "check": "شيك",
+                "transfer": "تحويل بنكي",
+                "draft": "سفتجة"
+            },
+            "cancelButton": "إلغاء",
+            "saveButton": "حفظ",
+            "savingButton": "جار الحفظ...",
+            "saveChangesButton": "حفظ التغييرات",
+            "savingChangesButton": "جار الحفظ...",
+            "toast": {
+                "success": {
+                    "title": "تم تسجيل المستند",
+                    "description": "تمت إضافة المستند الجديد بنجاح."
+                },
+                 "updateSuccess": {
+                    "title": "تم تحديث المستند",
+                    "description": "تم تحديث المستند بنجاح."
+                },
+                "deleteSuccess": {
+                    "title": "تم حذف المستند",
+                    "description": "تم حذف المستند بنجاح."
+                },
+                 "error": {
+                    "title": "خطأ",
+                    "description": "حدث خطأ ما."
+                }
+            }
+        },
+        "deleteDialog": {
+            "title": "هل أنت متأكد؟",
+            "description": "هذا الإجراء لا يمكن التراجع عنه. سيؤدي إلى حذف المستند بشكل دائم.",
+            "cancel": "إلغاء",
+            "confirm": "حذف"
+        }
+    },
+    "piecesPage": {
+        "title": "المستندات",
+        "description": "استعراض وإدارة جميع المستندات المسجلة.",
+        "totalBilled": "إجمالي الفواتير",
+        "totalPaid": "إجمالي المدفوعات",
+        "totalRemaining": "إجمالي المتبقي",
+        "currency": "دج",
+        "table": {
+            "supplier": "المورد",
+            "date": "التاريخ",
+            "numeroPiece": "رقم المستند",
+            "type": "النوع",
+            "typeAll": "الكل",
+            "typeInvoice": "فاتورة",
+            "typeBl": "وصل تسليم",
+            "typeVersement": "دفعة",
+            "facture": "فاتورة",
+            "bl": "وصل تسليم",
+            "versement": "دفعة",
+            "description": "الوصف",
+            "total": "الإجمالي",
+            "paid": "المدفوع",
+            "remaining": "المتبقي",
+            "actions": "الإجراءات",
+            "openMenu": "فتح القائمة",
+            "edit": "تعديل",
+            "delete": "حذف",
+            "filterPlaceholder": "تصفية حسب المورد...",
+            "noResults": "لا توجد نتائج.",
+            "previous": "السابق",
+            "next": "التالي",
+            "dateFilter": {
+                "title": "تصفية بالتاريخ",
+                "all": "كل التواريخ",
+                "today": "اليوم",
+                "yesterday": "أمس",
+                "thisMonth": "هذا الشهر",
+                "custom": "مخصص...",
+                "apply": "تطبيق"
+            }
+        }
+    },
+    "reportsPage": {
+        "title": "تقارير مالية",
+        "description": "تحليل مفصل لعلاقاتك مع الموردين",
+        "exportPdf": "تصدير PDF",
+        "stats": {
+            "totalDebts": "إجمالي الديون",
+            "totalDebtsSubtitle": "الدين الإجمالي",
+            "activeSuppliers": "الموردون النشطون",
+            "activeSuppliersSubtitle": "الشركاء المسجلون",
+            "avgDebt": "متوسط الدين",
+            "avgDebtSubtitle": "لكل مورد",
+            "transactionsThisMonth": "معاملات هذا الشهر",
+            "transactionsThisMonthSubtitle": "فواتير ومدفوعات"
+        },
+        "reportTypes": {
+            "creances": {
+                "title": "حالة الديون",
+                "desc": "نظرة عامة على الديون لكل مورد"
+            },
+            "transactions": {
+                "title": "التطور المالي",
+                "desc": "سجل الإيرادات والمصروفات"
+            },
+            "paiements": {
+                "title": "تحليل المدفوعات",
+                "desc": "التوزيع حسب طرق الدفع"
+            }
+        },
+        "creancesReport": {
+            "title": "الديون حسب المورد",
+            "tooltipCreance": "الدين",
+            "tooltipSupplier": "المورد",
+            "detailTitle": "تفاصيل الديون",
+            "table": {
+                "supplier": "المورد",
+                "wilaya": "الولاية",
+                "initialBalance": "الرصيد الأولي",
+                "totalInvoiced": "إجمالي الفواتير",
+                "totalPaid": "إجمالي المدفوعات",
+                "totalDebt": "إجمالي الدين",
+                "totals": "المجموع"
+            }
+        },
+        "transactionsReport": {
+            "period": "فترة التحليل:",
+            "thisMonth": "هذا الشهر",
+            "last3Months": "آخر 3 أشهر",
+            "last6Months": "آخر 6 أشهر",
+            "thisYear": "هذه السنة",
+            "title": "تطور الإيرادات مقابل المصروفات",
+            "inflow": "الإيرادات (فواتير/وصولات)",
+            "outflow": "المصروفات (دفعات)",
+            "recentTitle": "المعاملات الأخيرة",
+            "week": "أسبوع"
+        },
+        "paymentsReport": {
+            "title": "التوزيع حسب طريقة الدفع",
+            "percentage": "النسبة المئوية",
+            "detailTitle": "تفاصيل المبالغ",
+            "ofTotal": "من الإجمالي",
+            "totalPayments": "إجمالي المدفوعات"
+        },
+        "paymentMethods": {
+            "espece": "نقداً",
+            "cheque": "شيك",
+            "virement": "تحويل بنكي",
+            "traite": "سفتجة"
+        },
+        "pieceTypes": {
+            "facture": "فاتورة",
+            "bl": "وصل تسليم",
+            "versement": "دفعة"
+        }
+    },
+     "schemas": {
+        "supplier": {
+            "nameMin": "يجب أن يحتوي الاسم على حرفين على الأقل."
+        },
+        "piece": {
+            "dateRequired": "التاريخ مطلوب.",
+            "typeRequired": "النوع مطلوب.",
+            "totalPositive": "يجب أن يكون الإجمالي موجبًا.",
+            "paidPositive": "يجب أن يكون المبلغ المدفوع موجبًا.",
+            "paidExceedsTotal": "لا يمكن للمبلغ المدفوع أن يتجاوز إجمالي القطعة."
+        }
+    },
+    "settingsPage": {
+        "title": "الإعدادات",
+        "description": "إدارة إعدادات التطبيق.",
+        "dangerZone": {
+            "title": "منطقة الخطر",
+            "description": "هذه الإجراءات لا يمكن التراجع عنها ويجب استخدامها بحذر.",
+            "content": "سيؤدي مسح جميع البيانات إلى محو جميع الموردين والقطع والمعاملات من قاعدة البيانات. هذه العملية نهائية.",
+            "confirmation": "كن متأكدًا تمامًا قبل المتابعة.",
+            "button": "مسح جميع البيانات",
+            "dialog": {
+                "title": "هل أنت متأكد تمامًا؟",
+                "description": "هذا الإجراء لا يمكن التراجع عنه. سيتم مسح جميع البيانات بشكل دائم. هل تريد حقًا المتابعة؟",
+                "cancel": "إلغاء",
+                "confirm": "نعم، امسح كل شيء"
+            },
+            "toast": {
+                "success": {
+                    "title": "تم مسح البيانات",
+                    "description": "تم مسح جميع البيانات بنجاح."
+                },
+                "error": {
+                    "title": "خطأ في المسح",
+                    "description": "حدث خطأ أثناء مسح البيانات."
+                }
+            }
+        }
+    }
+}

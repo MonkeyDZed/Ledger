@@ -1,0 +1,102 @@
+# Rapport sur l'Application de Gestion "LedgerSync Local"
+
+## 1. Objectif de l'Application
+
+LedgerSync Local est une application web conçue pour aider les petites et moyennes entreprises à gérer de manière simple et efficace leurs relations financières avec leurs fournisseurs. L'objectif principal est de centraliser le suivi des factures, des bons de livraison (BL), des paiements (versements) et de maintenir une vision claire et à jour des créances pour chaque fournisseur.
+
+## 2. Structure et Technologies
+
+- **Framework**: Next.js (avec App Router)
+- **Langage**: TypeScript
+- **Style**: Tailwind CSS et composants ShadCN/UI
+- **Base de données**: SQLite (pour un fonctionnement local et simple)
+- **Internationalisation**: L'application est bilingue (Français/Arabe).
+
+## 3. Fonctionnalités Principales
+
+### 3.1. Gestion des Fournisseurs (CRUD)
+
+C'est le cœur de l'application. L'utilisateur peut :
+- **Créer**: Ajouter un nouveau fournisseur avec des informations clés :
+    - Nom (obligatoire)
+    - Wilaya (province)
+    - Téléphone
+    - NIF (Numéro d'Identification Fiscale)
+    - Informations bancaires
+    - **Solde Initial**: C'est une fonctionnalité clé. Il représente la dette (ou le crédit) existante envers le fournisseur avant de commencer à utiliser l'application. Un solde positif signifie que l'on doit de l'argent au fournisseur.
+    - Notes.
+- **Lire**: Consulter la liste de tous les fournisseurs sur la page "Fournisseurs". Cette page affiche un tableau récapitulatif avec le nom, le solde initial, le total facturé, le total payé et la **créance totale** (calculée).
+- **Mettre à jour**: Modifier les informations d'un fournisseur existant.
+- **Supprimer**: Supprimer un fournisseur. Cette action supprime également toutes les "pièces" (factures, BL, versements) qui lui sont associées.
+
+### 3.2. Gestion des Pièces (Factures, BL, Versements)
+
+Une "pièce" est une transaction enregistrée pour un fournisseur. Il en existe trois types :
+- **FACTURE**: Augmente la dette envers le fournisseur.
+- **BL (Bon de Livraison)**: Augmente également la dette.
+- **VERSEMENT**: Diminue la dette (c'est un paiement effectué au fournisseur).
+
+Pour chaque pièce, on enregistre :
+- La date
+- Le type (FACTURE, BL, VERSEMENT)
+- **Total de la pièce**: Montant total de la facture/BL (n'est pas applicable pour un versement).
+- **Montant payé**: Pour une facture/BL, c'est le paiement partiel ou total effectué au moment de l'enregistrement. Pour un versement, c'est le montant du paiement.
+- **Reste à payer (par pièce)**: Calculé automatiquement (`Total - Montant payé`).
+- Description et moyen de paiement (pour les versements).
+
+### 3.3. Calcul des Créances
+
+La logique de calcul de la dette totale envers un fournisseur est la suivante :
+
+`Créance Totale = Solde Initial + Σ(Total des Factures/BL) - Σ(Montant payé sur les Factures/BL) - Σ(Montant des Versements)`
+
+Cette formule est appliquée dynamiquement dans toute l'application pour garantir que les soldes sont toujours corrects.
+
+### 3.4. Interface Utilisateur et Navigation
+
+- **Tableau de bord**: Page d'accueil après connexion. Affiche des statistiques clés (nombre de fournisseurs, total des créances, etc.), des actions rapides (ajout rapide de fournisseur, pièce ou versement) et un tableau des fournisseurs les plus actifs récemment.
+- **Page Fournisseurs**: Tableau de tous les fournisseurs avec la possibilité de filtrer et trier.
+- **Page Détail Fournisseur**: Vue complète d'un seul fournisseur. Affiche ses informations, des statistiques détaillées (solde initial, total facturé, total payé, créance totale) et un tableau de toutes ses pièces. C'est à partir de cette page qu'on peut ajouter/modifier/supprimer des pièces pour ce fournisseur.
+- **Page Pièces**: Vue globale de toutes les pièces de tous les fournisseurs, avec des options de filtrage avancées (par fournisseur, par type, par plage de dates).
+
+---
+
+## Propositions pour la Page "Rapports"
+
+Maintenant, en se basant sur cette structure, voici quelques types de rapports qui seraient très utiles pour l'utilisateur, avec des idées sur comment les présenter :
+
+### Idée 1 : Rapport "État des Créances par Fournisseur"
+
+- **Objectif**: Donner une vue d'ensemble claire de la dette pour chaque fournisseur à un instant T.
+- **Présentation**:
+    - Un tableau simple et exportable (PDF/CSV).
+    - **Colonnes**: Nom du fournisseur, Solde Initial, Total Facturé, Total Payé, **Créance Finale**.
+    - **Visualisation**: Un graphique à barres ou un diagramme circulaire (camembert) en haut de la page montrant la répartition des dettes entre les 5 principaux fournisseurs.
+    - **Filtres**: Possibilité de filtrer par Wilaya.
+
+### Idée 2 : Rapport "Historique des Transactions"
+
+- **Objectif**: Permettre de suivre l'évolution des transactions sur une période donnée.
+- **Présentation**:
+    - Un sélecteur de plage de dates (ex: "Ce mois-ci", "Le trimestre dernier", "Personnalisé").
+    - **Vue principale**: Un graphique en courbes montrant deux lignes :
+        1.  La somme des "entrées" (factures + BL) par jour/semaine/mois.
+        2.  La somme des "sorties" (versements) par jour/semaine/mois.
+    - **Tableau détaillé**: En dessous du graphique, la liste de toutes les transactions de la période sélectionnée, avec des colonnes comme Date, Fournisseur, Type, Montant.
+    - **Filtres**: Filtrer par fournisseur ou par type de transaction (Facture, BL, Versement).
+
+### Idée 3 : Rapport "Analyse des Paiements"
+
+- **Objectif**: Aider l'utilisateur à analyser ses habitudes de paiement.
+- **Présentation**:
+    - **Visualisation**: Un diagramme circulaire montrant la répartition des paiements par **moyen de paiement** (Espèce, Chèque, Virement, Traite) sur une période donnée.
+    - **Statistiques clés**:
+        - Montant total payé sur la période.
+        - Délai moyen de paiement des factures (plus complexe, mais très utile).
+    - **Tableau**: Liste des versements effectués, avec possibilité de trier par montant ou par date.
+
+---
+
+Qu'en pensez-vous ? Ces propositions vous semblent-elles pertinentes ? Nous pouvons commencer par l'une d'entre elles, par exemple le **Rapport "État des Créances par Fournisseur"**, qui semble être le plus fondamental.
+
+J'attends votre approbation pour commencer à coder.
